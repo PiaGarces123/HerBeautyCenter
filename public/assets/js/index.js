@@ -143,13 +143,14 @@ function initFormHandlers() {
  */
 function initAuthModals() {
     const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
     const loginModal = document.getElementById('loginModal');
     const registerModal = document.getElementById('registerModal');
     const switchToRegister = document.getElementById('switchToRegister');
     const switchToLogin = document.getElementById('switchToLogin');
     const closeBtns = document.querySelectorAll('[data-close-modal]');
 
-    if (!loginBtn || !loginModal || !registerModal) return;
+    if (!loginModal || !registerModal) return;
 
     const openModal = (modal) => {
         modal.classList.add('modal--open');
@@ -161,32 +162,60 @@ function initAuthModals() {
         document.body.style.overflow = "";
     };
 
-    // Abrir Login desde el header
-    loginBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        openModal(loginModal);
-    });
+    // Helper para obtener la URL base de la API
+    const getApiUrl = (endpoint) => {
+        if (window.APP_CONFIG && window.APP_CONFIG.apiUrl) {
+            return `${window.APP_CONFIG.apiUrl}/${endpoint}`;
+        }
+        // Fallback dinámico según ruta actual
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('/public/')) {
+            const prefix = currentPath.substring(0, currentPath.indexOf('/public/') + 8);
+            return `${prefix}api/${endpoint}`;
+        }
+        return `/api/${endpoint}`;
+    };
+
+    // Abrir Login desde el header (desktop)
+    if (loginBtn) {
+        loginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal(loginModal);
+        });
+    }
+
+    // Abrir Login desde menú móvil
+    if (mobileLoginBtn) {
+        mobileLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu) mobileMenu.classList.remove('mobile-menu--open');
+            openModal(loginModal);
+        });
+    }
 
     // Cambiar a Registro
-    switchToRegister.addEventListener('click', (e) => {
-        e.preventDefault();
-        closeModal(loginModal);
-        // Pequeño timeout para animación fluida
-        setTimeout(() => openModal(registerModal), 300);
-    });
+    if (switchToRegister) {
+        switchToRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeModal(loginModal);
+            setTimeout(() => openModal(registerModal), 250);
+        });
+    }
 
     // Cambiar a Login
-    switchToLogin.addEventListener('click', (e) => {
-        e.preventDefault();
-        closeModal(registerModal);
-        setTimeout(() => openModal(loginModal), 300);
-    });
+    if (switchToLogin) {
+        switchToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeModal(registerModal);
+            setTimeout(() => openModal(loginModal), 250);
+        });
+    }
 
     // Botones y Overlay de cerrar
     closeBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            // Si el click fue en el overlay y no en su contenido, o si fue en el botón X
-            if(e.target === btn || btn.classList.contains('modal__close') || btn.closest('.modal__close')) {
+            if (e.target === btn || btn.classList.contains('modal__close') || btn.closest('.modal__close') || btn.hasAttribute('data-close-modal')) {
                 const modal = btn.closest('.modal');
                 if (modal) closeModal(modal);
             }
@@ -198,25 +227,41 @@ function initAuthModals() {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.innerText : 'Ingresar';
+
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
-            
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Ingresando...';
+            }
+
             try {
-                const response = await fetch('/public/api/login', {
+                const response = await fetch(getApiUrl('login'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
-                
+
                 const result = await response.json();
                 if (result.success) {
                     window.location.reload();
                 } else {
-                    alert(result.message || 'Error al iniciar sesión');
+                    alert(result.message || 'Error al iniciar sesión.');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = originalBtnText;
+                    }
                 }
             } catch (error) {
-                console.error(error);
-                alert('Ocurrió un error en la conexión.');
+                console.error('Error login:', error);
+                alert('Ocurrió un error en la conexión. Por favor intentá nuevamente.');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalBtnText;
+                }
             }
         });
     }
@@ -226,26 +271,47 @@ function initAuthModals() {
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
+            const submitBtn = registerForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.innerText : 'Registrarse';
+
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
-            
+
+            if (password.length < 8) {
+                alert('La contraseña debe tener al menos 8 caracteres.');
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Registrando...';
+            }
+
             try {
-                const response = await fetch('/public/api/register', {
+                const response = await fetch(getApiUrl('register'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, password })
                 });
-                
+
                 const result = await response.json();
                 if (result.success) {
                     window.location.reload();
                 } else {
-                    alert(result.message || 'Error al registrarse');
+                    alert(result.message || 'Error al registrarse.');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = originalBtnText;
+                    }
                 }
             } catch (error) {
-                console.error(error);
-                alert('Ocurrió un error en la conexión.');
+                console.error('Error registro:', error);
+                alert('Ocurrió un error en la conexión. Por favor intentá nuevamente.');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalBtnText;
+                }
             }
         });
     }

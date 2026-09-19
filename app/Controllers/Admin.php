@@ -12,7 +12,7 @@ class Admin extends BaseController
     {
         $session = session();
         if (!$session->get('usuario_id') || $session->get('rol') !== 'admin') {
-            return redirect()->to('/login')->with('error', 'Acceso restringido.');
+            return redirect()->to('/admin/login')->with('error', 'Acceso restringido.');
         }
         return null;
     }

@@ -52,12 +52,24 @@ if (!function_exists('esc')) {
                 <a class="header-link" href="#contacto">Contacto</a>
             </nav>
 
-            <!-- Trailing Profile Icon -->
+            <!-- Trailing Profile / User Section -->
             <?php if (function_exists('session') && session()->get('usuario_id')): ?>
-                <a href="<?= session()->get('rol') === 'admin' ? base_url('admin') : '#' ?>" aria-label="Perfil" class="header-profile-btn btn btn--outline" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;">
-                    <span class="material-symbols-outlined">person</span>
-                    Ver Panel
-                </a>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <?php if (session()->get('rol') === 'admin'): ?>
+                        <a href="<?= base_url('admin') ?>" aria-label="Panel Admin" class="header-profile-btn btn btn--outline" style="text-decoration: none; display: flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.9rem; font-size: 0.85rem;">
+                            <span class="material-symbols-outlined" style="font-size: 1.15rem;">dashboard</span>
+                            <span>Panel Admin</span>
+                        </a>
+                    <?php else: ?>
+                        <div class="header-user-badge" style="display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.8rem; background: var(--color-surface-container-high); border-radius: 9999px; font-size: 0.85rem; font-weight: 500;">
+                            <span class="material-symbols-outlined" style="font-size: 1.15rem; color: var(--color-primary);">account_circle</span>
+                            <span><?= esc(explode(' ', session()->get('usuario_nombre') ?? '')[0]) ?></span>
+                        </div>
+                    <?php endif; ?>
+                    <a href="<?= base_url('logout') ?>" class="btn btn--outline" title="Cerrar sesión" style="text-decoration: none; display: flex; align-items: center; justify-content: center; padding: 0.45rem 0.6rem; border-color: var(--color-outline-variant);" aria-label="Cerrar sesión">
+                        <span class="material-symbols-outlined" style="font-size: 1.15rem; color: var(--color-on-surface-variant);">logout</span>
+                    </a>
+                </div>
             <?php else: ?>
                 <button aria-label="Perfil" class="header-profile-btn" id="loginBtn">
                     <span class="material-symbols-outlined">person</span>
@@ -79,6 +91,27 @@ if (!function_exists('esc')) {
                 <li><a class="mobile-menu__link" href="#profesionales">Profesionales</a></li>
                 <li><a class="mobile-menu__link" href="#nosotros">Nosotros</a></li>
                 <li><a class="mobile-menu__link" href="#contacto">Contacto</a></li>
+                <li style="margin-top: 1rem; border-top: 1px solid var(--color-outline-variant); padding-top: 1rem;">
+                    <?php if (function_exists('session') && session()->get('usuario_id')): ?>
+                        <?php if (session()->get('rol') === 'admin'): ?>
+                            <a class="mobile-menu__link" href="<?= base_url('admin') ?>" style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-primary); font-weight: 600;">
+                                <span class="material-symbols-outlined">dashboard</span> Panel Admin
+                            </a>
+                        <?php else: ?>
+                            <div style="padding: 0.4rem 0; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; color: var(--color-on-surface);">
+                                <span class="material-symbols-outlined" style="color: var(--color-primary);">account_circle</span>
+                                <?= esc(session()->get('usuario_nombre')) ?>
+                            </div>
+                        <?php endif; ?>
+                        <a class="mobile-menu__link" href="<?= base_url('logout') ?>" style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-error); font-size: 0.9rem; margin-top: 0.5rem;">
+                            <span class="material-symbols-outlined">logout</span> Cerrar Sesión
+                        </a>
+                    <?php else: ?>
+                        <button class="btn btn--primary" id="mobileLoginBtn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span class="material-symbols-outlined">person</span> Iniciar Sesión / Registro
+                        </button>
+                    <?php endif; ?>
+                </li>
             </ul>
         </nav>
     </div>
@@ -510,7 +543,8 @@ if (!function_exists('esc')) {
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="regPassword">Contraseña</label>
-                    <input class="form-input" id="regPassword" type="password" required placeholder="••••••••">
+                    <input class="form-input" id="regPassword" type="password" required minlength="8" placeholder="Mínimo 8 caracteres">
+                    <small style="font-size: 0.75rem; color: var(--color-on-surface-variant); margin-top: 0.25rem; display: block;">Mínimo 8 caracteres</small>
                 </div>
                 <button type="submit" class="btn btn--primary modal__btn">Registrarse</button>
                 <p class="modal__switch">¿Ya tienes cuenta? <a href="#" id="switchToLogin">Inicia sesión</a></p>
@@ -519,6 +553,12 @@ if (!function_exists('esc')) {
     </div>
 
     <!-- Custom JS -->
+    <script>
+        window.APP_CONFIG = {
+            baseUrl: '<?= rtrim(base_url(), '/') ?>',
+            apiUrl: '<?= rtrim(base_url('api'), '/') ?>'
+        };
+    </script>
     <script src="public/assets/js/index.js" defer></script>
 </body>
 

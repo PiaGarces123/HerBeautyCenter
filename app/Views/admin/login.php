@@ -14,14 +14,14 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/public/assets/css/styles.css" />
-    <link rel="stylesheet" href="/public/assets/css/admin.css" />
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/styles.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/admin.css') ?>" />
 </head>
 <body>
 
 <div class="admin-login-page">
     <div class="admin-login-card">
-        <img src="/public/assets/media/logoText.jpeg" alt="Her Beauty Center" class="admin-login-card__logo" />
+        <img src="<?= base_url('public/assets/media/logoText.jpeg') ?>" alt="Her Beauty Center" class="admin-login-card__logo" />
         <h1 class="admin-login-card__title">Panel Administrativo</h1>
         <p class="admin-login-card__subtitle">Ingresá con tus credenciales para continuar</p>
 
@@ -32,7 +32,7 @@
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="/admin/login">
+        <form method="POST" action="<?= base_url('admin/login') ?>">
             <?= csrf_field() ?>
 
             <div class="form-group">
@@ -53,7 +53,7 @@
         </form>
 
         <p style="margin-top: 1.5rem; font-size: 0.78rem; color: var(--color-on-surface-variant);">
-            <a href="/" style="color: var(--color-primary);">← Volver al sitio web</a>
+            <a href="<?= base_url() ?>" style="color: var(--color-primary);">← Volver al sitio web</a>
         </p>
     </div>
 </div>

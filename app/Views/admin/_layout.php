@@ -15,12 +15,12 @@ $nombre     = $usuario['nombre'] ?? 'Administradora';
 $avatar     = $usuario['avatar'] ?? null;
 
 $navItems = [
-    'dashboard'     => ['label' => 'Dashboard',      'icon' => 'dashboard',         'href' => '/admin'],
-    'profesionales' => ['label' => 'Profesionales',  'icon' => 'group',             'href' => '/admin/profesionales'],
-    'servicios'     => ['label' => 'Servicios',       'icon' => 'spa',               'href' => '/admin/servicios'],
-    'turnos'        => ['label' => 'Mis Turnos',      'icon' => 'calendar_month',    'href' => '/admin/turnos'],
-    'horarios'      => ['label' => 'Mis Horarios',    'icon' => 'schedule',          'href' => '/admin/horarios'],
-    'perfil'        => ['label' => 'Mi Perfil',       'icon' => 'manage_accounts',   'href' => '/admin/perfil'],
+    'dashboard'     => ['label' => 'Dashboard',      'icon' => 'dashboard',         'href' => base_url('admin')],
+    'profesionales' => ['label' => 'Profesionales',  'icon' => 'group',             'href' => base_url('admin/profesionales')],
+    'servicios'     => ['label' => 'Servicios',       'icon' => 'spa',               'href' => base_url('admin/servicios')],
+    'turnos'        => ['label' => 'Mis Turnos',      'icon' => 'calendar_month',    'href' => base_url('admin/turnos')],
+    'horarios'      => ['label' => 'Mis Horarios',    'icon' => 'schedule',          'href' => base_url('admin/horarios')],
+    'perfil'        => ['label' => 'Mi Perfil',       'icon' => 'manage_accounts',   'href' => base_url('admin/perfil')],
 ];
 ?>
 <!DOCTYPE html>
@@ -36,8 +36,8 @@ $navItems = [
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
 
     <!-- CSS -->
-    <link rel="stylesheet" href="/public/assets/css/styles.css" />
-    <link rel="stylesheet" href="/public/assets/css/admin.css" />
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/styles.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/admin.css') ?>" />
 </head>
 <body class="admin-body">
 
@@ -48,7 +48,7 @@ $navItems = [
     <aside class="admin-sidebar" id="adminSidebar">
         <!-- Brand -->
         <div class="admin-sidebar__brand">
-            <img src="/public/assets/media/logoText.jpeg" alt="Her Beauty Center" class="admin-sidebar__logo" />
+            <img src="<?= base_url('public/assets/media/logoText.jpeg') ?>" alt="Her Beauty Center" class="admin-sidebar__logo" />
             <p class="admin-sidebar__brand-text">Her Beauty Center</p>
             <p class="admin-sidebar__subtitle">Panel de Administración</p>
         </div>
@@ -67,7 +67,7 @@ $navItems = [
             <?php endforeach; ?>
 
             <span class="admin-nav-label" style="margin-top: 0.5rem;">Cuenta</span>
-            <a href="/admin/logout" class="admin-nav-link">
+            <a href="<?= base_url('admin/logout') ?>" class="admin-nav-link">
                 <span class="material-symbols-outlined">logout</span>
                 Cerrar sesión
             </a>
@@ -104,7 +104,7 @@ $navItems = [
                 <h1 class="admin-topbar__title"><?= esc($pageTitle) ?></h1>
             </div>
             <div class="admin-topbar__actions">
-                <a href="/" class="admin-topbar__icon-btn" title="Ver sitio web" target="_blank">
+                <a href="<?= base_url() ?>" class="admin-topbar__icon-btn" title="Ver sitio web" target="_blank">
                     <span class="material-symbols-outlined">open_in_new</span>
                 </a>
             </div>
