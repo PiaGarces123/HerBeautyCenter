@@ -192,4 +192,61 @@ function initAuthModals() {
             }
         });
     });
+
+    // Login Form Submit
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch('/public/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert(result.message || 'Error al iniciar sesión');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Ocurrió un error en la conexión.');
+            }
+        });
+    }
+
+    // Register Form Submit
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            try {
+                const response = await fetch('/public/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert(result.message || 'Error al registrarse');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Ocurrió un error en la conexión.');
+            }
+        });
+    }
 }

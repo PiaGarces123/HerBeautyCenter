@@ -5,6 +5,11 @@ use CodeIgniter\Router\RouteCollection;
 /** @var RouteCollection $routes */
 $routes->get('/', 'Home::index');
 
+// Frontend Auth
+$routes->post('/api/login', 'Auth::login');
+$routes->post('/api/register', 'Auth::register');
+$routes->get('/logout', 'Auth::logout');
+
 // Panel de Administración
 $routes->get('/admin/login',    'Admin::login');
 $routes->post('/admin/login',   'Admin::loginPost');
