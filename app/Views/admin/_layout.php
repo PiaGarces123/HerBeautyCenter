@@ -35,6 +35,9 @@ $navItems = [
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
 
+    <!-- Bootstrap 5.3 CSS -->
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/bootstrap.min.css') ?>" />
+
     <!-- CSS -->
     <link rel="stylesheet" href="<?= base_url('public/assets/css/styles.css') ?>" />
     <link rel="stylesheet" href="<?= base_url('public/assets/css/admin.css') ?>" />
@@ -137,5 +140,8 @@ $navItems = [
             });
         }
     </script>
+
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="<?= base_url('public/assets/js/bootstrap.bundle.min.js') ?>"></script>
 </body>
 </html>

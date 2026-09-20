@@ -1,10 +1,16 @@
 <?php
 // Funciones de compatibilidad por si se accede al archivo fuera de CodeIgniter
 if (!function_exists('base_url')) {
-    function base_url($path = '') { return $path; }
+    function base_url($path = '')
+    {
+        return $path;
+    }
 }
 if (!function_exists('esc')) {
-    function esc($data) { return htmlspecialchars($data ?? '', ENT_QUOTES, 'UTF-8'); }
+    function esc($data)
+    {
+        return htmlspecialchars($data ?? '', ENT_QUOTES, 'UTF-8');
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -25,58 +31,16 @@ if (!function_exists('esc')) {
         href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet" />
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="public/assets/css/styles.css" />
+    <!-- Bootstrap 5.3 CSS -->
+    <link rel="stylesheet" href="public/assets/css/bootstrap.min.css" />
+
+    <!-- Custom CSS (overrides Bootstrap) -->
+    <link rel="stylesheet" href="public/assets/css/styles.css?v=<?= time() ?>" />
 </head>
 
 <body class="site-body">
 
-    <!-- Header / Navigation Bar -->
-    <header class="main-header" id="mainHeader">
-        <div class="header-container">
-            <!-- Mobile Hamburger Button -->
-            <button aria-label="Menu" class="header-menu-btn" id="mobileMenuOpen">
-                <span class="material-symbols-outlined">menu</span>
-            </button>
-
-            <!-- Brand Logo -->
-            <a class="header-logo" href="#">
-                <img src="public/assets/media/logoText.jpeg" alt="Logo Her Beauty Center" class="header-logo__img" />
-            </a>
-
-            <!-- Desktop Nav -->
-            <nav class="header-nav">
-                <a class="header-link" href="#servicios">Servicios</a>
-                <a class="header-link" href="#profesionales">Profesionales</a>
-                <a class="header-link" href="#nosotros">Nosotros</a>
-                <a class="header-link" href="#contacto">Contacto</a>
-            </nav>
-
-            <!-- Trailing Profile / User Section -->
-            <?php if (function_exists('session') && session()->get('usuario_id')): ?>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <?php if (session()->get('rol') === 'admin'): ?>
-                        <a href="<?= base_url('admin') ?>" aria-label="Panel Admin" class="header-profile-btn btn btn--outline" style="text-decoration: none; display: flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.9rem; font-size: 0.85rem;">
-                            <span class="material-symbols-outlined" style="font-size: 1.15rem;">dashboard</span>
-                            <span>Panel Admin</span>
-                        </a>
-                    <?php else: ?>
-                        <div class="header-user-badge" style="display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.8rem; background: var(--color-surface-container-high); border-radius: 9999px; font-size: 0.85rem; font-weight: 500;">
-                            <span class="material-symbols-outlined" style="font-size: 1.15rem; color: var(--color-primary);">account_circle</span>
-                            <span><?= esc(explode(' ', session()->get('usuario_nombre') ?? '')[0]) ?></span>
-                        </div>
-                    <?php endif; ?>
-                    <a href="<?= base_url('logout') ?>" class="btn btn--outline" title="Cerrar sesión" style="text-decoration: none; display: flex; align-items: center; justify-content: center; padding: 0.45rem 0.6rem; border-color: var(--color-outline-variant);" aria-label="Cerrar sesión">
-                        <span class="material-symbols-outlined" style="font-size: 1.15rem; color: var(--color-on-surface-variant);">logout</span>
-                    </a>
-                </div>
-            <?php else: ?>
-                <button aria-label="Perfil" class="header-profile-btn" id="loginBtn">
-                    <span class="material-symbols-outlined">person</span>
-                </button>
-            <?php endif; ?>
-        </div>
-    </header>
+    <?= $this->include('modals/header') ?>
 
     <!-- Mobile Navigation Drawer -->
     <div class="mobile-menu" id="mobileMenu">
@@ -94,21 +58,27 @@ if (!function_exists('esc')) {
                 <li style="margin-top: 1rem; border-top: 1px solid var(--color-outline-variant); padding-top: 1rem;">
                     <?php if (function_exists('session') && session()->get('usuario_id')): ?>
                         <?php if (session()->get('rol') === 'admin'): ?>
-                            <a class="mobile-menu__link" href="<?= base_url('admin') ?>" style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-primary); font-weight: 600;">
+                            <a class="mobile-menu__link" href="<?= base_url('admin') ?>"
+                                style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-primary); font-weight: 600;">
                                 <span class="material-symbols-outlined">dashboard</span> Panel Admin
                             </a>
                         <?php else: ?>
-                            <div style="padding: 0.4rem 0; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; color: var(--color-on-surface);">
-                                <span class="material-symbols-outlined" style="color: var(--color-primary);">account_circle</span>
+                            <div
+                                style="padding: 0.4rem 0; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; color: var(--color-on-surface);">
+                                <span class="material-symbols-outlined"
+                                    style="color: var(--color-primary);">account_circle</span>
                                 <?= esc(session()->get('usuario_nombre')) ?>
                             </div>
                         <?php endif; ?>
-                        <a class="mobile-menu__link" href="<?= base_url('logout') ?>" style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-error); font-size: 0.9rem; margin-top: 0.5rem;">
+                        <a class="mobile-menu__link" href="<?= base_url('logout') ?>"
+                            style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-error); font-size: 0.9rem; margin-top: 0.5rem;">
                             <span class="material-symbols-outlined">logout</span> Cerrar Sesión
                         </a>
                     <?php else: ?>
-                        <button class="btn btn--primary" id="mobileLoginBtn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                            <span class="material-symbols-outlined">person</span> Iniciar Sesión / Registro
+                        <button class="btn btn--primary" id="mobileLoginBtn"
+                            data-bs-toggle="modal" data-bs-target="#loginModal"
+                            style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span class="material-symbols-outlined">login</span> Iniciar Sesión / Registro
                         </button>
                     <?php endif; ?>
                 </li>
@@ -155,32 +125,32 @@ if (!function_exists('esc')) {
             </div>
 
             <!-- Bento Grid -->
-                <?php $isFirstService = true; ?>
-                <?php if (!empty($servicios)): ?>
-                    <?php foreach($servicios as $servicio): ?>
-                        <?php 
-                            $cardClass = $isFirstService ? 'service-card--large' : 'service-card--medium'; 
-                            $isFirstService = false;
-                            $imagen = !empty($servicio['imagen_ruta']) ? base_url($servicio['imagen_ruta']) : base_url('public/assets/media/servicio_default.jpeg');
-                        ?>
-                        <div class="service-card <?= $cardClass ?>">
-                            <img alt="<?= esc($servicio['nombre']) ?>" class="service-card__image" data-alt="<?= esc($servicio['nombre']) ?>"
-                                src="<?= esc($imagen) ?>" />
-                            <div class="service-card__overlay"></div>
-                            <div class="service-card__content">
-                                <h3 class="service-card__title"><?= esc($servicio['nombre']) ?></h3>
-                                <?php if ($cardClass == 'service-card--large'): ?>
-                                    <p class="service-card__text"><?= esc($servicio['descripcion']) ?></p>
-                                <?php endif; ?>
-                                <a class="service-card__link" href="#contacto">
-                                    Ver servicio <span class="material-symbols-outlined">arrow_forward</span>
-                                </a>
-                            </div>
+            <?php $isFirstService = true; ?>
+            <?php if (!empty($servicios)): ?>
+                <?php foreach ($servicios as $servicio): ?>
+                    <?php
+                    $cardClass = $isFirstService ? 'service-card--large' : 'service-card--medium';
+                    $isFirstService = false;
+                    $imagen = !empty($servicio['imagen_ruta']) ? base_url($servicio['imagen_ruta']) : base_url('public/assets/media/servicio_default.jpeg');
+                    ?>
+                    <div class="service-card <?= $cardClass ?>">
+                        <img alt="<?= esc($servicio['nombre']) ?>" class="service-card__image"
+                            data-alt="<?= esc($servicio['nombre']) ?>" src="<?= esc($imagen) ?>" />
+                        <div class="service-card__overlay"></div>
+                        <div class="service-card__content">
+                            <h3 class="service-card__title"><?= esc($servicio['nombre']) ?></h3>
+                            <?php if ($cardClass == 'service-card--large'): ?>
+                                <p class="service-card__text"><?= esc($servicio['descripcion']) ?></p>
+                            <?php endif; ?>
+                            <a class="service-card__link" href="#contacto">
+                                Ver servicio <span class="material-symbols-outlined">arrow_forward</span>
+                            </a>
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <p>No hay servicios disponibles por el momento.</p>
-                <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>No hay servicios disponibles por el momento.</p>
+            <?php endif; ?>
             </div>
         </section>
 
@@ -197,53 +167,53 @@ if (!function_exists('esc')) {
                     técnica, cuidado y un enfoque personalizado.</p>
             </div>
 
-                <?php if (!empty($profesionales)): ?>
-                    <?php foreach($profesionales as $prof): ?>
-                        <?php 
-                            $avatar = !empty($prof['avatar']) ? base_url($prof['avatar']) : base_url('public/assets/media/default_avatar.jpg');
-                        ?>
-                        <div class="pro-card">
-                            <img alt="<?= esc($prof['nombre_completo']) ?> - <?= esc($prof['titulo']) ?>" class="pro-card__image"
-                                src="<?= esc($avatar) ?>" />
-                            <h3 class="pro-card__name"><?= esc($prof['nombre_completo']) ?></h3>
-                            <p class="pro-card__role"><?= esc($prof['titulo']) ?></p>
-                            <p class="pro-card__bio"><?= esc($prof['descripcion']) ?></p>
-                            <div class="pro-card__socials">
-                                <?php if(!empty($prof['redes'])): ?>
-                                    <?php foreach($prof['redes'] as $red): ?>
-                                        <a aria-label="<?= esc($red['tipo']) ?>" class="footer__simple-social-icon" href="<?= esc($red['link']) ?>" target="_blank"
-                                            rel="noopener noreferrer">
-                                            <?php if(strtolower($red['tipo']) == 'instagram'): ?>
-                                                <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                                                </svg>
-                                            <?php elseif(strtolower($red['tipo']) == 'facebook'): ?>
-                                                <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                                                </svg>
-                                            <?php elseif(strtolower($red['tipo']) == 'tiktok'): ?>
-                                                <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
-                                                </svg>
-                                            <?php else: ?>
-                                                <!-- Link genérico -->
-                                                <span class="material-symbols-outlined" style="font-size: 18px;">link</span>
-                                            <?php endif; ?>
-                                        </a>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </div>
-                            <button class="btn btn--outline pro-card__btn">Reservar turno</button>
+            <?php if (!empty($profesionales)): ?>
+                <?php foreach ($profesionales as $prof): ?>
+                    <?php
+                    $avatar = !empty($prof['avatar']) ? base_url($prof['avatar']) : base_url('public/assets/media/default_avatar.jpg');
+                    ?>
+                    <div class="pro-card">
+                        <img alt="<?= esc($prof['nombre_completo']) ?> - <?= esc($prof['titulo']) ?>" class="pro-card__image"
+                            src="<?= esc($avatar) ?>" />
+                        <h3 class="pro-card__name"><?= esc($prof['nombre_completo']) ?></h3>
+                        <p class="pro-card__role"><?= esc($prof['titulo']) ?></p>
+                        <p class="pro-card__bio"><?= esc($prof['descripcion']) ?></p>
+                        <div class="pro-card__socials">
+                            <?php if (!empty($prof['redes'])): ?>
+                                <?php foreach ($prof['redes'] as $red): ?>
+                                    <a aria-label="<?= esc($red['tipo']) ?>" class="footer__simple-social-icon"
+                                        href="<?= esc($red['link']) ?>" target="_blank" rel="noopener noreferrer">
+                                        <?php if (strtolower($red['tipo']) == 'instagram'): ?>
+                                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
+                                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                            </svg>
+                                        <?php elseif (strtolower($red['tipo']) == 'facebook'): ?>
+                                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
+                                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                            </svg>
+                                        <?php elseif (strtolower($red['tipo']) == 'tiktok'): ?>
+                                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
+                                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+                                            </svg>
+                                        <?php else: ?>
+                                            <!-- Link genérico -->
+                                            <span class="material-symbols-outlined" style="font-size: 18px;">link</span>
+                                        <?php endif; ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <p>No hay profesionales disponibles por el momento.</p>
-                <?php endif; ?>
+                        <button class="btn btn--outline pro-card__btn">Reservar turno</button>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>No hay profesionales disponibles por el momento.</p>
+            <?php endif; ?>
             </div>
         </section>
 
@@ -424,133 +394,13 @@ if (!function_exists('esc')) {
         </section>
     </main>
 
-    <!-- Redesigned Footer -->
-    <footer class="footer">
-        <div class="footer__simple-container">
-            <!-- Left Logo -->
-            <div class="footer__simple-logo">
-                <a href="#">
-                    <img src="public/assets/media/logoText.jpeg" alt="Logo Her Beauty Center" class="footer__logo-img" />
-                </a>
-            </div>
+    <?= $this->include('modals/footer') ?>
 
-            <!-- Middle Nav Links (Horizontal Row) -->
-            <div class="footer__simple-nav">
-                <a class="footer__simple-link" href="#servicios">Servicios</a>
-                <a class="footer__simple-link" href="#profesionales">Profesionales</a>
-                <a class="footer__simple-link" href="#nosotros">Nosotros</a>
-                <a class="footer__simple-link" href="#contacto">Contacto</a>
-            </div>
+    <!-- Reusable Base Modals -->
+    <?= $this->include('modals/modalsBase') ?>
 
-            <!-- Right Social Icons (2 Rows: 3 and 2) -->
-            <div class="footer__simple-socials">
-                <div class="footer__socials-inner-wrap">
-                    <div class="footer__simple-socials-row">
-                        <a aria-label="Instagram" class="footer__simple-social-icon" href="#" target="_blank"
-                            rel="noopener noreferrer">
-                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                            </svg>
-                        </a>
-                        <a aria-label="Facebook" class="footer__simple-social-icon" href="#" target="_blank"
-                            rel="noopener noreferrer">
-                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                            </svg>
-                        </a>
-                        <a aria-label="TikTok" class="footer__simple-social-icon" href="#" target="_blank"
-                            rel="noopener noreferrer">
-                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
-                            </svg>
-                        </a>
-                    </div>
-                    <div class="footer__simple-socials-row">
-                        <a aria-label="WhatsApp" class="footer__simple-social-icon" href="https://wa.me/5491112345678"
-                            target="_blank" rel="noopener noreferrer">
-                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path
-                                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
-                                </path>
-                            </svg>
-                        </a>
-                        <a aria-label="Email" class="footer__simple-social-icon" href="mailto:info@herbeautycenter.com">
-                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                                </path>
-                                <polyline points="22,6 12,13 2,6"></polyline>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer Bottom Bar -->
-        <div class="footer__bottom">
-            <div class="footer__bottom-container">
-                <p class="footer__copyright">© 2026 Her Beauty Center - Diseñado por Studio Web Space. Todos los
-                    derechos reservados.</p>
-                <div class="footer__bottom-links">
-                    <a class="footer__bottom-link" href="#">Política de Privacidad</a>
-                    <a class="footer__bottom-link" href="#">Términos de Servicio</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Auth Modals -->
-    <div class="modal" id="loginModal">
-        <div class="modal__overlay" data-close-modal></div>
-        <div class="modal__content">
-            <button class="modal__close" data-close-modal aria-label="Cerrar"><span class="material-symbols-outlined">close</span></button>
-            <h2 class="modal__title">Iniciar Sesión</h2>
-            <form class="modal__form" id="loginForm">
-                <div class="form-group">
-                    <label class="form-label" for="loginEmail">Email</label>
-                    <input class="form-input" id="loginEmail" type="email" required placeholder="tu@email.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="loginPassword">Contraseña</label>
-                    <input class="form-input" id="loginPassword" type="password" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn btn--primary modal__btn">Ingresar</button>
-                <p class="modal__switch">¿No tienes cuenta? <a href="#" id="switchToRegister">Regístrate</a></p>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal" id="registerModal">
-        <div class="modal__overlay" data-close-modal></div>
-        <div class="modal__content">
-            <button class="modal__close" data-close-modal aria-label="Cerrar"><span class="material-symbols-outlined">close</span></button>
-            <h2 class="modal__title">Crear Cuenta</h2>
-            <form class="modal__form" id="registerForm">
-                <div class="form-group">
-                    <label class="form-label" for="regName">Nombre completo</label>
-                    <input class="form-input" id="regName" type="text" required placeholder="Tu nombre">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="regEmail">Email</label>
-                    <input class="form-input" id="regEmail" type="email" required placeholder="tu@email.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="regPassword">Contraseña</label>
-                    <input class="form-input" id="regPassword" type="password" required minlength="8" placeholder="Mínimo 8 caracteres">
-                    <small style="font-size: 0.75rem; color: var(--color-on-surface-variant); margin-top: 0.25rem; display: block;">Mínimo 8 caracteres</small>
-                </div>
-                <button type="submit" class="btn btn--primary modal__btn">Registrarse</button>
-                <p class="modal__switch">¿Ya tienes cuenta? <a href="#" id="switchToLogin">Inicia sesión</a></p>
-            </form>
-        </div>
-    </div>
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="public/assets/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom JS -->
     <script>
@@ -559,7 +409,7 @@ if (!function_exists('esc')) {
             apiUrl: '<?= rtrim(base_url('api'), '/') ?>'
         };
     </script>
-    <script src="public/assets/js/index.js" defer></script>
+    <script src="public/assets/js/index.js?v=<?= time() ?>" defer></script>
 </body>
 
 </html>

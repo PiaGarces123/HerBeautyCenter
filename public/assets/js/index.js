@@ -3,13 +3,20 @@
  * ==========================================================================
  */
 
-document.addEventListener("DOMContentLoaded", () => {
+function bootApp() {
     initHeaderScroll();
     initMobileMenu();
     initScrollReveal();
     initFormHandlers();
     initAuthModals();
-});
+}
+
+// Con defer, el DOM ya está parseado; si no, esperamos DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootApp);
+} else {
+    bootApp();
+}
 
 /**
  * 1. Efecto del Header al hacer Scroll
@@ -139,88 +146,172 @@ function initFormHandlers() {
 }
 
 /**
- * 5. Controladores de Modales de Autenticación
+ * 5. Sistema de Modales Reutilizables (AppModal) — Bootstrap 5.3
  */
 function initAuthModals() {
-    const loginBtn = document.getElementById('loginBtn');
-    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
     const loginModal = document.getElementById('loginModal');
     const registerModal = document.getElementById('registerModal');
+    const logoutConfirmModal = document.getElementById('logoutConfirmModal');
+    const genericConfirmModal = document.getElementById('genericConfirmModal');
+    const successModal = document.getElementById('successModal');
+    const errorModal = document.getElementById('errorModal');
+
+    // Wrappers para la API de Bootstrap Modal
+    const openModal = (el) => {
+        if (!el) return;
+        const bsModal = bootstrap.Modal.getOrCreateInstance(el);
+        bsModal.show();
+    };
+
+    const closeModal = (el) => {
+        if (!el) return;
+        const bsModal = bootstrap.Modal.getInstance(el);
+        if (bsModal) bsModal.hide();
+    };
+
+    // Helper global para invocar modales desde cualquier lugar
+    window.AppModal = {
+        open: (modalId) => {
+            const el = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
+            openModal(el);
+        },
+        close: (modalId) => {
+            const el = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
+            closeModal(el);
+        },
+        confirm: ({ title = '¿Confirmar acción?', message = '¿Estás seguro de que deseas continuar?', icon = 'help', acceptText = 'Confirmar', cancelText = 'Cancelar', onAccept }) => {
+            if (!genericConfirmModal) return;
+            const titleEl = document.getElementById('genericConfirmTitle');
+            const msgEl = document.getElementById('genericConfirmMessage');
+            const iconEl = document.getElementById('genericConfirmIcon');
+            const acceptBtn = document.getElementById('genericConfirmAccept');
+            const cancelBtn = document.getElementById('genericConfirmCancel');
+
+            if (titleEl) titleEl.innerText = title;
+            if (msgEl) msgEl.innerText = message;
+            if (iconEl) iconEl.innerText = icon;
+            if (acceptBtn) acceptBtn.innerText = acceptText;
+            if (cancelBtn) cancelBtn.innerText = cancelText;
+
+            // Limpiar listener anterior clonando el botón
+            const newAcceptBtn = acceptBtn.cloneNode(true);
+            acceptBtn.parentNode.replaceChild(newAcceptBtn, acceptBtn);
+
+            newAcceptBtn.addEventListener('click', () => {
+                closeModal(genericConfirmModal);
+                if (typeof onAccept === 'function') onAccept();
+            });
+
+            openModal(genericConfirmModal);
+        },
+        success: ({ title = '¡Acción Exitosa!', message = 'La operación se completó con éxito.', btnText = 'Aceptar', onOk } = {}) => {
+            if (!successModal) return;
+            const titleEl = document.getElementById('successModalTitle');
+            const msgEl = document.getElementById('successModalMessage');
+            const btn = document.getElementById('successModalBtn');
+
+            if (titleEl) titleEl.innerText = title;
+            if (msgEl) msgEl.innerText = message;
+            if (btn) {
+                btn.innerText = btnText;
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                newBtn.addEventListener('click', () => {
+                    closeModal(successModal);
+                    if (typeof onOk === 'function') onOk();
+                });
+            }
+
+            openModal(successModal);
+        },
+        error: ({ title = 'Hubo un problema', message = 'Ocurrió un error al procesar tu solicitud.', btnText = 'Entendido', onOk } = {}) => {
+            if (!errorModal) return;
+            const titleEl = document.getElementById('errorModalTitle');
+            const msgEl = document.getElementById('errorModalMessage');
+            const btn = document.getElementById('errorModalBtn');
+
+            if (titleEl) titleEl.innerText = title;
+            if (msgEl) msgEl.innerText = message;
+            if (btn) {
+                btn.innerText = btnText;
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                newBtn.addEventListener('click', () => {
+                    closeModal(errorModal);
+                    if (typeof onOk === 'function') onOk();
+                });
+            }
+
+            openModal(errorModal);
+        }
+    };
+
+    // Helper para obtener la URL relativa de la API según la ubicación actual
+    const getApiUrl = (endpoint) => {
+        const path = window.location.pathname;
+        let base = '';
+
+        if (path.includes('/public/')) {
+            base = path.substring(0, path.indexOf('/public/') + 7);
+        } else if (path.includes('/public')) {
+            base = path.substring(0, path.indexOf('/public') + 7);
+        } else {
+            base = path.replace(/\/index\.php\/?$/, '').replace(/\/+$/, '');
+        }
+
+        return `${base}/api/${endpoint}`;
+    };
+
+
+
+    // Interceptar clicks de cerrar sesión para abrir modal de confirmación
+    const logoutLinks = document.querySelectorAll('a[href*="logout"]');
+    logoutLinks.forEach(link => {
+        // Ignorar el botón de confirmación dentro del modal
+        if (link.id === 'confirmLogoutBtn') return;
+        link.addEventListener('click', (e) => {
+            if (logoutConfirmModal) {
+                e.preventDefault();
+                const mobileMenu = document.getElementById('mobileMenu');
+                if (mobileMenu) mobileMenu.classList.remove('mobile-menu--open');
+                document.body.style.overflow = '';
+                openModal(logoutConfirmModal);
+            }
+        });
+    });
+
+    // Cambiar entre Login y Registro
     const switchToRegister = document.getElementById('switchToRegister');
     const switchToLogin = document.getElementById('switchToLogin');
-    const closeBtns = document.querySelectorAll('[data-close-modal]');
-
-    if (!loginModal || !registerModal) return;
-
-    const openModal = (modal) => {
-        modal.classList.add('modal--open');
-        document.body.style.overflow = "hidden";
-    };
-
-    const closeModal = (modal) => {
-        modal.classList.remove('modal--open');
-        document.body.style.overflow = "";
-    };
-
-    // Helper para obtener la URL base de la API
-    const getApiUrl = (endpoint) => {
-        if (window.APP_CONFIG && window.APP_CONFIG.apiUrl) {
-            return `${window.APP_CONFIG.apiUrl}/${endpoint}`;
-        }
-        // Fallback dinámico según ruta actual
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('/public/')) {
-            const prefix = currentPath.substring(0, currentPath.indexOf('/public/') + 8);
-            return `${prefix}api/${endpoint}`;
-        }
-        return `/api/${endpoint}`;
-    };
-
-    // Abrir Login desde el header (desktop)
-    if (loginBtn) {
-        loginBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal(loginModal);
-        });
-    }
-
-    // Abrir Login desde menú móvil
-    if (mobileLoginBtn) {
-        mobileLoginBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenu) mobileMenu.classList.remove('mobile-menu--open');
-            openModal(loginModal);
-        });
-    }
-
-    // Cambiar a Registro
     if (switchToRegister) {
         switchToRegister.addEventListener('click', (e) => {
             e.preventDefault();
             closeModal(loginModal);
-            setTimeout(() => openModal(registerModal), 250);
+            // Esperar que Bootstrap cierre el modal antes de abrir el otro
+            if (loginModal) {
+                loginModal.addEventListener('hidden.bs.modal', function handler() {
+                    loginModal.removeEventListener('hidden.bs.modal', handler);
+                    openModal(registerModal);
+                });
+            } else {
+                openModal(registerModal);
+            }
         });
     }
-
-    // Cambiar a Login
     if (switchToLogin) {
         switchToLogin.addEventListener('click', (e) => {
             e.preventDefault();
             closeModal(registerModal);
-            setTimeout(() => openModal(loginModal), 250);
-        });
-    }
-
-    // Botones y Overlay de cerrar
-    closeBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            if (e.target === btn || btn.classList.contains('modal__close') || btn.closest('.modal__close') || btn.hasAttribute('data-close-modal')) {
-                const modal = btn.closest('.modal');
-                if (modal) closeModal(modal);
+            if (registerModal) {
+                registerModal.addEventListener('hidden.bs.modal', function handler() {
+                    registerModal.removeEventListener('hidden.bs.modal', handler);
+                    openModal(loginModal);
+                });
+            } else {
+                openModal(loginModal);
             }
         });
-    });
+    }
 
     // Login Form Submit
     const loginForm = document.getElementById('loginForm');
@@ -239,17 +330,39 @@ function initAuthModals() {
             }
 
             try {
-                const response = await fetch(getApiUrl('login'), {
+                const url = getApiUrl('login');
+                const response = await fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     body: JSON.stringify({ email, password })
                 });
 
-                const result = await response.json();
-                if (result.success) {
-                    window.location.reload();
+                const contentType = response.headers.get('content-type') || '';
+                let result;
+                if (contentType.includes('application/json')) {
+                    result = await response.json();
                 } else {
-                    alert(result.message || 'Error al iniciar sesión.');
+                    const text = await response.text();
+                    console.error('Respuesta no JSON del servidor:', text);
+                    throw new Error(`Error en el servidor (HTTP ${response.status})`);
+                }
+
+                if (result.success) {
+                    closeModal(loginModal);
+                    window.AppModal.success({
+                        title: '¡Bienvenido/a!',
+                        message: 'Inicio de sesión exitoso.',
+                        onOk: () => window.location.reload()
+                    });
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    window.AppModal.error({
+                        title: 'Error de Autenticación',
+                        message: result.message || 'Correo o contraseña incorrectos.'
+                    });
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerText = originalBtnText;
@@ -257,7 +370,10 @@ function initAuthModals() {
                 }
             } catch (error) {
                 console.error('Error login:', error);
-                alert('Ocurrió un error en la conexión. Por favor intentá nuevamente.');
+                window.AppModal.error({
+                    title: 'Error de Conexión',
+                    message: error.message || 'Ocurrió un error en la conexión. Por favor intentá nuevamente.'
+                });
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerText = originalBtnText;
@@ -279,7 +395,10 @@ function initAuthModals() {
             const password = document.getElementById('regPassword').value;
 
             if (password.length < 8) {
-                alert('La contraseña debe tener al menos 8 caracteres.');
+                window.AppModal.error({
+                    title: 'Contraseña muy corta',
+                    message: 'La contraseña debe contener al menos 8 caracteres.'
+                });
                 return;
             }
 
@@ -289,17 +408,39 @@ function initAuthModals() {
             }
 
             try {
-                const response = await fetch(getApiUrl('register'), {
+                const url = getApiUrl('register');
+                const response = await fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     body: JSON.stringify({ name, email, password })
                 });
 
-                const result = await response.json();
-                if (result.success) {
-                    window.location.reload();
+                const contentType = response.headers.get('content-type') || '';
+                let result;
+                if (contentType.includes('application/json')) {
+                    result = await response.json();
                 } else {
-                    alert(result.message || 'Error al registrarse.');
+                    const text = await response.text();
+                    console.error('Respuesta no JSON del servidor:', text);
+                    throw new Error(`Error en el servidor (HTTP ${response.status})`);
+                }
+
+                if (result.success) {
+                    closeModal(registerModal);
+                    window.AppModal.success({
+                        title: '¡Cuenta Creada!',
+                        message: 'Tu cuenta ha sido creada exitosamente. Iniciando sesión...',
+                        onOk: () => window.location.reload()
+                    });
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    window.AppModal.error({
+                        title: 'Error en el Registro',
+                        message: result.message || 'No se pudo completar el registro.'
+                    });
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerText = originalBtnText;
@@ -307,7 +448,10 @@ function initAuthModals() {
                 }
             } catch (error) {
                 console.error('Error registro:', error);
-                alert('Ocurrió un error en la conexión. Por favor intentá nuevamente.');
+                window.AppModal.error({
+                    title: 'Error de Conexión',
+                    message: error.message || 'Ocurrió un error en la conexión. Por favor intentá nuevamente.'
+                });
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerText = originalBtnText;

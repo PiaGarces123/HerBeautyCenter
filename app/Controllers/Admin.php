@@ -202,6 +202,6 @@ class Admin extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/admin/login');
+        return redirect()->to(base_url('admin/login'));
     }
 }

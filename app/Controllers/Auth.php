@@ -90,6 +90,11 @@ class Auth extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/');
+
+        if ($this->request->isAJAX() || strpos($this->request->getHeaderLine('accept'), 'application/json') !== false) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Sesión cerrada correctamente.']);
+        }
+
+        return redirect()->to(base_url());
     }
 }

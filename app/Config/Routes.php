@@ -8,7 +8,14 @@ $routes->get('/', 'Home::index');
 // Frontend Auth
 $routes->post('/api/login', 'Auth::login');
 $routes->post('/api/register', 'Auth::register');
-$routes->get('/logout', 'Auth::logout');
+$routes->match(['get', 'post'], '/logout', 'Auth::logout');
+$routes->match(['get', 'post'], '/api/logout', 'Auth::logout');
+
+// Compatibilidad en despliegues con prefijo /public
+$routes->post('/public/api/login', 'Auth::login');
+$routes->post('/public/api/register', 'Auth::register');
+$routes->match(['get', 'post'], '/public/logout', 'Auth::logout');
+$routes->match(['get', 'post'], '/public/api/logout', 'Auth::logout');
 
 // Panel de Administración
 $routes->get('/admin/login',    'Admin::login');
