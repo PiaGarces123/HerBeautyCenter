@@ -12,34 +12,26 @@ class Admin extends BaseController
     {
         $session = session();
         if (!$session->get('usuario_id') || $session->get('rol') !== 'admin') {
-            return redirect()->to('/admin/login')->with('error', 'Acceso restringido.');
+            return redirect()->to('/?login=1');
         }
         return null;
     }
 
-    public function dashboard(): string
+    public function dashboard()
     {
-        $redirect = $this->verificarSesionAdmin();
-        if ($redirect) return $redirect;
-
         $session = session();
-        $db = \Config\Database::connect();
-
-        $profesionales  = $db->table('profesional')->countAllResults();
-        $servicios      = $db->table('servicio')->where('activo', 1)->countAllResults();
-        $totalClientes  = $db->table('cliente')->countAllResults();
-        $turnosHoy      = $db->table('turno')->where('fecha', date('Y-m-d'))->get()->getResultArray();
+        if (!$session->get('usuario_id') || !in_array($session->get('rol'), ['admin', 'profesional'])) {
+            return redirect()->to('/?login=1');
+        }
 
         return view('admin/dashboard', [
-            'usuario'        => [
+            'usuario' => [
                 'nombre' => $session->get('usuario_nombre'),
                 'correo' => $session->get('usuario_correo'),
                 'avatar' => $session->get('usuario_avatar'),
             ],
-            'profesionales'  => array_fill(0, $profesionales, []),
-            'servicios'      => array_fill(0, $servicios, []),
-            'totalClientes'  => $totalClientes,
-            'turnosHoy'      => $turnosHoy,
+            'rol' => $session->get('rol'),
+            'id_profesional' => $session->get('id_profesional'),
         ]);
     }
 
@@ -50,12 +42,18 @@ class Admin extends BaseController
 
         $db = \Config\Database::connect();
         $profesionales = $db->table('profesional')
-            ->select('profesional.*, usuario.nombre_completo, usuario.correo, usuario.avatar, usuario.activo')
+            ->select('profesional.*, usuario.nombre_completo, usuario.correo, usuario.telefono, usuario.avatar, usuario.activo, GROUP_CONCAT(servicio.nombre SEPARATOR ", ") as servicios_ofrecidos, GROUP_CONCAT(servicio.id_servicio SEPARATOR ",") as servicios_ids')
             ->join('usuario', 'usuario.id_usuario = profesional.id_usuario')
+            ->join('profesional_servicio', 'profesional_servicio.id_profesional = profesional.id_profesional', 'left')
+            ->join('servicio', 'servicio.id_servicio = profesional_servicio.id_servicio', 'left')
+            ->groupBy('profesional.id_profesional')
             ->get()->getResultArray();
+
+        $todos_servicios = $db->table('servicio')->select('id_servicio, nombre')->get()->getResultArray();
 
         return view('admin/profesionales', [
             'profesionales' => $profesionales,
+            'todos_servicios' => $todos_servicios,
             'usuario' => ['nombre' => session()->get('usuario_nombre')]
         ]);
     }
@@ -153,55 +151,9 @@ class Admin extends BaseController
     // Login / Logout
     // -------------------------------------------------------
 
-    public function login(): string
-    {
-        if (session()->get('usuario_id')) {
-            return redirect()->to('/admin');
-        }
-        return view('admin/login');
-    }
-
-    public function loginPost()
-    {
-        $correo   = $this->request->getPost('correo');
-        $password = $this->request->getPost('password');
-
-        $db = \Config\Database::connect();
-        $usuario = $db->table('usuario')
-            ->where('correo', $correo)
-            ->where('activo', 1)
-            ->get()->getRowArray();
-
-        if (!$usuario || !password_verify($password, $usuario['password'])) {
-            return redirect()->to('/admin/login')
-                ->with('error', 'Correo o contraseña incorrectos.');
-        }
-
-        // Verificar que sea admin
-        $admin = $db->table('administrador')
-            ->join('profesional', 'profesional.id_profesional = administrador.id_profesional')
-            ->where('profesional.id_usuario', $usuario['id_usuario'])
-            ->get()->getRowArray();
-
-        if (!$admin) {
-            return redirect()->to('/admin/login')
-                ->with('error', 'No tenés permisos de administrador.');
-        }
-
-        session()->set([
-            'usuario_id'     => $usuario['id_usuario'],
-            'usuario_nombre' => $usuario['nombre_completo'],
-            'usuario_correo' => $usuario['correo'],
-            'usuario_avatar' => $usuario['avatar'],
-            'rol'            => 'admin',
-        ]);
-
-        return redirect()->to('/admin');
-    }
-
     public function logout()
     {
         session()->destroy();
-        return redirect()->to(base_url('admin/login'));
+        return redirect()->to(base_url(''));
     }
 }

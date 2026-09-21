@@ -27,21 +27,37 @@ class Auth extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Correo o contraseña incorrectos.']);
         }
         
-        // Verificar si es administrador
-        $admin = $db->table('administrador')
-            ->join('profesional', 'profesional.id_profesional = administrador.id_profesional')
-            ->where('profesional.id_usuario', $usuario['id_usuario'])
+        // Verificar si es profesional
+        $profesional = $db->table('profesional')
+            ->where('id_usuario', $usuario['id_usuario'])
             ->get()->getRowArray();
+            
+        $rol = 'cliente';
+        $id_profesional = null;
+        
+        if ($profesional) {
+            $rol = 'profesional';
+            $id_profesional = $profesional['id_profesional'];
+            
+            // Verificar si además de profesional, es administrador
+            $admin = $db->table('administrador')
+                ->where('id_profesional', $id_profesional)
+                ->get()->getRowArray();
+                
+            if ($admin) {
+                $rol = 'admin';
+            }
+        }
             
         session()->set([
             'usuario_id'     => $usuario['id_usuario'],
             'usuario_nombre' => $usuario['nombre_completo'],
             'usuario_correo' => $usuario['correo'],
             'usuario_avatar' => $usuario['avatar'],
-            'rol'            => $admin ? 'admin' : 'cliente',
+            'rol'            => $rol,
+            'id_profesional' => $id_profesional,
         ]);
-        
-        return $this->response->setJSON(['success' => true, 'message' => 'Login exitoso.']);
+        return $this->response->setJSON(['success' => true, 'message' => 'Login exitoso.', 'rol' => $rol]);
     }
     
     public function register()

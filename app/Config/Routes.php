@@ -17,9 +17,18 @@ $routes->post('/public/api/register', 'Auth::register');
 $routes->match(['get', 'post'], '/public/logout', 'Auth::logout');
 $routes->match(['get', 'post'], '/public/api/logout', 'Auth::logout');
 
+// Dashboard APIs
+$routes->get('/api/dashboard/admin', 'Api\DashboardApi::adminStats');
+$routes->get('/api/dashboard/profesional', 'Api\DashboardApi::profesionalStats');
+
+// Profesionales APIs
+$routes->post('/api/profesionales/crear', 'Api\ProfesionalesApi::crear');
+$routes->post('/api/profesionales/servicios', 'Api\ProfesionalesApi::servicios');
+$routes->put('/api/profesionales/editar/(:num)', 'Api\ProfesionalesApi::editar/$1');
+$routes->put('/api/profesionales/password/(:num)', 'Api\ProfesionalesApi::password/$1');
+$routes->delete('/api/profesionales/eliminar/(:num)', 'Api\ProfesionalesApi::eliminar/$1');
+
 // Panel de Administración
-$routes->get('/admin/login',    'Admin::login');
-$routes->post('/admin/login',   'Admin::loginPost');
 $routes->get('/admin/logout',   'Admin::logout');
 $routes->get('/admin',          'Admin::dashboard');
 $routes->get('/admin/profesionales', 'Admin::profesionales');

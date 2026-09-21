@@ -4,7 +4,7 @@
         <!-- Left Logo -->
         <div class="footer__simple-logo">
             <a href="#">
-                <img src="public/assets/media/logoText.jpeg" alt="Logo Her Beauty Center" class="footer__logo-img" />
+                <img src="public/assets/media/logoText.png" alt="Logo Her Beauty Center" class="footer__logo-img" />
             </a>
         </div>
 
@@ -70,7 +70,7 @@
     <!-- Footer Bottom Bar -->
     <div class="footer__bottom">
         <div class="footer__bottom-container">
-            <p class="footer__copyright">© 2026 Her Beauty Center - Diseñado por Studio Web Space. Todos los
+            <p class="footer__copyright">© 2026 Her Beauty Center - Diseñado por María Pía Garces Brocal. Todos los
                 derechos reservados.</p>
             <div class="footer__bottom-links">
                 <a class="footer__bottom-link" href="#">Políticas de Privacidad</a>

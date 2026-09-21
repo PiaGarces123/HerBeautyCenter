@@ -352,12 +352,29 @@ function initAuthModals() {
 
                 if (result.success) {
                     closeModal(loginModal);
+                    
+                    const redirectUrl = (result.rol === 'admin' || result.rol === 'profesional') 
+                        ? window.APP_CONFIG.baseUrl + '/admin' 
+                        : window.location.href;
+
                     window.AppModal.success({
                         title: '¡Bienvenido/a!',
                         message: 'Inicio de sesión exitoso.',
-                        onOk: () => window.location.reload()
+                        onOk: () => {
+                            if (result.rol === 'admin' || result.rol === 'profesional') {
+                                window.location.href = redirectUrl;
+                            } else {
+                                window.location.reload();
+                            }
+                        }
                     });
-                    setTimeout(() => window.location.reload(), 1500);
+                    setTimeout(() => {
+                        if (result.rol === 'admin' || result.rol === 'profesional') {
+                            window.location.href = redirectUrl;
+                        } else {
+                            window.location.reload();
+                        }
+                    }, 1500);
                 } else {
                     window.AppModal.error({
                         title: 'Error de Autenticación',
@@ -393,6 +410,15 @@ function initAuthModals() {
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
+            const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+
+            if (password !== passwordConfirm) {
+                window.AppModal.error({
+                    title: 'Contraseñas no coinciden',
+                    message: 'Las contraseñas ingresadas no son iguales.'
+                });
+                return;
+            }
 
             if (password.length < 8) {
                 window.AppModal.error({

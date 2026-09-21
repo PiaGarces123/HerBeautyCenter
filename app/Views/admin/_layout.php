@@ -9,22 +9,23 @@
  * - $usuario   (array)  - Datos del usuario logueado
  */
 
-$pageTitle  = $pageTitle ?? 'Panel';
-$activeNav  = $activeNav  ?? 'dashboard';
-$nombre     = $usuario['nombre'] ?? 'Administradora';
-$avatar     = $usuario['avatar'] ?? null;
+$pageTitle = $pageTitle ?? 'Panel';
+$activeNav = $activeNav ?? 'dashboard';
+$nombre = $usuario['nombre'] ?? 'Administradora';
+$avatar = $usuario['avatar'] ?? null;
 
 $navItems = [
-    'dashboard'     => ['label' => 'Dashboard',      'icon' => 'dashboard',         'href' => base_url('admin')],
-    'profesionales' => ['label' => 'Profesionales',  'icon' => 'group',             'href' => base_url('admin/profesionales')],
-    'servicios'     => ['label' => 'Servicios',       'icon' => 'spa',               'href' => base_url('admin/servicios')],
-    'turnos'        => ['label' => 'Mis Turnos',      'icon' => 'calendar_month',    'href' => base_url('admin/turnos')],
-    'horarios'      => ['label' => 'Mis Horarios',    'icon' => 'schedule',          'href' => base_url('admin/horarios')],
-    'perfil'        => ['label' => 'Mi Perfil',       'icon' => 'manage_accounts',   'href' => base_url('admin/perfil')],
+    'dashboard' => ['label' => 'Dashboard', 'icon' => 'dashboard', 'href' => base_url('admin')],
+    'profesionales' => ['label' => 'Profesionales', 'icon' => 'group', 'href' => base_url('admin/profesionales')],
+    'servicios' => ['label' => 'Servicios', 'icon' => 'spa', 'href' => base_url('admin/servicios')],
+    'turnos' => ['label' => 'Mis Turnos', 'icon' => 'calendar_month', 'href' => base_url('admin/turnos')],
+    'horarios' => ['label' => 'Mis Horarios', 'icon' => 'schedule', 'href' => base_url('admin/horarios')],
+    'perfil' => ['label' => 'Mi Perfil', 'icon' => 'manage_accounts', 'href' => base_url('admin/perfil')],
 ];
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -32,8 +33,11 @@ $navItems = [
     <meta name="robots" content="noindex, nofollow" />
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet" />
 
     <!-- Bootstrap 5.3 CSS -->
     <link rel="stylesheet" href="<?= base_url('public/assets/css/bootstrap.min.css') ?>" />
@@ -42,6 +46,7 @@ $navItems = [
     <link rel="stylesheet" href="<?= base_url('public/assets/css/styles.css') ?>" />
     <link rel="stylesheet" href="<?= base_url('public/assets/css/admin.css') ?>" />
 </head>
+
 <body class="admin-body">
 
     <!-- Overlay para cerrar sidebar en móvil -->
@@ -51,9 +56,9 @@ $navItems = [
     <aside class="admin-sidebar" id="adminSidebar">
         <!-- Brand -->
         <div class="admin-sidebar__brand">
-            <img src="<?= base_url('public/assets/media/logoText.jpeg') ?>" alt="Her Beauty Center" class="admin-sidebar__logo" />
-            <p class="admin-sidebar__brand-text">Her Beauty Center</p>
-            <p class="admin-sidebar__subtitle">Panel de Administración</p>
+            <img src="<?= base_url('public/assets/media/logoText.png') ?>" alt="Her Beauty Center"
+                class="admin-sidebar__logo" />
+            <p class="admin-sidebar__brand-text">Panel de Administración</p>
         </div>
 
         <!-- Navigation -->
@@ -62,8 +67,8 @@ $navItems = [
 
             <?php foreach ($navItems as $key => $item): ?>
                 <a href="<?= $item['href'] ?>"
-                   class="admin-nav-link <?= ($activeNav === $key) ? 'admin-nav-link--active' : '' ?>"
-                   aria-current="<?= ($activeNav === $key) ? 'page' : 'false' ?>">
+                    class="admin-nav-link <?= ($activeNav === $key) ? 'admin-nav-link--active' : '' ?>"
+                    aria-current="<?= ($activeNav === $key) ? 'page' : 'false' ?>">
                     <span class="material-symbols-outlined"><?= $item['icon'] ?></span>
                     <?= $item['label'] ?>
                 </a>
@@ -87,8 +92,14 @@ $navItems = [
                     <?php endif; ?>
                 </div>
                 <div class="admin-sidebar__user-info">
-                    <p class="admin-sidebar__user-name"><?= esc($nombre) ?></p>
-                    <p class="admin-sidebar__user-role">Administradora</p>
+                    <?php 
+                        $displayName = esc($nombre);
+                        // If name is formatted like "Admin (Maru)", extract just "Maru"
+                        if (preg_match('/(?:Admin|Administrador|Profesional)\s*\((.*?)\)/i', $nombre, $matches)) {
+                            $displayName = esc($matches[1]);
+                        }
+                    ?>
+                    <p class="admin-sidebar__user-name"><?= $displayName ?></p>
                 </div>
             </div>
         </div>
@@ -101,14 +112,16 @@ $navItems = [
         <header class="admin-topbar">
             <div style="display:flex; align-items:center; gap: 0.75rem;">
                 <!-- Botón hamburguesa (solo móvil) -->
-                <button class="admin-topbar__icon-btn admin-topbar__menu-btn" id="sidebarToggle" aria-label="Abrir menú">
+                <button class="admin-topbar__icon-btn admin-topbar__menu-btn" id="sidebarToggle"
+                    aria-label="Abrir menú">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
                 <h1 class="admin-topbar__title"><?= esc($pageTitle) ?></h1>
             </div>
             <div class="admin-topbar__actions">
-                <a href="<?= base_url() ?>" class="admin-topbar__icon-btn" title="Ver sitio web" target="_blank">
-                    <span class="material-symbols-outlined">open_in_new</span>
+                <a href="<?= base_url() ?>" class="btn btn-pink d-flex align-items-center gap-1"
+                    style="padding: 0.375rem 0.75rem; text-decoration: none;" title="Ver sitio web" target="_blank">
+                    <span class="material-symbols-outlined" style="font-size: 1.25rem;">search</span> Ver Sitio
                 </a>
             </div>
         </header>
@@ -122,8 +135,8 @@ $navItems = [
     <!-- JS del panel -->
     <script>
         // Sidebar móvil toggle
-        const sidebar  = document.getElementById('adminSidebar');
-        const overlay  = document.getElementById('sidebarOverlay');
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
         const toggleBtn = document.getElementById('sidebarToggle');
 
         if (toggleBtn) {
@@ -143,5 +156,9 @@ $navItems = [
 
     <!-- Bootstrap 5.3 JS Bundle -->
     <script src="<?= base_url('public/assets/js/bootstrap.bundle.min.js') ?>"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
+
 </html>

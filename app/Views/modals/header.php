@@ -8,7 +8,7 @@
 
         <!-- Brand Logo -->
         <a class="header-logo" href="#">
-            <img src="public/assets/media/logoText.jpeg" alt="Logo Her Beauty Center" class="header-logo__img" />
+            <img src="public/assets/media/logoText.png" alt="Logo Her Beauty Center" class="header-logo__img" />
         </a>
 
         <!-- Desktop Nav -->
@@ -47,8 +47,8 @@
                 </a>
             </div>
         <?php else: ?>
-            <button aria-label="Perfil" class="header-profile-btn" id="loginBtn"
-                data-bs-toggle="modal" data-bs-target="#loginModal">
+            <button aria-label="Perfil" class="header-profile-btn" id="loginBtn" data-bs-toggle="modal"
+                data-bs-target="#loginModal">
                 <span class="material-symbols-outlined">person</span>
             </button>
         <?php endif; ?>

@@ -408,6 +408,17 @@ if (!function_exists('esc')) {
             baseUrl: '<?= rtrim(base_url(), '/') ?>',
             apiUrl: '<?= rtrim(base_url('api'), '/') ?>'
         };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('login') === '1') {
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+                
+                // Clean the URL to avoid opening modal on refresh
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
     </script>
     <script src="public/assets/js/index.js?v=<?= time() ?>" defer></script>
 </body>
