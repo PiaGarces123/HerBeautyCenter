@@ -24,7 +24,7 @@ $this->section('content');
 
 <div class="admin-quick-grid">
     <?php if ($rol === 'admin'): ?>
-    <a href="/admin/profesionales" class="quick-card">
+    <a href="<?= base_url('admin/profesionales') ?>" class="quick-card">
         <div class="quick-card__icon-wrap quick-card__icon-wrap--primary">
             <span class="material-symbols-outlined">group</span>
         </div>
@@ -35,7 +35,7 @@ $this->section('content');
         </span>
     </a>
 
-    <a href="/admin/servicios" class="quick-card">
+    <a href="<?= base_url('admin/servicios') ?>" class="quick-card">
         <div class="quick-card__icon-wrap quick-card__icon-wrap--rose">
             <span class="material-symbols-outlined">spa</span>
         </div>
@@ -47,7 +47,7 @@ $this->section('content');
     </a>
     <?php endif; ?>
 
-    <a href="/admin/turnos" class="quick-card">
+    <a href="<?= base_url('admin/turnos') ?>" class="quick-card">
         <div class="quick-card__icon-wrap quick-card__icon-wrap--green">
             <span class="material-symbols-outlined">calendar_month</span>
         </div>
@@ -58,7 +58,7 @@ $this->section('content');
         </span>
     </a>
 
-    <a href="/admin/horarios" class="quick-card">
+    <a href="<?= base_url('admin/horarios') ?>" class="quick-card">
         <div class="quick-card__icon-wrap quick-card__icon-wrap--blue">
             <span class="material-symbols-outlined">schedule</span>
         </div>
@@ -69,7 +69,7 @@ $this->section('content');
         </span>
     </a>
 
-    <a href="/admin/perfil" class="quick-card">
+    <a href="<?= base_url('admin/perfil') ?>" class="quick-card">
         <div class="quick-card__icon-wrap quick-card__icon-wrap--purple">
             <span class="material-symbols-outlined">manage_accounts</span>
         </div>

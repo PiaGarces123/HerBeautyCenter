@@ -6,17 +6,16 @@ use CodeIgniter\Model;
 
 class UsuarioModel extends Model
 {
-    protected $table            = 'usuario';
-    protected $primaryKey       = 'id_usuario';
+    protected $table = 'usuario';
+    protected $primaryKey = 'id_usuario';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [
-        'nombre_completo', 
-        'correo', 
-        'telefono', 
-        'dni',
+    protected $returnType = 'array';
+    protected $useSoftDeletes = false;
+    protected $protectFields = true;
+    protected $allowedFields = [
+        'nombre_completo',
+        'correo',
+        'telefono',
         'avatar',
         'activo',
         'password'
@@ -27,27 +26,24 @@ class UsuarioModel extends Model
     // protected $createdField  = 'fecha_registro'; // Si $useTimestamps = true
 
     // Validation
-    protected $validationRules      = [
+    protected $validationRules = [
         'nombre_completo' => 'required|min_length[3]|max_length[150]',
-        'correo'          => 'required|valid_email|is_unique[usuario.correo,id_usuario,{id_usuario}]',
-        'dni'             => 'permit_empty|is_unique[usuario.dni,id_usuario,{id_usuario}]',
-        'password'        => 'required|min_length[8]' // Solo al crear es requerida usualmente, se puede ajustar en lógica
+        'correo' => 'required|valid_email|is_unique[usuario.correo,id_usuario,{id_usuario}]',
+        'telefono' => 'required|min_length[8]',
+        'password' => 'required|min_length[8]' // Solo al crear es requerida usualmente, se puede ajustar en lógica
     ];
-    protected $validationMessages   = [
+    protected $validationMessages = [
         'correo' => [
-            'is_unique' => 'Lo sentimos, este correo electrónico ya se encuentra registrado. (RN01)'
-        ],
-        'dni' => [
-            'is_unique' => 'Este DNI ya está asociado a un usuario. (RN02)'
+            'is_unique' => 'Correo Electrónico ya registrado'
         ]
     ];
-    protected $skipValidation       = false;
+    protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = ['hashPassword'];
-    protected $beforeUpdate   = ['hashPassword'];
+    protected $beforeInsert = ['hashPassword'];
+    protected $beforeUpdate = ['hashPassword'];
 
     /**
      * Hashea el password antes de insertar o actualizar (RN03)

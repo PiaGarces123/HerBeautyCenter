@@ -64,7 +64,7 @@ class Auth extends BaseController
     {
         $request = $this->request->getJSON();
         
-        if (!$request || !isset($request->name) || !isset($request->email) || !isset($request->password)) {
+        if (!$request || !isset($request->name) || !isset($request->email) || !isset($request->phone) || !isset($request->password)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos.']);
         }
         
@@ -73,6 +73,7 @@ class Auth extends BaseController
         $data = [
             'nombre_completo' => $request->name,
             'correo'          => $request->email,
+            'telefono'        => $request->phone,
             'password'        => $request->password,
             'activo'          => 1
         ];

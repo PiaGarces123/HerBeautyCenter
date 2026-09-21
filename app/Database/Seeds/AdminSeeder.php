@@ -26,6 +26,7 @@ class AdminSeeder extends Seeder
         $usuarioId = $usuarioModel->insert([
             'nombre_completo' => 'Admin (Maru)',
             'correo'          => 'garcesbrocalmaru@gmail.com',
+            'telefono'        => '1100000000',
             'password'        => 'HH22oo..',
             'activo'          => 1
         ]);

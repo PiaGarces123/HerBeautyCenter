@@ -81,6 +81,18 @@ $estadoBadge = [
             </tbody>
         </table>
     </div>
+    
+    <!-- Paginación -->
+    <?php if (isset($pager_links) && $pager_links): ?>
+        <div class="d-flex justify-content-between align-items-center mt-4 px-3" style="flex-wrap: wrap; gap: 1rem;">
+            <span style="font-size: 0.85rem; color: var(--color-on-surface-variant); font-weight: 500;">
+                Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> Turnos
+            </span>
+            <div>
+                <?= $pager_links ?>
+            </div>
+        </div>
+    <?php endif; ?>
     <?php else: ?>
         <div class="admin-empty-state">
             <span class="material-symbols-outlined">calendar_month</span>

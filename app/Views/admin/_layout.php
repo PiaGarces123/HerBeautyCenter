@@ -15,12 +15,13 @@ $nombre = $usuario['nombre'] ?? 'Administradora';
 $avatar = $usuario['avatar'] ?? null;
 
 $navItems = [
-    'dashboard' => ['label' => 'Dashboard', 'icon' => 'dashboard', 'href' => base_url('admin')],
-    'profesionales' => ['label' => 'Profesionales', 'icon' => 'group', 'href' => base_url('admin/profesionales')],
-    'servicios' => ['label' => 'Servicios', 'icon' => 'spa', 'href' => base_url('admin/servicios')],
-    'turnos' => ['label' => 'Mis Turnos', 'icon' => 'calendar_month', 'href' => base_url('admin/turnos')],
-    'horarios' => ['label' => 'Mis Horarios', 'icon' => 'schedule', 'href' => base_url('admin/horarios')],
-    'perfil' => ['label' => 'Mi Perfil', 'icon' => 'manage_accounts', 'href' => base_url('admin/perfil')],
+    'dashboard' => ['label' => 'Dashboard', 'icon' => 'dashboard', 'href' => base_url('admin'), 'role' => 'all'],
+    'profesionales' => ['label' => 'Profesionales', 'icon' => 'group', 'href' => base_url('admin/profesionales'), 'role' => 'admin'],
+    'clientes' => ['label' => 'Clientes', 'icon' => 'groups', 'href' => base_url('admin/clientes'), 'role' => 'admin'],
+    'servicios' => ['label' => 'Servicios', 'icon' => 'spa', 'href' => base_url('admin/servicios'), 'role' => 'admin'],
+    'turnos' => ['label' => 'Mis Turnos', 'icon' => 'calendar_month', 'href' => base_url('admin/turnos'), 'role' => 'all'],
+    'horarios' => ['label' => 'Mis Horarios', 'icon' => 'schedule', 'href' => base_url('admin/horarios'), 'role' => 'all'],
+    'perfil' => ['label' => 'Mi Perfil', 'icon' => 'manage_accounts', 'href' => base_url('admin/perfil'), 'role' => 'all'],
 ];
 ?>
 <!DOCTYPE html>
@@ -66,12 +67,14 @@ $navItems = [
             <span class="admin-nav-label">Menú</span>
 
             <?php foreach ($navItems as $key => $item): ?>
-                <a href="<?= $item['href'] ?>"
-                    class="admin-nav-link <?= ($activeNav === $key) ? 'admin-nav-link--active' : '' ?>"
-                    aria-current="<?= ($activeNav === $key) ? 'page' : 'false' ?>">
-                    <span class="material-symbols-outlined"><?= $item['icon'] ?></span>
-                    <?= $item['label'] ?>
-                </a>
+                <?php if ($item['role'] === 'all' || (isset($rol) && $rol === $item['role'])): ?>
+                    <a href="<?= $item['href'] ?>"
+                        class="admin-nav-link <?= ($activeNav === $key) ? 'admin-nav-link--active' : '' ?>"
+                        aria-current="<?= ($activeNav === $key) ? 'page' : 'false' ?>">
+                        <span class="material-symbols-outlined"><?= $item['icon'] ?></span>
+                        <?= $item['label'] ?>
+                    </a>
+                <?php endif; ?>
             <?php endforeach; ?>
 
             <span class="admin-nav-label" style="margin-top: 0.5rem;">Cuenta</span>

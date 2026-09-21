@@ -28,6 +28,13 @@ $routes->put('/api/profesionales/editar/(:num)', 'Api\ProfesionalesApi::editar/$
 $routes->put('/api/profesionales/password/(:num)', 'Api\ProfesionalesApi::password/$1');
 $routes->delete('/api/profesionales/eliminar/(:num)', 'Api\ProfesionalesApi::eliminar/$1');
 
+// Clientes APIs
+$routes->post('/api/clientes/crear', 'Api\ClientesApi::crear');
+$routes->put('/api/clientes/editar/(:num)', 'Api\ClientesApi::editar/$1');
+$routes->put('/api/clientes/password/(:num)', 'Api\ClientesApi::password/$1');
+$routes->delete('/api/clientes/eliminar/(:num)', 'Api\ClientesApi::eliminar/$1');
+$routes->post('/api/clientes/convertir/(:num)', 'Api\ClientesApi::convertir/$1');
+
 // Panel de Administración
 $routes->get('/admin/logout',   'Admin::logout');
 $routes->get('/admin',          'Admin::dashboard');
@@ -36,3 +43,4 @@ $routes->get('/admin/servicios',     'Admin::servicios');
 $routes->get('/admin/turnos',        'Admin::turnos');
 $routes->get('/admin/perfil',        'Admin::perfil');
 $routes->get('/admin/horarios',      'Admin::horarios');
+$routes->get('/admin/clientes',      'Admin::clientes');

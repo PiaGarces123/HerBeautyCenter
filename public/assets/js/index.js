@@ -151,10 +151,6 @@ function initFormHandlers() {
 function initAuthModals() {
     const loginModal = document.getElementById('loginModal');
     const registerModal = document.getElementById('registerModal');
-    const logoutConfirmModal = document.getElementById('logoutConfirmModal');
-    const genericConfirmModal = document.getElementById('genericConfirmModal');
-    const successModal = document.getElementById('successModal');
-    const errorModal = document.getElementById('errorModal');
 
     // Wrappers para la API de Bootstrap Modal
     const openModal = (el) => {
@@ -179,70 +175,43 @@ function initAuthModals() {
             const el = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
             closeModal(el);
         },
-        confirm: ({ title = '¿Confirmar acción?', message = '¿Estás seguro de que deseas continuar?', icon = 'help', acceptText = 'Confirmar', cancelText = 'Cancelar', onAccept }) => {
-            if (!genericConfirmModal) return;
-            const titleEl = document.getElementById('genericConfirmTitle');
-            const msgEl = document.getElementById('genericConfirmMessage');
-            const iconEl = document.getElementById('genericConfirmIcon');
-            const acceptBtn = document.getElementById('genericConfirmAccept');
-            const cancelBtn = document.getElementById('genericConfirmCancel');
-
-            if (titleEl) titleEl.innerText = title;
-            if (msgEl) msgEl.innerText = message;
-            if (iconEl) iconEl.innerText = icon;
-            if (acceptBtn) acceptBtn.innerText = acceptText;
-            if (cancelBtn) cancelBtn.innerText = cancelText;
-
-            // Limpiar listener anterior clonando el botón
-            const newAcceptBtn = acceptBtn.cloneNode(true);
-            acceptBtn.parentNode.replaceChild(newAcceptBtn, acceptBtn);
-
-            newAcceptBtn.addEventListener('click', () => {
-                closeModal(genericConfirmModal);
-                if (typeof onAccept === 'function') onAccept();
+        confirm: ({ title = '¿Confirmar acción?', message = '¿Estás seguro de que deseas continuar?', icon = 'warning', acceptText = 'Confirmar', cancelText = 'Cancelar', onAccept }) => {
+            Swal.fire({
+                title: title,
+                text: message,
+                icon: icon === 'help' ? 'question' : icon,
+                showCancelButton: true,
+                confirmButtonColor: '#d6858e',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: acceptText,
+                cancelButtonText: cancelText
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (typeof onAccept === 'function') onAccept();
+                }
             });
-
-            openModal(genericConfirmModal);
         },
         success: ({ title = '¡Acción Exitosa!', message = 'La operación se completó con éxito.', btnText = 'Aceptar', onOk } = {}) => {
-            if (!successModal) return;
-            const titleEl = document.getElementById('successModalTitle');
-            const msgEl = document.getElementById('successModalMessage');
-            const btn = document.getElementById('successModalBtn');
-
-            if (titleEl) titleEl.innerText = title;
-            if (msgEl) msgEl.innerText = message;
-            if (btn) {
-                btn.innerText = btnText;
-                const newBtn = btn.cloneNode(true);
-                btn.parentNode.replaceChild(newBtn, btn);
-                newBtn.addEventListener('click', () => {
-                    closeModal(successModal);
-                    if (typeof onOk === 'function') onOk();
-                });
-            }
-
-            openModal(successModal);
+            Swal.fire({
+                title: title,
+                text: message,
+                icon: 'success',
+                confirmButtonColor: '#d6858e',
+                confirmButtonText: btnText
+            }).then(() => {
+                if (typeof onOk === 'function') onOk();
+            });
         },
         error: ({ title = 'Hubo un problema', message = 'Ocurrió un error al procesar tu solicitud.', btnText = 'Entendido', onOk } = {}) => {
-            if (!errorModal) return;
-            const titleEl = document.getElementById('errorModalTitle');
-            const msgEl = document.getElementById('errorModalMessage');
-            const btn = document.getElementById('errorModalBtn');
-
-            if (titleEl) titleEl.innerText = title;
-            if (msgEl) msgEl.innerText = message;
-            if (btn) {
-                btn.innerText = btnText;
-                const newBtn = btn.cloneNode(true);
-                btn.parentNode.replaceChild(newBtn, btn);
-                newBtn.addEventListener('click', () => {
-                    closeModal(errorModal);
-                    if (typeof onOk === 'function') onOk();
-                });
-            }
-
-            openModal(errorModal);
+            Swal.fire({
+                title: title,
+                text: message,
+                icon: 'error',
+                confirmButtonColor: '#d6858e',
+                confirmButtonText: btnText
+            }).then(() => {
+                if (typeof onOk === 'function') onOk();
+            });
         }
     };
 
@@ -270,13 +239,19 @@ function initAuthModals() {
         // Ignorar el botón de confirmación dentro del modal
         if (link.id === 'confirmLogoutBtn') return;
         link.addEventListener('click', (e) => {
-            if (logoutConfirmModal) {
-                e.preventDefault();
-                const mobileMenu = document.getElementById('mobileMenu');
-                if (mobileMenu) mobileMenu.classList.remove('mobile-menu--open');
-                document.body.style.overflow = '';
-                openModal(logoutConfirmModal);
-            }
+            e.preventDefault();
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu) mobileMenu.classList.remove('mobile-menu--open');
+            document.body.style.overflow = '';
+            
+            window.AppModal.confirm({
+                title: '¿Cerrar Sesión?',
+                message: 'Estás a punto de salir de tu cuenta.',
+                acceptText: 'Sí, salir',
+                onAccept: () => {
+                    window.location.href = link.href;
+                }
+            });
         });
     });
 
@@ -404,27 +379,41 @@ function initAuthModals() {
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            if (!registerForm.checkValidity()) {
+                e.stopPropagation();
+                registerForm.classList.add('was-validated');
+                return;
+            }
+            registerForm.classList.add('was-validated');
+
             const submitBtn = registerForm.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn ? submitBtn.innerText : 'Registrarse';
 
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
             const password = document.getElementById('regPassword').value;
             const passwordConfirm = document.getElementById('regPasswordConfirm').value;
 
+            const errorDiv = document.getElementById('registerError');
+            const successDiv = document.getElementById('registerSuccess');
+            if (errorDiv) errorDiv.classList.add('d-none');
+            if (successDiv) successDiv.classList.add('d-none');
+
             if (password !== passwordConfirm) {
-                window.AppModal.error({
-                    title: 'Contraseñas no coinciden',
-                    message: 'Las contraseñas ingresadas no son iguales.'
-                });
+                if (errorDiv) {
+                    errorDiv.innerText = 'Las contraseñas ingresadas no son iguales.';
+                    errorDiv.classList.remove('d-none');
+                }
                 return;
             }
 
             if (password.length < 8) {
-                window.AppModal.error({
-                    title: 'Contraseña muy corta',
-                    message: 'La contraseña debe contener al menos 8 caracteres.'
-                });
+                if (errorDiv) {
+                    errorDiv.innerText = 'La contraseña debe contener al menos 8 caracteres.';
+                    errorDiv.classList.remove('d-none');
+                }
                 return;
             }
 
@@ -441,7 +430,7 @@ function initAuthModals() {
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify({ name, email, password })
+                    body: JSON.stringify({ name, email, phone, password })
                 });
 
                 const contentType = response.headers.get('content-type') || '';
@@ -455,18 +444,20 @@ function initAuthModals() {
                 }
 
                 if (result.success) {
-                    closeModal(registerModal);
+                    // Close register modal
+                    const bsModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                    if (bsModal) bsModal.hide();
+                    
                     window.AppModal.success({
                         title: '¡Cuenta Creada!',
                         message: 'Tu cuenta ha sido creada exitosamente. Iniciando sesión...',
                         onOk: () => window.location.reload()
                     });
-                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    window.AppModal.error({
-                        title: 'Error en el Registro',
-                        message: result.message || 'No se pudo completar el registro.'
-                    });
+                    if (errorDiv) {
+                        errorDiv.innerText = result.message || 'No se pudo completar el registro.';
+                        errorDiv.classList.remove('d-none');
+                    }
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerText = originalBtnText;
@@ -474,10 +465,10 @@ function initAuthModals() {
                 }
             } catch (error) {
                 console.error('Error registro:', error);
-                window.AppModal.error({
-                    title: 'Error de Conexión',
-                    message: error.message || 'Ocurrió un error en la conexión. Por favor intentá nuevamente.'
-                });
+                if (errorDiv) {
+                    errorDiv.innerText = error.message || 'Ocurrió un error en la conexión. Por favor intentá nuevamente.';
+                    errorDiv.classList.remove('d-none');
+                }
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerText = originalBtnText;

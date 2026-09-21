@@ -103,9 +103,7 @@ CREATE TABLE IF NOT EXISTS usuario (
 
     correo VARCHAR(150) NOT NULL UNIQUE,
 
-    telefono VARCHAR(30),
-
-    dni VARCHAR(20) UNIQUE,
+    telefono VARCHAR(30) NOT NULL,
 
     avatar VARCHAR(255),
 

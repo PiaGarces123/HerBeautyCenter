@@ -402,6 +402,9 @@ if (!function_exists('esc')) {
     <!-- Bootstrap 5.3 JS Bundle -->
     <script src="public/assets/js/bootstrap.bundle.min.js"></script>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Custom JS -->
     <script>
         window.APP_CONFIG = {
