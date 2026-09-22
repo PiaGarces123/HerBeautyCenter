@@ -75,8 +75,8 @@ if (!function_exists('esc')) {
                             <span class="material-symbols-outlined">logout</span> Cerrar Sesión
                         </a>
                     <?php else: ?>
-                        <button class="btn btn--primary" id="mobileLoginBtn"
-                            data-bs-toggle="modal" data-bs-target="#loginModal"
+                        <button class="btn btn--primary" id="mobileLoginBtn" data-bs-toggle="modal"
+                            data-bs-target="#loginModal"
                             style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <span class="material-symbols-outlined">login</span> Iniciar Sesión / Registro
                         </button>
@@ -126,40 +126,45 @@ if (!function_exists('esc')) {
 
             <?php if (!empty($servicios)): ?>
                 <div class="srv-grid">
-                    <?php foreach ($servicios as $servicio):
+                    <?php 
+                    $cardIndex = 0;
+                    foreach ($servicios as $servicio):
                         // La ruta ya es URL absoluta guardada en la BD
                         $imagen = !empty($servicio['imagen_ruta'])
                             ? esc($servicio['imagen_ruta'])
                             : esc(base_url('public/assets/media/servicio_default.jpeg'));
-                    ?>
-                    <article class="srv-card">
-                        <div class="srv-card__img-wrap">
-                            <img
-                                src="<?= $imagen ?>"
-                                alt="<?= esc($servicio['nombre']) ?>"
-                                class="srv-card__img"
-                                loading="lazy" />
-                            <div class="srv-card__badge">
-                                <span class="material-symbols-outlined">schedule</span>
-                                <?= esc($servicio['duracion_minutos']) ?> min
+                        
+                        // Patron bento box (la primera de cada 5 es ancha)
+                        $isWide = ($cardIndex % 5 === 0) ? 'srv-card--wide' : '';
+                        $cardIndex++;
+                        ?>
+                        <article class="srv-card <?= $isWide ?>">
+                            <div class="srv-card__img-wrap">
+                                <img src="<?= $imagen ?>" alt="<?= esc($servicio['nombre']) ?>" class="srv-card__img"
+                                    loading="lazy" />
+                                <div class="srv-card__badge">
+                                    <span class="material-symbols-outlined">schedule</span>
+                                    <?= esc($servicio['duracion_minutos']) ?> min
+                                </div>
                             </div>
-                        </div>
-                        <div class="srv-card__body">
-                            <h3 class="srv-card__title"><?= esc($servicio['nombre']) ?></h3>
-                            <p class="srv-card__desc"><?= esc(mb_strimwidth($servicio['descripcion'] ?? '', 0, 120, '…')) ?></p>
-                            <?php if (!empty($servicio['precio']) && $servicio['precio'] > 0): ?>
-                            <p class="srv-card__price">$<?= number_format($servicio['precio'], 0, ',', '.') ?></p>
-                            <?php endif; ?>
-                            <a href="#contacto" class="srv-card__btn">
-                                Reservar Turno
-                                <span class="material-symbols-outlined">arrow_forward</span>
-                            </a>
-                        </div>
-                    </article>
+                            <div class="srv-card__body">
+                                <h3 class="srv-card__title"><?= esc($servicio['nombre']) ?></h3>
+                                <p class="srv-card__desc"><?= esc(mb_strimwidth($servicio['descripcion'] ?? '', 0, 120, '…')) ?>
+                                </p>
+                                <?php if (!empty($servicio['precio']) && $servicio['precio'] > 0): ?>
+                                    <p class="srv-card__price">Desde $<?= number_format($servicio['precio'], 0, ',', '.') ?></p>
+                                <?php endif; ?>
+                                <a href="#contacto" class="srv-card__btn">
+                                    Reservar Turno
+                                    <span class="material-symbols-outlined">arrow_forward</span>
+                                </a>
+                            </div>
+                        </article>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <p style="text-align:center; color: var(--color-on-surface-variant); font-style: italic;">No hay servicios disponibles por el momento.</p>
+                <p style="text-align:center; color: var(--color-on-surface-variant); font-style: italic;">No hay servicios
+                    disponibles por el momento.</p>
             <?php endif; ?>
         </section>
 
@@ -177,53 +182,54 @@ if (!function_exists('esc')) {
             </div>
 
             <?php if (!empty($profesionales)): ?>
-                <?php foreach ($profesionales as $prof): ?>
-                    <?php
-                    $avatar = !empty($prof['avatar']) ? base_url($prof['avatar']) : base_url('public/assets/media/default_avatar.jpg');
-                    ?>
-                    <div class="pro-card">
-                        <img alt="<?= esc($prof['nombre_completo']) ?> - <?= esc($prof['titulo']) ?>" class="pro-card__image"
-                            src="<?= esc($avatar) ?>" />
-                        <h3 class="pro-card__name"><?= esc($prof['nombre_completo']) ?></h3>
-                        <p class="pro-card__role"><?= esc($prof['titulo']) ?></p>
-                        <p class="pro-card__bio"><?= esc($prof['descripcion']) ?></p>
-                        <div class="pro-card__socials">
-                            <?php if (!empty($prof['redes'])): ?>
-                                <?php foreach ($prof['redes'] as $red): ?>
-                                    <a aria-label="<?= esc($red['tipo']) ?>" class="footer__simple-social-icon"
-                                        href="<?= esc($red['link']) ?>" target="_blank" rel="noopener noreferrer">
-                                        <?php if (strtolower($red['tipo']) == 'instagram'): ?>
-                                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                                            </svg>
-                                        <?php elseif (strtolower($red['tipo']) == 'facebook'): ?>
-                                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                                            </svg>
-                                        <?php elseif (strtolower($red['tipo']) == 'tiktok'): ?>
-                                            <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
-                                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
-                                            </svg>
-                                        <?php else: ?>
-                                            <!-- Link genérico -->
-                                            <span class="material-symbols-outlined" style="font-size: 18px;">link</span>
-                                        <?php endif; ?>
-                                    </a>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                <div class="professionals__grid">
+                    <?php foreach ($profesionales as $prof): ?>
+                        <?php
+                        $avatar = !empty($prof['avatar']) ? base_url($prof['avatar']) : base_url('public/assets/media/default_avatar.jpg');
+                        ?>
+                        <div class="pro-card">
+                            <img alt="<?= esc($prof['nombre_completo']) ?> - <?= esc($prof['titulo']) ?>" class="pro-card__image"
+                                src="<?= esc($avatar) ?>" />
+                            <h3 class="pro-card__name"><?= esc($prof['nombre_completo']) ?></h3>
+                            <p class="pro-card__role"><?= esc($prof['titulo']) ?></p>
+                            <p class="pro-card__bio"><?= esc($prof['descripcion']) ?></p>
+                            <div class="pro-card__socials">
+                                <?php if (!empty($prof['redes'])): ?>
+                                    <?php foreach ($prof['redes'] as $red): ?>
+                                        <a aria-label="<?= esc($red['tipo']) ?>" class="pro-card__social-link"
+                                            href="<?= esc($red['link']) ?>" target="_blank" rel="noopener noreferrer">
+                                            <?php if (strtolower($red['tipo']) == 'instagram'): ?>
+                                                <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
+                                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                                </svg>
+                                            <?php elseif (strtolower($red['tipo']) == 'facebook'): ?>
+                                                <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
+                                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                                </svg>
+                                            <?php elseif (strtolower($red['tipo']) == 'tiktok'): ?>
+                                                <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
+                                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+                                                </svg>
+                                            <?php else: ?>
+                                                <!-- Link genérico -->
+                                                <span class="material-symbols-outlined" style="font-size: 18px;">link</span>
+                                            <?php endif; ?>
+                                        </a>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                            <button class="pro-card__btn">Reservar turno</button>
                         </div>
-                        <button class="btn btn--outline pro-card__btn">Reservar turno</button>
-                    </div>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
+                </div>
             <?php else: ?>
-                <p>No hay profesionales disponibles por el momento.</p>
+                <p style="text-align:center; color: var(--color-on-surface-variant); font-style: italic;">No hay profesionales disponibles por el momento.</p>
             <?php endif; ?>
-            </div>
         </section>
 
         <!-- Banner/CTA Section -->
@@ -375,8 +381,8 @@ if (!function_exists('esc')) {
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="email">Email</label>
-                                <input class="form-input" id="email" name="email" placeholder="tu@email.com" required
-                                    type="email" />
+                                <input class="form-input" id="email" name="email" placeholder="ejemplo@gmail.com"
+                                    required type="email" />
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="service">Servicio de interés</label>
@@ -426,7 +432,7 @@ if (!function_exists('esc')) {
             if (urlParams.get('login') === '1') {
                 const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                 loginModal.show();
-                
+
                 // Clean the URL to avoid opening modal on refresh
                 window.history.replaceState({}, document.title, window.location.pathname);
             }

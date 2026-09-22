@@ -241,6 +241,10 @@ CREATE TABLE IF NOT EXISTS categoria (
 
 if ($conn->query($sql) === TRUE) {
     echo "<p>✓ Tabla <strong>categoria</strong> creada.</p>";
+
+    // Insertar categoría por defecto
+    $sqlInsertCategoria = "INSERT IGNORE INTO categoria (id_categoria, nombre, descripcion) VALUES (1, 'General', 'Categoría por defecto')";
+    $conn->query($sqlInsertCategoria);
 } else {
     echo "<p>✗ Error en tabla categoria: {$conn->error}</p>";
 }

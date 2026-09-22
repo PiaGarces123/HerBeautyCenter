@@ -68,13 +68,17 @@ class ServiciosApi extends BaseController
         
         $db->transStart();
 
+        // Desplazar los demás servicios
+        $db->table('servicio')->set('orden', 'orden + 1', false)->update();
+
         $servicioData = [
             'id_categoria' => 1,
             'nombre' => trim($nombre),
             'descripcion' => trim($descripcion),
             'duracion_minutos' => intval($duracion),
             'precio' => floatval($precio ?? 0),
-            'activo' => intval($activo)
+            'activo' => intval($activo),
+            'orden' => 0
         ];
 
         $db->table('servicio')->insert($servicioData);

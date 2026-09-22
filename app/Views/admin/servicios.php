@@ -76,7 +76,7 @@ $this->section('content');
                         <?= esc($s['profesionales_nombres'] ?: 'Sin asignar') ?>
                     </td>
                     <td><?= esc($s['duracion_minutos']) ?> min</td>
-                    <td style="font-weight:600;">$<?= number_format($s['precio'], 0, ',', '.') ?></td>
+                    <td style="font-weight:600;">Desde $<?= number_format($s['precio'], 0, ',', '.') ?></td>
                     <td>
                         <?php if ($s['activo']): ?>
                             <span class="badge badge--green">Activo</span>
