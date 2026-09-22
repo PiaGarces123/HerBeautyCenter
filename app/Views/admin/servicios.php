@@ -27,9 +27,38 @@ $this->section('content');
 </div>
 
 <div class="admin-table-card">
-    <div class="admin-table-card__header">
-        <h3 class="admin-table-card__title">Listado de servicios</h3>
+    <div class="admin-table-card__header" style="justify-content: center; width: 100%; margin-bottom: 1rem;">
+        <h3 class="admin-table-card__title"
+            style="text-transform: uppercase; font-weight: bold; text-align: center; width: 100%;">Listado de servicios</h3>
     </div>
+
+    <form method="GET" action="<?= base_url('admin/servicios') ?>" class="admin-filter-bar" style="display: flex; gap: 1rem; align-items: center; padding: 0 1.5rem 1.5rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" style="border-radius: 0.5rem; padding: 0.6rem 1rem;">
+        </div>
+        <div style="min-width: 150px;">
+            <select name="estado" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
+                <option value="">Estado: Todos</option>
+                <option value="activo" <?= (isset($_GET['estado']) && $_GET['estado'] === 'activo') ? 'selected' : '' ?>>Activo</option>
+                <option value="inactivo" <?= (isset($_GET['estado']) && $_GET['estado'] === 'inactivo') ? 'selected' : '' ?>>Inactivo</option>
+            </select>
+        </div>
+        <div style="min-width: 200px;">
+            <select name="sort" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
+                <option value="">Predeterminado</option>
+                <option value="a-z" <?= (isset($_GET['sort']) && $_GET['sort'] === 'a-z') ? 'selected' : '' ?>>Nombre &uarr; &mdash; A &rarr; Z</option>
+                <option value="z-a" <?= (isset($_GET['sort']) && $_GET['sort'] === 'z-a') ? 'selected' : '' ?>>Nombre &darr; &mdash; Z &rarr; A</option>
+                <option value="menor-tiempo" <?= (isset($_GET['sort']) && $_GET['sort'] === 'menor-tiempo') ? 'selected' : '' ?>>Tiempo &uarr; &mdash; Menor a mayor</option>
+                <option value="mayor-tiempo" <?= (isset($_GET['sort']) && $_GET['sort'] === 'mayor-tiempo') ? 'selected' : '' ?>>Tiempo &darr; &mdash; Mayor a menor</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn--primary" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem;">
+            Filtrar
+        </button>
+        <?php if (!empty($_GET['search']) || !empty($_GET['estado']) || !empty($_GET['sort'])): ?>
+            <a href="<?= base_url('admin/servicios') ?>" class="btn" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem; border: 1px solid var(--color-outline); text-decoration: none; color: var(--color-primary);">Limpiar</a>
+        <?php endif; ?>
+    </form>
 
     <?php if (!empty($servicios)): ?>
     <div class="admin-table-wrapper">

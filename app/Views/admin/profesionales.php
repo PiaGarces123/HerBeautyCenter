@@ -18,11 +18,38 @@ $this->section('content');
 </div>
 
 <div class="admin-table-card">
-    <div class="admin-table-card__header" style="justify-content: center; width: 100%;">
+    <div class="admin-table-card__header" style="justify-content: center; width: 100%; margin-bottom: 1rem;">
         <h3 class="admin-table-card__title"
             style="text-transform: uppercase; font-weight: bold; text-align: center; width: 100%;">Listado de
             profesionales</h3>
     </div>
+
+    <form method="GET" action="<?= base_url('admin/profesionales') ?>" class="admin-filter-bar" style="display: flex; gap: 1rem; align-items: center; padding: 0 1.5rem 1.5rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" style="border-radius: 0.5rem; padding: 0.6rem 1rem;">
+        </div>
+        <div style="min-width: 180px;">
+            <select name="servicio" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
+                <option value="">Servicio: Todos</option>
+                <?php foreach ($todos_servicios as $srv): ?>
+                    <option value="<?= $srv['id_servicio'] ?>" <?= (isset($_GET['servicio']) && $_GET['servicio'] == $srv['id_servicio']) ? 'selected' : '' ?>><?= esc($srv['nombre']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div style="min-width: 150px;">
+            <select name="estado" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
+                <option value="">Estado: Todos</option>
+                <option value="activo" <?= (isset($_GET['estado']) && $_GET['estado'] === 'activo') ? 'selected' : '' ?>>Activo</option>
+                <option value="inactivo" <?= (isset($_GET['estado']) && $_GET['estado'] === 'inactivo') ? 'selected' : '' ?>>Inactivo</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn--primary" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem;">
+            Filtrar
+        </button>
+        <?php if (!empty($_GET['search']) || !empty($_GET['servicio']) || !empty($_GET['estado'])): ?>
+            <a href="<?= base_url('admin/profesionales') ?>" class="btn" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem; border: 1px solid var(--color-outline); text-decoration: none; color: var(--color-primary);">Limpiar</a>
+        <?php endif; ?>
+    </form>
 
     <?php if (!empty($profesionales)): ?>
         <div class="admin-table-wrapper">
@@ -45,9 +72,7 @@ $this->section('content');
                                     <?php if (!empty($prof['avatar'])): ?>
                                         <img src="<?= esc($prof['avatar']) ?>" class="table-avatar" alt="Avatar" />
                                     <?php else: ?>
-                                        <span class="table-avatar-placeholder">
-                                            <span class="material-symbols-outlined" style="font-size:1rem;">person</span>
-                                        </span>
+                                        <img src="<?= base_url('public/assets/media/íconoPerfil.png') ?>" class="table-avatar" alt="Avatar por defecto" style="object-fit: contain; background: #fff; padding: 4px;" />
                                     <?php endif; ?>
                                     <div>
                                         <p class="table-user-name"><?= esc($prof['nombre_completo']) ?></p>

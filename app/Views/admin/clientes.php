@@ -17,10 +17,31 @@ $this->section('content');
 </div>
 
 <div class="admin-table-card">
-    <div class="admin-table-card__header" style="justify-content: center; width: 100%;">
+    <div class="admin-table-card__header" style="justify-content: center; width: 100%; margin-bottom: 1rem;">
         <h3 class="admin-table-card__title"
             style="text-transform: uppercase; font-weight: bold; text-align: center; width: 100%;">Listado de clientes</h3>
     </div>
+
+    <form method="GET" action="<?= base_url('admin/clientes') ?>" class="admin-filter-bar" style="display: flex; gap: 1rem; align-items: center; padding: 0 1.5rem 1.5rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" style="border-radius: 0.5rem; padding: 0.6rem 1rem;">
+        </div>
+        <div style="min-width: 200px;">
+            <select name="sort" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
+                <option value="">Predeterminado</option>
+                <option value="a-z" <?= (isset($_GET['sort']) && $_GET['sort'] === 'a-z') ? 'selected' : '' ?>>Nombre &uarr; &mdash; A &rarr; Z</option>
+                <option value="z-a" <?= (isset($_GET['sort']) && $_GET['sort'] === 'z-a') ? 'selected' : '' ?>>Nombre &darr; &mdash; Z &rarr; A</option>
+                <option value="viejos" <?= (isset($_GET['sort']) && $_GET['sort'] === 'viejos') ? 'selected' : '' ?>>Fecha &uarr; &mdash; Más antiguos primero</option>
+                <option value="nuevos" <?= (isset($_GET['sort']) && $_GET['sort'] === 'nuevos') ? 'selected' : '' ?>>Fecha &darr; &mdash; Más recientes primero</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn--primary" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem;">
+            Filtrar
+        </button>
+        <?php if (!empty($_GET['search']) || !empty($_GET['sort'])): ?>
+            <a href="<?= base_url('admin/clientes') ?>" class="btn" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem; border: 1px solid var(--color-outline); text-decoration: none; color: var(--color-primary);">Limpiar</a>
+        <?php endif; ?>
+    </form>
 
     <?php if (!empty($clientes)): ?>
         <div class="admin-table-wrapper">
@@ -42,9 +63,7 @@ $this->section('content');
                                     <?php if (!empty($cli['avatar'])): ?>
                                         <img src="<?= esc($cli['avatar']) ?>" class="table-avatar" alt="Avatar" />
                                     <?php else: ?>
-                                        <span class="table-avatar-placeholder">
-                                            <span class="material-symbols-outlined" style="font-size:1rem;">person</span>
-                                        </span>
+                                        <img src="<?= base_url('public/assets/media/íconoPerfil.png') ?>" class="table-avatar" alt="Avatar por defecto" style="object-fit: contain; background: #fff; padding: 4px;" />
                                     <?php endif; ?>
                                     <div>
                                         <p class="table-user-name"><?= esc($cli['nombre_completo']) ?></p>

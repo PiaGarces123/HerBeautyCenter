@@ -47,11 +47,28 @@ class Admin extends BaseController
         $page    = (int) ($this->request->getGet('page') ?? 1);
         $perPage = 20;
         
-        $total = $db->table('profesional')->countAllResults();
+        $search = $this->request->getGet('search');
+        $estado = $this->request->getGet('estado');
+        $servicioFiltro = $this->request->getGet('servicio');
 
-        $profesionales = $db->table('profesional')
+        $query = $db->table('profesional')
+            ->join('usuario', 'usuario.id_usuario = profesional.id_usuario');
+
+        if (!empty($search)) {
+            $query->like('usuario.nombre_completo', $search);
+        }
+        if (!empty($estado)) {
+            $val = $estado === 'activo' ? 1 : 0;
+            $query->where('usuario.activo', $val);
+        }
+        if (!empty($servicioFiltro)) {
+            $query->where("EXISTS (SELECT 1 FROM profesional_servicio ps WHERE ps.id_profesional = profesional.id_profesional AND ps.id_servicio = " . intval($servicioFiltro) . ")", null, false);
+        }
+
+        $total = $query->countAllResults(false);
+
+        $profesionales = $query
             ->select('profesional.*, usuario.nombre_completo, usuario.correo, usuario.telefono, usuario.avatar, usuario.activo, GROUP_CONCAT(servicio.nombre SEPARATOR ", ") as servicios_ofrecidos, GROUP_CONCAT(servicio.id_servicio SEPARATOR ",") as servicios_ids')
-            ->join('usuario', 'usuario.id_usuario = profesional.id_usuario')
             ->join('profesional_servicio', 'profesional_servicio.id_profesional = profesional.id_profesional', 'left')
             ->join('servicio', 'servicio.id_servicio = profesional_servicio.id_servicio', 'left')
             ->groupBy('profesional.id_profesional')
@@ -88,18 +105,36 @@ class Admin extends BaseController
         $page    = (int) ($this->request->getGet('page') ?? 1);
         $perPage = 20;
         
-        $total = $db->table('servicio')->countAllResults();
+        $search = $this->request->getGet('search');
+        $estado = $this->request->getGet('estado');
+        $sort = $this->request->getGet('sort');
 
-        $servicios = $db->table('servicio')
+        $query = $db->table('servicio')
             ->select('servicio.*, imagen.ruta as imagen_ruta, GROUP_CONCAT(DISTINCT profesional_servicio.id_profesional SEPARATOR ",") as profesionales_ids, GROUP_CONCAT(DISTINCT usuario.nombre_completo SEPARATOR ", ") as profesionales_nombres')
             ->join('imagen', 'imagen.id_servicio = servicio.id_servicio', 'left')
             ->join('profesional_servicio', 'profesional_servicio.id_servicio = servicio.id_servicio', 'left')
             ->join('profesional', 'profesional.id_profesional = profesional_servicio.id_profesional', 'left')
             ->join('usuario', 'usuario.id_usuario = profesional.id_usuario', 'left')
-            ->groupBy('servicio.id_servicio')
-            ->orderBy('servicio.orden', 'ASC')
-            ->limit($perPage, ($page - 1) * $perPage)
-            ->get()->getResultArray();
+            ->groupBy('servicio.id_servicio');
+
+        if (!empty($search)) {
+            $query->like('servicio.nombre', $search);
+        }
+        if (!empty($estado)) {
+            $val = $estado === 'activo' ? 1 : 0;
+            $query->where('servicio.activo', $val);
+        }
+        if (!empty($sort)) {
+            if ($sort === 'a-z') $query->orderBy('servicio.nombre', 'ASC');
+            elseif ($sort === 'z-a') $query->orderBy('servicio.nombre', 'DESC');
+            elseif ($sort === 'menor-tiempo') $query->orderBy('servicio.duracion_minutos', 'ASC');
+            elseif ($sort === 'mayor-tiempo') $query->orderBy('servicio.duracion_minutos', 'DESC');
+        } else {
+            $query->orderBy('servicio.orden', 'ASC');
+        }
+
+        $total = $query->countAllResults(false);
+        $servicios = $query->limit($perPage, ($page - 1) * $perPage)->get()->getResultArray();
 
         $todos_profesionales = $db->table('profesional')
             ->select('profesional.id_profesional, usuario.nombre_completo')
@@ -244,19 +279,30 @@ class Admin extends BaseController
         $perPage = 20;
         
         // We want users in 'cliente' table who are not in 'profesional' table
-        $total = $db->table('cliente')
-            ->join('profesional', 'profesional.id_usuario = cliente.id_usuario', 'left')
-            ->where('profesional.id_profesional IS NULL')
-            ->countAllResults();
+        $search = $this->request->getGet('search');
+        $sort = $this->request->getGet('sort');
 
-        $clientes = $db->table('cliente')
-            ->select('cliente.id_cliente, usuario.id_usuario, usuario.nombre_completo, usuario.correo, usuario.telefono, usuario.activo, usuario.fecha_registro, usuario.avatar')
+        $query = $db->table('cliente')
+            ->select('cliente.*, usuario.nombre_completo, usuario.correo, usuario.telefono, usuario.avatar, usuario.activo, usuario.id_usuario')
             ->join('usuario', 'usuario.id_usuario = cliente.id_usuario')
             ->join('profesional', 'profesional.id_usuario = cliente.id_usuario', 'left')
-            ->where('profesional.id_profesional IS NULL')
-            ->orderBy('usuario.fecha_registro', 'DESC')
-            ->limit($perPage, ($page - 1) * $perPage)
-            ->get()->getResultArray();
+            ->where('profesional.id_profesional IS NULL');
+
+        if (!empty($search)) {
+            $query->like('usuario.nombre_completo', $search);
+        }
+
+        if (!empty($sort)) {
+            if ($sort === 'a-z') $query->orderBy('usuario.nombre_completo', 'ASC');
+            elseif ($sort === 'z-a') $query->orderBy('usuario.nombre_completo', 'DESC');
+            elseif ($sort === 'nuevos') $query->orderBy('usuario.fecha_registro', 'DESC');
+            elseif ($sort === 'viejos') $query->orderBy('usuario.fecha_registro', 'ASC');
+        } else {
+            $query->orderBy('usuario.fecha_registro', 'DESC');
+        }
+
+        $total = $query->countAllResults(false);
+        $clientes = $query->limit($perPage, ($page - 1) * $perPage)->get()->getResultArray();
             
         $pager_links = $pager->makeLinks($page, $perPage, $total, 'admin_pagination');
         $start = $total > 0 ? ($page - 1) * $perPage + 1 : 0;

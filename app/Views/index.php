@@ -185,7 +185,7 @@ if (!function_exists('esc')) {
                 <div class="professionals__grid">
                     <?php foreach ($profesionales as $prof): ?>
                         <?php
-                        $avatar = !empty($prof['avatar']) ? base_url($prof['avatar']) : base_url('public/assets/media/default_avatar.jpg');
+                        $avatar = !empty($prof['avatar']) ? base_url($prof['avatar']) : base_url('public/assets/media/íconoPerfil.png');
                         ?>
                         <div class="pro-card">
                             <img alt="<?= esc($prof['nombre_completo']) ?> - <?= esc($prof['titulo']) ?>" class="pro-card__image"
