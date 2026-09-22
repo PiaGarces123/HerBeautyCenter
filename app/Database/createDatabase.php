@@ -267,6 +267,8 @@ CREATE TABLE IF NOT EXISTS servicio (
 
     activo TINYINT(1) NOT NULL DEFAULT 1,
 
+    orden INT NOT NULL DEFAULT 0,
+
     CONSTRAINT fk_servicio_categoria
         FOREIGN KEY (id_categoria)
         REFERENCES categoria(id_categoria)
