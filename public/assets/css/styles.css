@@ -545,159 +545,210 @@ ol {
 }
 
 /* ==========================================================================
-   SERVICES BENTO GRID
+   SERVICES CARD GRID — Nuevo diseño moderno
    ========================================================================== */
 
-.services__grid {
+/* ==========================================================================
+   SERVICES CARD GRID — Diseño overlay semitransparente
+   ========================================================================== */
+
+.srv-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
+    margin-top: 2rem;
 }
 
-@media (min-width: 48rem) {
-    .services__grid {
-        grid-template-columns: repeat(12, 1fr);
-        grid-auto-rows: clamp(12.5rem, 23vh, 16.5rem);
+@media (min-width: 480px) {
+    .srv-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
-/* Card Estilos Base */
-.service-card {
+@media (min-width: 768px) {
+    .srv-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .srv-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1280px) {
+    .srv-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+/* Card base */
+.srv-card {
     position: relative;
-    border-radius: var(--radius-xl);
+    background: var(--color-surface-container);
+    border-radius: 24px;
     overflow: hidden;
-    background-color: var(--color-surface-container);
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-smooth);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 460px;
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1),
+                box-shadow 0.35s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.service-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
+.srv-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.22), 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-/* Grid Spanning */
-@media (min-width: 48rem) {
-    .service-card--large {
-        grid-column: span 8;
-    }
-
-    .service-card--medium {
-        grid-column: span 4;
-    }
-
-    .service-card--text {
-        grid-column: span 4;
-    }
-}
-
-/* Elementos visuales del Card */
-.service-card__image {
+/* Image wrapper as full background of card */
+.srv-card__img-wrap {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.service-card:hover .service-card__image {
-    transform: scale(1.04);
-}
-
-.service-card__overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(30, 27, 24, 0.75) 0%, rgba(30, 27, 24, 0.2) 60%, transparent 100%);
+    overflow: hidden;
+    background: var(--color-surface-container);
     z-index: 1;
 }
 
-.service-card__content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+.srv-card__img {
     width: 100%;
-    padding: clamp(1.5rem, 4vw, 2rem);
-    z-index: 2;
-    color: var(--color-on-primary);
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.55s cubic-bezier(0.25, 1, 0.5, 1);
+    display: block;
 }
 
-.service-card__title {
-    font-family: var(--font-serif);
-    font-size: clamp(1.25rem, 3vw, 1.5rem);
-    margin-bottom: 0.5rem;
+.srv-card:hover .srv-card__img {
+    transform: scale(1.08);
 }
 
-.service-card__text {
-    font-size: 0.95rem;
-    opacity: 0.9;
-    max-width: 28rem;
-    margin-bottom: 1.25rem;
-}
-
-.service-card__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+/* Duration badge */
+.srv-card__badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 3;
+    background: rgba(30, 27, 24, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff;
+    border-radius: var(--radius-full);
+    padding: 0.35rem 0.85rem 0.35rem 0.6rem;
     font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 600;
-    color: var(--color-on-primary);
-}
-
-.service-card__link span {
-    font-size: 1rem;
-    transition: transform 0.3s ease;
-}
-
-.service-card__link:hover span {
-    transform: translateX(5px);
-}
-
-/* Tarjetas de Texto sin Imagen */
-.service-card--text {
+    font-weight: 700;
+    letter-spacing: 0.04em;
     display: flex;
-    align-items: flex-end;
-    padding: clamp(1.5rem, 4vw, 2rem);
+    align-items: center;
+    gap: 0.3rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.service-card--peach {
-    background-color: var(--color-bento-peach);
+.srv-card__badge .material-symbols-outlined {
+    font-size: 0.95rem;
+    font-variation-settings: 'FILL' 1;
 }
 
-.service-card--rose {
-    background-color: var(--color-bento-rose);
-}
-
-.service-card__text-content {
+/* Card body — overlay float over background image with semi-transparent white/cream background */
+.srv-card__body {
+    position: relative;
+    z-index: 2;
+    margin: 1rem;
+    padding: 1.25rem 1.25rem 1.5rem;
+    background: rgba(255, 248, 245, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 18px;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    justify-content: space-between;
-    width: 100%;
+    align-items: center;
+    text-align: center;
+    gap: 0.6rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
-.service-card__icon {
-    font-size: 2.25rem;
+.srv-card:hover .srv-card__body {
+    background: rgba(255, 255, 255, 0.65);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+.srv-card__title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
     color: var(--color-primary);
-    margin-bottom: 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
-.service-card--rose .service-card__icon {
-    color: var(--color-on-secondary-container);
+.srv-card__desc {
+    font-size: 0.855rem;
+    color: #333;
+    font-weight: 600;
+    line-height: 1.6;
+    flex: 1;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
-.service-card--peach .service-card__title {
+.srv-card__price {
+    font-family: var(--font-sans);
+    font-size: 1.2rem;
+    font-weight: 800;
     color: var(--color-primary);
+    margin: 0;
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
-.service-card--rose .service-card__title {
-    color: var(--color-on-secondary-container);
+/* CTA button — centered */
+.srv-card__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    margin-top: 0.5rem;
+    align-self: center;
+    padding: 0.7rem 1.6rem;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 14px rgba(125, 86, 45, 0.3);
+    transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.service-card--peach .service-card__text {
-    color: var(--color-on-surface-variant);
+.srv-card__btn .material-symbols-outlined {
+    font-size: 1rem;
+    transition: transform 0.25s ease;
 }
 
+.srv-card__btn:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(125, 86, 45, 0.4);
+    color: var(--color-on-primary);
+}
+
+.srv-card__btn:hover .material-symbols-outlined {
+    transform: translateX(4px);
+}
+
+/* Keep old service-card classes in case used elsewhere, but hide old bento grid */
 .service-card--rose .service-card__text {
     color: var(--color-on-secondary-container);
     opacity: 0.85;

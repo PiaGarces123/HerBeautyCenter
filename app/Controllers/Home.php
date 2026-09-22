@@ -14,6 +14,7 @@ class Home extends BaseController
             ->join('imagen', 'imagen.id_servicio = servicio.id_servicio', 'left')
             ->where('servicio.activo', 1)
             ->groupBy('servicio.id_servicio')
+            ->orderBy('servicio.orden', 'ASC')
             ->get();
         $servicios = $serviciosQuery->getResultArray();
 

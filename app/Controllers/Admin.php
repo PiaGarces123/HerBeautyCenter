@@ -36,7 +36,7 @@ class Admin extends BaseController
         ]);
     }
 
-    public function profesionales(): string
+    public function profesionales()
     {
         $redirect = $this->verificarSesionAdmin();
         if ($redirect) return $redirect;
@@ -77,7 +77,7 @@ class Admin extends BaseController
         ]);
     }
 
-    public function servicios(): string
+    public function servicios()
     {
         $redirect = $this->verificarSesionAdmin();
         if ($redirect) return $redirect;
@@ -91,10 +91,19 @@ class Admin extends BaseController
         $total = $db->table('servicio')->countAllResults();
 
         $servicios = $db->table('servicio')
-            ->select('servicio.*, imagen.ruta as imagen_ruta')
+            ->select('servicio.*, imagen.ruta as imagen_ruta, GROUP_CONCAT(DISTINCT profesional_servicio.id_profesional SEPARATOR ",") as profesionales_ids, GROUP_CONCAT(DISTINCT usuario.nombre_completo SEPARATOR ", ") as profesionales_nombres')
             ->join('imagen', 'imagen.id_servicio = servicio.id_servicio', 'left')
+            ->join('profesional_servicio', 'profesional_servicio.id_servicio = servicio.id_servicio', 'left')
+            ->join('profesional', 'profesional.id_profesional = profesional_servicio.id_profesional', 'left')
+            ->join('usuario', 'usuario.id_usuario = profesional.id_usuario', 'left')
             ->groupBy('servicio.id_servicio')
+            ->orderBy('servicio.orden', 'ASC')
             ->limit($perPage, ($page - 1) * $perPage)
+            ->get()->getResultArray();
+
+        $todos_profesionales = $db->table('profesional')
+            ->select('profesional.id_profesional, usuario.nombre_completo')
+            ->join('usuario', 'usuario.id_usuario = profesional.id_usuario')
             ->get()->getResultArray();
             
         $pager_links = $pager->makeLinks($page, $perPage, $total, 'admin_pagination');
@@ -103,6 +112,7 @@ class Admin extends BaseController
 
         return view('admin/servicios', [
             'servicios' => $servicios,
+            'todos_profesionales' => $todos_profesionales,
             'usuario' => ['nombre' => session()->get('usuario_nombre')],
             'rol' => session()->get('rol'),
             'activeNav' => 'servicios',
@@ -113,7 +123,7 @@ class Admin extends BaseController
         ]);
     }
 
-    public function turnos(): string
+    public function turnos()
     {
         $redirect = $this->verificarSesionAdmin();
         if ($redirect) return $redirect;
@@ -174,7 +184,7 @@ class Admin extends BaseController
         ]);
     }
 
-    public function horarios(): string
+    public function horarios()
     {
         $redirect = $this->verificarSesionAdmin();
         if ($redirect) return $redirect;
@@ -222,7 +232,7 @@ class Admin extends BaseController
         ]);
     }
 
-    public function clientes(): string
+    public function clientes()
     {
         $redirect = $this->verificarSesionAdmin();
         if ($redirect) return $redirect;

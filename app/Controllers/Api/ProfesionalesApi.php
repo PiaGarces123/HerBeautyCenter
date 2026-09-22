@@ -166,8 +166,14 @@ class ProfesionalesApi extends BaseController
 
         $db->transStart();
 
+        // Eliminar administrador si lo fuera
+        $db->table('administrador')->where('id_profesional', $id)->delete();
         // Eliminar relaciones de servicios primero
         $db->table('profesional_servicio')->where('id_profesional', $id)->delete();
+        // Eliminar turnos asignados
+        $db->table('turno')->where('id_profesional', $id)->delete();
+        // Eliminar horarios configurados
+        $db->table('horario')->where('id_profesional', $id)->delete();
         // Eliminar profesional
         $db->table('profesional')->where('id_profesional', $id)->delete();
         // Eliminar usuario

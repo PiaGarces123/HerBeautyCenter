@@ -21,6 +21,13 @@ $routes->match(['get', 'post'], '/public/api/logout', 'Auth::logout');
 $routes->get('/api/dashboard/admin', 'Api\DashboardApi::adminStats');
 $routes->get('/api/dashboard/profesional', 'Api\DashboardApi::profesionalStats');
 
+// Servicios APIs
+$routes->post('/api/servicios/crear', 'Api\ServiciosApi::crear');
+$routes->post('/api/servicios/editar/(:num)', 'Api\ServiciosApi::editar/$1');
+$routes->delete('/api/servicios/eliminar/(:num)', 'Api\ServiciosApi::eliminar/$1');
+$routes->put('/api/servicios/profesionales/(:num)', 'Api\ServiciosApi::profesionales/$1');
+$routes->post('/api/servicios/ordenar', 'Api\ServiciosApi::ordenar');
+
 // Profesionales APIs
 $routes->post('/api/profesionales/crear', 'Api\ProfesionalesApi::crear');
 $routes->post('/api/profesionales/servicios', 'Api\ProfesionalesApi::servicios');

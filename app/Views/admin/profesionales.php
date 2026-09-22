@@ -706,7 +706,7 @@ $this->section('content');
                     const servicesStr = btn.getAttribute('data-services') || '';
 
                     // Parse currently assigned service IDs
-                    const assignedIds = servicesStr.split(',').filter(s => s !== '');
+                    const assignedIds = servicesStr ? String(servicesStr).split(',').map(s => s.trim()).filter(s => s !== '') : [];
 
                     document.getElementById('assignProfId').value = id;
                     document.getElementById('assignServicesProfName').innerText = `Profesional: ${name}`;
@@ -747,9 +747,17 @@ $this->section('content');
 
                     if (data.success) {
                         errorDiv.classList.add('d-none');
-                        successDiv.innerText = 'Servicios asignados correctamente.';
-                        successDiv.classList.remove('d-none');
-                        setTimeout(() => window.location.reload(), 1500);
+                        
+                        const modalEl = document.getElementById('assignServicesModal');
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) modal.hide();
+
+                        Swal.fire({
+                            title: '¡Asignados!',
+                            text: 'Servicios asignados correctamente.',
+                            icon: 'success',
+                            confirmButtonColor: '#d6858e'
+                        }).then(() => window.location.reload());
                     } else {
                         successDiv.classList.add('d-none');
                         let errorMsg = data.message || 'Error al asignar servicios.';

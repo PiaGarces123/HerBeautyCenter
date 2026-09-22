@@ -124,34 +124,43 @@ if (!function_exists('esc')) {
                     estética personal.</p>
             </div>
 
-            <!-- Bento Grid -->
-            <?php $isFirstService = true; ?>
             <?php if (!empty($servicios)): ?>
-                <?php foreach ($servicios as $servicio): ?>
-                    <?php
-                    $cardClass = $isFirstService ? 'service-card--large' : 'service-card--medium';
-                    $isFirstService = false;
-                    $imagen = !empty($servicio['imagen_ruta']) ? base_url($servicio['imagen_ruta']) : base_url('public/assets/media/servicio_default.jpeg');
+                <div class="srv-grid">
+                    <?php foreach ($servicios as $servicio):
+                        // La ruta ya es URL absoluta guardada en la BD
+                        $imagen = !empty($servicio['imagen_ruta'])
+                            ? esc($servicio['imagen_ruta'])
+                            : esc(base_url('public/assets/media/servicio_default.jpeg'));
                     ?>
-                    <div class="service-card <?= $cardClass ?>">
-                        <img alt="<?= esc($servicio['nombre']) ?>" class="service-card__image"
-                            data-alt="<?= esc($servicio['nombre']) ?>" src="<?= esc($imagen) ?>" />
-                        <div class="service-card__overlay"></div>
-                        <div class="service-card__content">
-                            <h3 class="service-card__title"><?= esc($servicio['nombre']) ?></h3>
-                            <?php if ($cardClass == 'service-card--large'): ?>
-                                <p class="service-card__text"><?= esc($servicio['descripcion']) ?></p>
+                    <article class="srv-card">
+                        <div class="srv-card__img-wrap">
+                            <img
+                                src="<?= $imagen ?>"
+                                alt="<?= esc($servicio['nombre']) ?>"
+                                class="srv-card__img"
+                                loading="lazy" />
+                            <div class="srv-card__badge">
+                                <span class="material-symbols-outlined">schedule</span>
+                                <?= esc($servicio['duracion_minutos']) ?> min
+                            </div>
+                        </div>
+                        <div class="srv-card__body">
+                            <h3 class="srv-card__title"><?= esc($servicio['nombre']) ?></h3>
+                            <p class="srv-card__desc"><?= esc(mb_strimwidth($servicio['descripcion'] ?? '', 0, 120, '…')) ?></p>
+                            <?php if (!empty($servicio['precio']) && $servicio['precio'] > 0): ?>
+                            <p class="srv-card__price">$<?= number_format($servicio['precio'], 0, ',', '.') ?></p>
                             <?php endif; ?>
-                            <a class="service-card__link" href="#contacto">
-                                Ver servicio <span class="material-symbols-outlined">arrow_forward</span>
+                            <a href="#contacto" class="srv-card__btn">
+                                Reservar Turno
+                                <span class="material-symbols-outlined">arrow_forward</span>
                             </a>
                         </div>
-                    </div>
-                <?php endforeach; ?>
+                    </article>
+                    <?php endforeach; ?>
+                </div>
             <?php else: ?>
-                <p>No hay servicios disponibles por el momento.</p>
+                <p style="text-align:center; color: var(--color-on-surface-variant); font-style: italic;">No hay servicios disponibles por el momento.</p>
             <?php endif; ?>
-            </div>
         </section>
 
 
