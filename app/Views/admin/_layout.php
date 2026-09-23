@@ -56,11 +56,13 @@ $navItems = [
     <!-- ===== SIDEBAR ===== -->
     <aside class="admin-sidebar" id="adminSidebar">
         <!-- Brand -->
-        <div class="admin-sidebar__brand">
-            <img src="<?= base_url('public/assets/media/logoText.png') ?>" alt="Her Beauty Center"
-                class="admin-sidebar__logo" />
-            <p class="admin-sidebar__brand-text">Panel de Administración</p>
-        </div>
+        <a href="<?= base_url() ?>" style="text-decoration: none;">
+            <div class="admin-sidebar__brand">
+                <img src="<?= base_url('public/assets/media/logoText.png') ?>" alt="Her Beauty Center"
+                    class="admin-sidebar__logo" />
+                <p class="admin-sidebar__brand-text">Panel de Administración</p>
+            </div>
+        </a>
 
         <!-- Navigation -->
         <nav class="admin-sidebar__nav" aria-label="Navegación principal">
@@ -123,7 +125,7 @@ $navItems = [
             </div>
             <div class="admin-topbar__actions">
                 <a href="<?= base_url() ?>" class="btn btn-pink d-flex align-items-center gap-1"
-                    style="padding: 0.375rem 0.75rem; text-decoration: none;" title="Ver sitio web" target="_blank">
+                    style="padding: 0.375rem 0.75rem; text-decoration: none;" title="Ver sitio web">
                     <span class="material-symbols-outlined" style="font-size: 1.25rem;">search</span> Ver Sitio
                 </a>
             </div>

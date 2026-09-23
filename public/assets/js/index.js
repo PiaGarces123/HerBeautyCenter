@@ -121,14 +121,33 @@ function initFormHandlers() {
     if (contactForm) {
         contactForm.addEventListener("submit", (e) => {
             e.preventDefault();
+            
+            if (!contactForm.checkValidity()) {
+                e.stopPropagation();
+                contactForm.classList.add('was-validated');
+                return;
+            }
+            contactForm.classList.add('was-validated');
 
-            const nameInput = document.getElementById("name");
-            const name = nameInput ? nameInput.value.trim() : "cliente";
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const serviceSelect = document.getElementById("service");
+            const serviceText = serviceSelect.options[serviceSelect.selectedIndex].text;
+            const message = document.getElementById("message").value.trim();
 
-            // Mensaje de éxito estilizado nativo (alert moderno)
-            alert(`¡Muchas gracias, ${name}! Hemos recibido tu consulta con éxito. Un representante de nuestro equipo te contactará por email o teléfono a la brevedad.`);
+            let wpText = `Hola! Soy ${name}. `;
+            if (email) {
+                wpText += `Mi correo es ${email}. `;
+            }
+            wpText += `Me interesa el servicio ${serviceText}, ${message}`;
+
+            const phone = "5492664905442";
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(wpText)}`;
+
+            window.location.href = url;
             
             contactForm.reset();
+            contactForm.classList.remove('was-validated');
         });
     }
 
@@ -293,6 +312,14 @@ function initAuthModals() {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            if (!loginForm.checkValidity()) {
+                e.stopPropagation();
+                loginForm.classList.add('was-validated');
+                return;
+            }
+            loginForm.classList.add('was-validated');
+
             const submitBtn = loginForm.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn ? submitBtn.innerText : 'Ingresar';
 

@@ -366,42 +366,45 @@ if (!function_exists('esc')) {
 
                     <!-- Contact Form Column -->
                     <div class="contact__form-container">
-                        <form class="contact__form" id="contactForm">
+                        <form class="contact__form needs-validation" id="contactForm" novalidate>
                             <div class="form-row">
-                                <div class="form-group">
+                                <div class="form-group position-relative">
                                     <label class="form-label" for="name">Nombre completo</label>
                                     <input class="form-input" id="name" name="name" placeholder="Tu nombre" required
-                                        type="text" />
+                                        type="text" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,}$" />
+                                    <div class="invalid-feedback" style="position: absolute; bottom: -20px; font-size: 0.75rem;">Debe contener al menos 3 letras.</div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="phone">Teléfono</label>
-                                    <input class="form-input" id="phone" name="phone" placeholder="Tu teléfono"
-                                        type="tel" />
+                                <div class="form-group position-relative">
+                                    <label class="form-label" for="email">Email</label>
+                                    <input class="form-input" id="email" name="email" placeholder="ejemplo@gmail.com (Opcional)"
+                                        type="email" pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" />
+                                    <div class="invalid-feedback" style="position: absolute; bottom: -20px; font-size: 0.75rem;">Ingresa un correo válido.</div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="email">Email</label>
-                                <input class="form-input" id="email" name="email" placeholder="ejemplo@gmail.com"
-                                    required type="email" />
+                            
+                            <div class="form-row" style="margin-top: 15px;">
+                                <div class="form-group position-relative">
+                                    <label class="form-label" for="service">Servicio de interés</label>
+                                    <select class="form-select" id="service" name="service" required>
+                                        <option disabled selected value="">Seleccioná un servicio</option>
+                                        <?php if (!empty($servicios)): ?>
+                                            <?php foreach ($servicios as $s): ?>
+                                                <option value="<?= esc($s['id_servicio']) ?>"><?= esc($s['nombre']) ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                        <option value="otro">Otro</option>
+                                    </select>
+                                    <div class="invalid-feedback" style="position: absolute; bottom: -20px; font-size: 0.75rem;">Selecciona un servicio.</div>
+                                </div>
+                                <div class="form-group position-relative">
+                                    <label class="form-label" for="message">Consulta</label>
+                                    <textarea class="form-textarea" id="message" name="message"
+                                        placeholder="¿En qué te podemos ayudar?" required rows="4" minlength="5"></textarea>
+                                    <div class="invalid-feedback" style="position: absolute; bottom: -20px; font-size: 0.75rem;">El mensaje debe tener al menos 5 caracteres.</div>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="service">Servicio de interés</label>
-                                <select class="form-select" id="service" name="service" required>
-                                    <option disabled selected value="">Seleccioná un servicio</option>
-                                    <option value="cejas">Diseño de Cejas</option>
-                                    <option value="pestanas">Pestañas</option>
-                                    <option value="faciales">Tratamientos Faciales</option>
-                                    <option value="unas">Uñas</option>
-                                    <option value="depilacion">Depilación</option>
-                                    <option value="otro">Otro</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="message">Consulta</label>
-                                <textarea class="form-textarea" id="message" name="message"
-                                    placeholder="¿En qué te podemos ayudar?" required rows="4"></textarea>
-                            </div>
-                            <button class="btn btn--primary form-btn" type="submit">Enviar consulta</button>
+
+                            <button class="btn btn--primary form-btn" type="submit" style="align-self: center; margin-top: 20px;">Enviar consulta</button>
                         </form>
                     </div>
                 </div>

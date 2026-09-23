@@ -16,23 +16,25 @@
                     Iniciar Sesión</h2>
             </div>
             <div class="modal-body pt-2">
-                <form id="loginForm" novalidate>
-                    <div class="mb-3">
+                <form id="loginForm" class="needs-validation" novalidate>
+                    <div class="mb-3 position-relative">
                         <label class="form-label fw-medium" for="loginEmail">Email</label>
                         <input class="form-control form-control-lg" id="loginEmail" type="email" required
-                            placeholder="ejemplo@gmail.com" autocomplete="email">
+                            placeholder="ejemplo@gmail.com" autocomplete="email" pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$">
+                        <div class="invalid-feedback">Ingresá un correo válido.</div>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         <label class="form-label fw-medium" for="loginPassword">Contraseña</label>
-                        <div class="input-group">
+                        <div class="input-group has-validation">
                             <input class="form-control form-control-lg" id="loginPassword" type="password" required
-                                placeholder="••••••••" autocomplete="current-password"
+                                placeholder="••••••••" autocomplete="current-password" minlength="8"
                                 style="border-radius: 0.5rem 0 0 0.5rem;">
                             <button class="btn btn-outline-secondary toggle-password" type="button"
                                 style="border-radius: 0 0.5rem 0.5rem 0; border-color: #dee2e6;">
                                 <span class="material-symbols-outlined"
                                     style="font-size: 1.1rem; line-height: 1;">visibility</span>
                             </button>
+                            <div class="invalid-feedback">Campo requerido.</div>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-pink w-100 btn-lg mt-2 fw-semibold"

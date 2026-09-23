@@ -200,19 +200,33 @@ class Admin extends BaseController
         ]);
     }
 
-    public function perfil(): string
+    public function perfil()
     {
-        $redirect = $this->verificarSesionAdmin();
-        if ($redirect) return $redirect;
-
         $session = session();
+        if (!$session->get('usuario_id') || !in_array($session->get('rol'), ['admin', 'profesional'])) {
+            return redirect()->to('/?login=1');
+        }
+
         $db = \Config\Database::connect();
         $usuario = $db->table('usuario')
             ->where('id_usuario', $session->get('usuario_id'))
             ->get()->getRowArray();
 
+        $profesional = $db->table('profesional')
+            ->where('id_usuario', $session->get('usuario_id'))
+            ->get()->getRowArray();
+            
+        $redes = [];
+        if ($profesional) {
+            $redes = $db->table('red_social')
+                ->where('id_profesional', $profesional['id_profesional'])
+                ->get()->getResultArray();
+        }
+
         return view('admin/perfil', [
             'usuario_data' => $usuario,
+            'profesional_data' => $profesional,
+            'redes_data' => $redes,
             'usuario' => ['nombre' => $session->get('usuario_nombre')],
             'rol' => $session->get('rol'),
             'activeNav' => 'perfil'

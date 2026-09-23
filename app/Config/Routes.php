@@ -42,6 +42,12 @@ $routes->put('/api/clientes/password/(:num)', 'Api\ClientesApi::password/$1');
 $routes->delete('/api/clientes/eliminar/(:num)', 'Api\ClientesApi::eliminar/$1');
 $routes->post('/api/clientes/convertir/(:num)', 'Api\ClientesApi::convertir/$1');
 
+// Perfil APIs
+$routes->post('/api/perfil/actualizar', 'Api\PerfilApi::actualizar');
+$routes->post('/api/perfil/password', 'Api\PerfilApi::password');
+$routes->post('/api/perfil/avatar', 'Api\PerfilApi::avatar');
+$routes->post('/api/perfil/redes', 'Api\PerfilApi::redes');
+
 // Panel de Administración
 $routes->get('/admin/logout',   'Admin::logout');
 $routes->get('/admin',          'Admin::dashboard');
