@@ -414,7 +414,7 @@ $this->section('content');
                         }).then(() => window.location.reload());
                     } else {
                         const errorDiv = document.getElementById('createClienteError');
-                        errorDiv.innerText = data.message || 'Error al crear cliente.';
+                        errorDiv.innerText = data.messages?.error || data.message || 'Error al crear cliente.';
                         errorDiv.classList.remove('d-none');
                         btn.disabled = false;
                         btn.innerText = originalText;
@@ -480,7 +480,7 @@ $this->section('content');
                         }).then(() => window.location.reload());
                     } else {
                         const errorDiv = document.getElementById('editClienteError');
-                        errorDiv.innerText = data.message || 'Error al actualizar.';
+                        errorDiv.innerText = data.messages?.error || data.message || 'Error al actualizar cliente.';
                         errorDiv.classList.remove('d-none');
                         btn.disabled = false;
                         btn.innerText = originalText;

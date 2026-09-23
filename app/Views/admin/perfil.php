@@ -62,11 +62,19 @@ $avatar = !empty($u['avatar']) ? base_url($u['avatar']) : $defaultAvatar;
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label class="form-label" for="correo">Correo electrónico</label>
                 <input class="form-input" type="email" id="correo" name="correo"
                        value="<?= esc($u['correo'] ?? '') ?>" required />
             </div>
+
+            <?php if ($p): ?>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" for="titulo">Título Profesional</label>
+                <input class="form-input" type="text" id="titulo" name="titulo"
+                       value="<?= esc($p['titulo'] ?? '') ?>" placeholder="Ej: Especialista en Uñas" required minlength="3" />
+            </div>
+            <?php endif; ?>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
                 <button type="button" class="btn btn--outline" data-bs-toggle="modal" data-bs-target="#changePasswordModal" style="font-size:0.75rem; color: var(--color-on-surface-variant); border-color: var(--color-outline-variant);">
@@ -191,6 +199,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Actualizar Perfil
     document.getElementById('perfilForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        if (!e.target.checkValidity()) {
+            e.target.reportValidity();
+            return;
+        }
+
         const fd = new FormData(e.target);
         
         try {

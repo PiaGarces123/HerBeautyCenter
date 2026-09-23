@@ -297,7 +297,7 @@ class Admin extends BaseController
         $sort = $this->request->getGet('sort');
 
         $query = $db->table('cliente')
-            ->select('cliente.*, usuario.nombre_completo, usuario.correo, usuario.telefono, usuario.avatar, usuario.activo, usuario.id_usuario')
+            ->select('cliente.*, usuario.nombre_completo, usuario.correo, usuario.telefono, usuario.avatar, usuario.activo, usuario.fecha_registro, usuario.id_usuario')
             ->join('usuario', 'usuario.id_usuario = cliente.id_usuario')
             ->join('profesional', 'profesional.id_usuario = cliente.id_usuario', 'left')
             ->where('profesional.id_profesional IS NULL');

@@ -46,6 +46,19 @@ class PerfilApi extends BaseController
 
         $db->table('usuario')->where('id_usuario', $usuario_id)->update($data);
 
+        // Update professional title if applicable
+        $profesional = $db->table('profesional')->where('id_usuario', $usuario_id)->get()->getRowArray();
+        if ($profesional) {
+            $titulo = $this->request->getPost('titulo');
+            if (empty(trim($titulo))) {
+                return $this->fail('El título profesional es obligatorio.');
+            }
+            if (strlen(trim($titulo)) < 3) {
+                return $this->fail('El título profesional debe tener al menos 3 caracteres.');
+            }
+            $db->table('profesional')->where('id_profesional', $profesional['id_profesional'])->update(['titulo' => trim($titulo)]);
+        }
+
         // Update session if name changed
         session()->set('usuario_nombre', trim($nombre));
         if (!empty($correo)) {

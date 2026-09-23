@@ -77,15 +77,25 @@ class Auth extends BaseController
             'password'        => $request->password,
             'activo'          => 1
         ];
+        $db = \Config\Database::connect();
         
-        if ($usuarioModel->insert($data)) {
+        try {
+            $db->transException(true)->transStart();
+            
+            if (!$usuarioModel->insert($data)) {
+                $errors = $usuarioModel->errors();
+                $errorMsg = empty($errors) ? 'Error al registrar usuario.' : implode(' ', $errors);
+                return $this->response->setJSON(['success' => false, 'message' => $errorMsg]);
+            }
+            
             $userId = $usuarioModel->getInsertID();
             
             // Crear el registro de cliente asociado
-            $db = \Config\Database::connect();
             $db->table('cliente')->insert([
                 'id_usuario' => $userId
             ]);
+            
+            $db->transComplete();
             
             // Iniciar sesión automáticamente
             session()->set([
@@ -97,10 +107,12 @@ class Auth extends BaseController
             ]);
             
             return $this->response->setJSON(['success' => true, 'message' => 'Registro exitoso.']);
-        } else {
-            $errors = $usuarioModel->errors();
-            $errorMsg = empty($errors) ? 'Error al registrar usuario.' : implode(' ', $errors);
-            return $this->response->setJSON(['success' => false, 'message' => $errorMsg]);
+            
+        } catch (\Exception $e) {
+            if ($db->transStatus() !== false) {
+                $db->transRollback();
+            }
+            return $this->response->setJSON(['success' => false, 'message' => 'Error de base de datos: ' . $e->getMessage()]);
         }
     }
     

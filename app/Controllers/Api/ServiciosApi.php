@@ -66,6 +66,16 @@ class ServiciosApi extends BaseController
 
         $db = \Config\Database::connect();
         
+        // Validar si el servicio ya existe (pasando a mayúsculas)
+        $nombreMayus = strtoupper(trim($nombre));
+        $existe = $db->table('servicio')
+                     ->where('UPPER(nombre)', $nombreMayus)
+                     ->countAllResults();
+                     
+        if ($existe > 0) {
+            return $this->fail('Ya existe un servicio con ese nombre. Por favor, utiliza otro nombre.');
+        }
+        
         $db->transStart();
 
         // Desplazar los demás servicios
@@ -142,6 +152,17 @@ class ServiciosApi extends BaseController
         }
 
         $db = \Config\Database::connect();
+
+        // Validar si el servicio ya existe con el mismo nombre (excluyendo el actual)
+        $nombreMayus = strtoupper(trim($nombre));
+        $existe = $db->table('servicio')
+                     ->where('UPPER(nombre)', $nombreMayus)
+                     ->where('id_servicio !=', $id)
+                     ->countAllResults();
+                     
+        if ($existe > 0) {
+            return $this->fail('Ya existe otro servicio con ese nombre. Por favor, utiliza otro nombre.');
+        }
         $servicio = $db->table('servicio')->where('id_servicio', $id)->get()->getRow();
         if (!$servicio) {
             return $this->failNotFound('Servicio no encontrado.');

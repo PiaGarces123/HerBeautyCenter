@@ -59,31 +59,34 @@ class ClientesApi extends BaseController
             return $this->fail('Ya existe una cuenta con este correo.');
         }
 
-        $db->transStart();
+        $db->transException(true)->transStart();
 
-        $usuarioData = [
-            'nombre_completo' => $name,
-            'correo' => $email,
-            'telefono' => $phone,
-            'password' => password_hash($password, PASSWORD_DEFAULT),
-            'activo' => 1,
-            'fecha_registro' => date('Y-m-d H:i:s')
-        ];
+        try {
+            $usuarioData = [
+                'nombre_completo' => $name,
+                'correo' => $email,
+                'telefono' => $phone,
+                'password' => password_hash($password, PASSWORD_DEFAULT),
+                'activo' => 1,
+                'fecha_registro' => date('Y-m-d H:i:s')
+            ];
 
-        $db->table('usuario')->insert($usuarioData);
-        $userId = $db->insertID();
+            $db->table('usuario')->insert($usuarioData);
+            $userId = $db->insertID();
 
-        $db->table('cliente')->insert([
-            'id_usuario' => $userId
-        ]);
+            $db->table('cliente')->insert([
+                'id_usuario' => $userId
+            ]);
 
-        $db->transComplete();
+            $db->transComplete();
 
-        if ($db->transStatus() === false) {
-            return $this->failServerError('Error al crear el cliente.');
+            return $this->respondCreated(['success' => true, 'message' => 'Cliente creado exitosamente.']);
+        } catch (\Exception $e) {
+            if ($db->transStatus() !== false) {
+                $db->transRollback();
+            }
+            return $this->failServerError('Error en base de datos: ' . $e->getMessage());
         }
-
-        return $this->respondCreated(['success' => true, 'message' => 'Cliente creado exitosamente.']);
     }
 
     public function eliminar($id)
