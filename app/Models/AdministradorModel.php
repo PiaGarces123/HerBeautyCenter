@@ -7,13 +7,13 @@ use CodeIgniter\Model;
 class AdministradorModel extends Model
 {
     protected $table            = 'administrador';
-    protected $primaryKey       = 'id_administrador';
+    protected $primaryKey       = 'a_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id_profesional'
+        'a_pId'
     ];
 
     // Dates
@@ -21,10 +21,10 @@ class AdministradorModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'id_profesional' => 'required|is_unique[administrador.id_profesional,id_administrador,{id_administrador}]'
+        'a_pId' => 'required|is_unique[administrador.a_pId,a_id,{a_id}]'
     ];
     protected $validationMessages   = [
-        'id_profesional' => [
+        'a_pId' => [
             'is_unique' => 'Este profesional ya está registrado como administrador.'
         ]
     ];

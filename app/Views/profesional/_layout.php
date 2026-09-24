@@ -11,8 +11,8 @@
 
 $pageTitle = $pageTitle ?? 'Panel';
 $activeNav = $activeNav ?? 'dashboard';
-$nombre = $usuario['nombre'] ?? 'Administradora';
-$avatar = $usuario['avatar'] ?? null;
+$nombre = $usuario['s_nbre'] ?? 'Administradora';
+$avatar = $usuario['u_avatar'] ?? null;
 
 $navItems = [
     'dashboard' => ['label' => 'Dashboard', 'icon' => 'dashboard', 'href' => base_url('admin'), 'role' => 'all'],

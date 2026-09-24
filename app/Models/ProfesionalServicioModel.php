@@ -16,8 +16,8 @@ class ProfesionalServicioModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id_profesional',
-        'id_servicio'
+        'p_id',
+        'p_sId'
     ];
 
     // Dates
@@ -25,8 +25,8 @@ class ProfesionalServicioModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'id_profesional' => 'required|numeric',
-        'id_servicio'    => 'required|numeric'
+        'p_id' => 'required|numeric',
+        'p_sId'    => 'required|numeric'
     ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;

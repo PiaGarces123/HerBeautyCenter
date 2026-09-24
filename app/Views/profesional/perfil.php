@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Mi Perfil';
 $activeNav = 'perfil';
-$this->extend('admin/_layout');
+$this->extend('profesional/_layout');
 $this->section('content');
 
 $u = $usuario_data ?? [];
@@ -9,7 +9,7 @@ $p = $profesional_data ?? null;
 $redes = $redes_data ?? [];
 
 $defaultAvatar = base_url('public/assets/media/íconoPerfil.png');
-$avatar = !empty($u['avatar']) ? base_url($u['avatar']) : $defaultAvatar;
+$avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
 ?>
 
 <div class="admin-page-header">
@@ -23,15 +23,15 @@ $avatar = !empty($u['avatar']) ? base_url($u['avatar']) : $defaultAvatar;
 
     <!-- Card izquierda: avatar + resumen -->
     <div class="admin-profile-card">
-        <img id="profileAvatarImg" src="<?= esc($avatar) ?>" class="admin-profile-card__avatar" alt="Foto de perfil" style="<?= empty($u['avatar']) ? 'object-fit:contain; background:#fff; padding:4px;' : 'object-fit:cover;' ?>" />
+        <img id="profileAvatarImg" src="<?= esc($avatar) ?>" class="admin-profile-card__avatar" alt="Foto de perfil" style="<?= empty($u['u_avatar']) ? 'object-fit:contain; background:#fff; padding:4px;' : 'object-fit:cover;' ?>" />
 
-        <p class="admin-profile-card__name"><?= esc($u['nombre_completo'] ?? '—') ?></p>
+        <p class="admin-profile-card__name"><?= esc($u['u_nbreCompleto'] ?? '—') ?></p>
         <p class="admin-profile-card__role"><?= $p ? 'Profesional' : 'Administrador' ?></p>
-        <p class="admin-profile-card__email"><?= esc($u['correo'] ?? '') ?></p>
+        <p class="admin-profile-card__email"><?= esc($u['u_correo'] ?? '') ?></p>
 
-        <?php if (!empty($u['fecha_registro'])): ?>
+        <?php if (!empty($u['u_fRegistro'])): ?>
             <p style="font-size:0.75rem; color: var(--color-on-surface-variant); margin-top: 0.5rem;">
-                Miembro desde <?= date('d/m/Y', strtotime($u['fecha_registro'])) ?>
+                Miembro desde <?= date('d/m/Y', strtotime($u['u_fRegistro'])) ?>
             </p>
         <?php endif; ?>
 
@@ -53,26 +53,26 @@ $avatar = !empty($u['avatar']) ? base_url($u['avatar']) : $defaultAvatar;
                 <div class="form-group" style="margin:0;">
                     <label class="form-label" for="nombre_completo">Nombre completo</label>
                     <input class="form-input" type="text" id="nombre_completo" name="nombre_completo"
-                           value="<?= esc($u['nombre_completo'] ?? '') ?>" required />
+                           value="<?= esc($u['u_nbreCompleto'] ?? '') ?>" required />
                 </div>
                 <div class="form-group" style="margin:0;">
                     <label class="form-label" for="telefono">Teléfono</label>
                     <input class="form-input" type="tel" id="telefono" name="telefono"
-                           value="<?= esc($u['telefono'] ?? '') ?>" />
+                           value="<?= esc($u['u_tel'] ?? '') ?>" />
                 </div>
             </div>
 
             <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label class="form-label" for="correo">Correo electrónico</label>
                 <input class="form-input" type="email" id="correo" name="correo"
-                       value="<?= esc($u['correo'] ?? '') ?>" required />
+                       value="<?= esc($u['u_correo'] ?? '') ?>" required />
             </div>
 
             <?php if ($p): ?>
             <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label class="form-label" for="titulo">Título Profesional</label>
                 <input class="form-input" type="text" id="titulo" name="titulo"
-                       value="<?= esc($p['titulo'] ?? '') ?>" placeholder="Ej: Especialista en Uñas" required minlength="3" />
+                       value="<?= esc($p['p_titulo'] ?? '') ?>" placeholder="Ej: Especialista en Uñas" required minlength="3" />
             </div>
             <?php endif; ?>
 

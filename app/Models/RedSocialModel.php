@@ -7,15 +7,15 @@ use CodeIgniter\Model;
 class RedSocialModel extends Model
 {
     protected $table            = 'red_social';
-    protected $primaryKey       = 'id_red_social';
+    protected $primaryKey       = 'rs_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id_profesional',
-        'tipo',
-        'link'
+        'p_id',
+        'rs_tipo',
+        'rs_link'
     ];
 
     // Dates
@@ -23,12 +23,12 @@ class RedSocialModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'id_profesional' => 'required|numeric',
-        'tipo'           => 'required|max_length[50]',
-        'link'           => 'required|valid_url_strict|max_length[255]'
+        'p_id' => 'required|numeric',
+        'rs_tipo'           => 'required|max_length[50]',
+        'rs_link'           => 'required|valid_url_strict|max_length[255]'
     ];
     protected $validationMessages   = [
-        'link' => [
+        'rs_link' => [
             'valid_url_strict' => 'El enlace proporcionado no es una URL válida.'
         ]
     ];

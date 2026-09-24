@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Profesionales';
 $activeNav = 'profesionales';
-$this->extend('admin/_layout');
+$this->extend('profesional/_layout');
 $this->section('content');
 ?>
 
@@ -32,7 +32,7 @@ $this->section('content');
             <select name="servicio" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
                 <option value="">Servicio: Todos</option>
                 <?php foreach ($todos_servicios as $srv): ?>
-                    <option value="<?= $srv['id_servicio'] ?>" <?= (isset($_GET['servicio']) && $_GET['servicio'] == $srv['id_servicio']) ? 'selected' : '' ?>><?= esc($srv['nombre']) ?></option>
+                    <option value="<?= $srv['s_id'] ?>" <?= (isset($_GET['servicio']) && $_GET['servicio'] == $srv['s_id']) ? 'selected' : '' ?>><?= esc($srv['s_nbre']) ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -69,25 +69,25 @@ $this->section('content');
                         <tr>
                             <td>
                                 <div class="table-user-cell">
-                                    <?php if (!empty($prof['avatar'])): ?>
-                                        <img src="<?= esc($prof['avatar']) ?>" class="table-avatar" alt="Avatar" />
+                                    <?php if (!empty($prof['u_avatar'])): ?>
+                                        <img src="<?= esc($prof['u_avatar']) ?>" class="table-avatar" alt="Avatar" />
                                     <?php else: ?>
                                         <img src="<?= base_url('public/assets/media/íconoPerfil.png') ?>" class="table-avatar" alt="Avatar por defecto" style="object-fit: contain; background: #fff; padding: 4px;" />
                                     <?php endif; ?>
                                     <div>
-                                        <p class="table-user-name"><?= esc($prof['nombre_completo']) ?></p>
-                                        <p class="table-user-email"><?= esc($prof['correo']) ?></p>
+                                        <p class="table-user-name"><?= esc($prof['u_nbreCompleto']) ?></p>
+                                        <p class="table-user-email"><?= esc($prof['u_correo']) ?></p>
                                     </div>
                                 </div>
                             </td>
-                            <td><?= esc($prof['titulo'] ?? '—') ?></td>
+                            <td><?= esc($prof['p_titulo'] ?? '—') ?></td>
                             <td
                                 style="max-width: 18rem; white-space: normal; font-size: 0.82rem; color: var(--color-on-surface-variant);">
                                 <?= esc($prof['servicios_ofrecidos'] ?: 'Sin servicios registrados') ?>
                             </td>
-                            <td><?= esc($prof['anio_inicio_actividades'] ?? '—') ?></td>
+                            <td><?= esc($prof['p_anioInicioAct'] ?? '—') ?></td>
                             <td>
-                                <?php if ($prof['activo']): ?>
+                                <?php if ($prof['u_activo']): ?>
                                     <span class="badge badge--green">Activa</span>
                                 <?php else: ?>
                                     <span class="badge badge--gray">Inactiva</span>
@@ -97,30 +97,30 @@ $this->section('content');
                                 <div class="table-actions">
                                     <button class="table-btn table-btn--edit btn-assign-services" title="Asignar Servicios"
                                         data-bs-toggle="modal" data-bs-target="#assignServicesModal"
-                                        data-id="<?= esc($prof['id_profesional']) ?>"
-                                        data-name="<?= esc($prof['nombre_completo']) ?>"
+                                        data-id="<?= esc($prof['p_id']) ?>"
+                                        data-name="<?= esc($prof['u_nbreCompleto']) ?>"
                                         data-services="<?= esc($prof['servicios_ids'] ?? '') ?>">
                                         <span class="material-symbols-outlined" style="font-size:1rem;">checklist</span>
                                     </button>
                                     <button class="table-btn table-btn--edit btn-edit-profesional" title="Editar"
                                         data-bs-toggle="modal" data-bs-target="#editProfesionalModal"
-                                        data-id="<?= esc($prof['id_profesional']) ?>"
-                                        data-name="<?= esc($prof['nombre_completo']) ?>"
-                                        data-email="<?= esc($prof['correo']) ?>"
-                                        data-phone="<?= esc($prof['telefono']) ?>"
-                                        data-title="<?= esc($prof['titulo']) ?>"
-                                        data-year="<?= esc($prof['anio_inicio_actividades']) ?>">
+                                        data-id="<?= esc($prof['p_id']) ?>"
+                                        data-name="<?= esc($prof['u_nbreCompleto']) ?>"
+                                        data-email="<?= esc($prof['u_correo']) ?>"
+                                        data-phone="<?= esc($prof['u_tel']) ?>"
+                                        data-title="<?= esc($prof['p_titulo']) ?>"
+                                        data-year="<?= esc($prof['p_anioInicioAct']) ?>">
                                         <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
                                     </button>
                                     <button class="table-btn table-btn--edit btn-password-profesional" title="Cambiar Contraseña"
                                         data-bs-toggle="modal" data-bs-target="#passwordProfesionalModal"
-                                        data-id="<?= esc($prof['id_usuario']) ?>"
-                                        data-name="<?= esc($prof['nombre_completo']) ?>">
+                                        data-id="<?= esc($prof['u_id']) ?>"
+                                        data-name="<?= esc($prof['u_nbreCompleto']) ?>">
                                         <span class="material-symbols-outlined" style="font-size:1rem;">key</span>
                                     </button>
                                     <button class="table-btn table-btn--delete btn-delete-profesional" title="Eliminar"
-                                        data-id="<?= esc($prof['id_profesional']) ?>"
-                                        data-name="<?= esc($prof['nombre_completo']) ?>">
+                                        data-id="<?= esc($prof['p_id']) ?>"
+                                        data-name="<?= esc($prof['u_nbreCompleto']) ?>">
                                         <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
                                     </button>
                                 </div>
@@ -271,11 +271,11 @@ $this->section('content');
                             <?php foreach ($todos_servicios as $srv): ?>
                                 <div class="form-check custom-checkbox">
                                     <input class="form-check-input service-checkbox" type="checkbox"
-                                        value="<?= esc($srv['id_servicio']) ?>" id="srv_<?= esc($srv['id_servicio']) ?>"
+                                        value="<?= esc($srv['s_id']) ?>" id="srv_<?= esc($srv['s_id']) ?>"
                                         name="servicios[]">
-                                    <label class="form-check-label" for="srv_<?= esc($srv['id_servicio']) ?>"
+                                    <label class="form-check-label" for="srv_<?= esc($srv['s_id']) ?>"
                                         style="font-size: 0.9rem; cursor:pointer;">
-                                        <?= esc($srv['nombre']) ?>
+                                        <?= esc($srv['s_nbre']) ?>
                                     </label>
                                 </div>
                             <?php endforeach; ?>

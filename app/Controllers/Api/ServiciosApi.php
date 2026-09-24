@@ -48,11 +48,11 @@ class ServiciosApi extends BaseController
             return $this->failUnauthorized('Acceso denegado');
         }
 
-        $nombre = $this->request->getPost('nombre');
-        $descripcion = $this->request->getPost('descripcion');
-        $duracion = $this->request->getPost('duracion_minutos');
-        $precio = $this->request->getPost('precio');
-        $activo = $this->request->getPost('activo') !== null ? $this->request->getPost('activo') : 1;
+        $nombre = $this->request->getPost('s_nbre');
+        $descripcion = $this->request->getPost('s_desc');
+        $duracion = $this->request->getPost('s_duracionMinutos');
+        $precio = $this->request->getPost('s_precio');
+        $activo = $this->request->getPost('u_activo') !== null ? $this->request->getPost('u_activo') : 1;
 
         if (empty(trim($nombre)) || empty(trim($duracion))) {
             return $this->fail('Faltan datos obligatorios (nombre o duración).');
@@ -69,7 +69,7 @@ class ServiciosApi extends BaseController
         // Validar si el servicio ya existe (pasando a mayúsculas)
         $nombreMayus = strtoupper(trim($nombre));
         $existe = $db->table('servicio')
-                     ->where('UPPER(nombre)', $nombreMayus)
+                     ->where('UPPER(s_nbre)', $nombreMayus)
                      ->countAllResults();
                      
         if ($existe > 0) {
@@ -79,16 +79,15 @@ class ServiciosApi extends BaseController
         $db->transStart();
 
         // Desplazar los demás servicios
-        $db->table('servicio')->set('orden', 'orden + 1', false)->update();
+        $db->table('servicio')->set('s_orden', 's_orden + 1', false)->update();
 
         $servicioData = [
-            'id_categoria' => 1,
-            'nombre' => trim($nombre),
-            'descripcion' => trim($descripcion),
-            'duracion_minutos' => intval($duracion),
-            'precio' => floatval($precio ?? 0),
-            'activo' => intval($activo),
-            'orden' => 0
+            's_nbre' => trim($nombre),
+            's_desc' => trim($descripcion),
+            's_duracionMinutos' => intval($duracion),
+            's_precio' => floatval($precio ?? 0),
+            'u_activo' => intval($activo),
+            's_orden' => 0
         ];
 
         $db->table('servicio')->insert($servicioData);
@@ -109,8 +108,8 @@ class ServiciosApi extends BaseController
 
             if ($this->convertToWebp($file->getTempName(), $destPath)) {
                 $db->table('imagen')->insert([
-                    'id_servicio' => $servicioId,
-                    'ruta' => base_url('public/assets/media/Servicios/' . $newName)
+                    'img_sId' => $servicioId,
+                    'img_ruta' => base_url('assets/media/Servicios/' . $newName)
                 ]);
             }
         }
@@ -135,11 +134,11 @@ class ServiciosApi extends BaseController
             return $this->fail('ID de servicio no proporcionado.');
         }
 
-        $nombre = $this->request->getPost('nombre');
-        $descripcion = $this->request->getPost('descripcion');
-        $duracion = $this->request->getPost('duracion_minutos');
-        $precio = $this->request->getPost('precio');
-        $activo = $this->request->getPost('activo');
+        $nombre = $this->request->getPost('s_nbre');
+        $descripcion = $this->request->getPost('s_desc');
+        $duracion = $this->request->getPost('s_duracionMinutos');
+        $precio = $this->request->getPost('s_precio');
+        $activo = $this->request->getPost('u_activo');
 
         if (empty(trim($nombre)) || empty(trim($duracion))) {
             return $this->fail('Faltan datos obligatorios.');
@@ -156,14 +155,14 @@ class ServiciosApi extends BaseController
         // Validar si el servicio ya existe con el mismo nombre (excluyendo el actual)
         $nombreMayus = strtoupper(trim($nombre));
         $existe = $db->table('servicio')
-                     ->where('UPPER(nombre)', $nombreMayus)
-                     ->where('id_servicio !=', $id)
+                     ->where('UPPER(s_nbre)', $nombreMayus)
+                     ->where('s_id !=', $id)
                      ->countAllResults();
                      
         if ($existe > 0) {
             return $this->fail('Ya existe otro servicio con ese nombre. Por favor, utiliza otro nombre.');
         }
-        $servicio = $db->table('servicio')->where('id_servicio', $id)->get()->getRow();
+        $servicio = $db->table('servicio')->where('s_id', $id)->get()->getRow();
         if (!$servicio) {
             return $this->failNotFound('Servicio no encontrado.');
         }
@@ -171,23 +170,23 @@ class ServiciosApi extends BaseController
         $db->transStart();
 
         $servicioData = [
-            'nombre' => trim($nombre),
-            'descripcion' => trim($descripcion),
-            'duracion_minutos' => intval($duracion),
-            'precio' => floatval($precio ?? 0),
-            'activo' => intval($activo)
+            's_nbre' => trim($nombre),
+            's_desc' => trim($descripcion),
+            's_duracionMinutos' => intval($duracion),
+            's_precio' => floatval($precio ?? 0),
+            'u_activo' => intval($activo)
         ];
 
-        $db->table('servicio')->where('id_servicio', $id)->update($servicioData);
+        $db->table('servicio')->where('s_id', $id)->update($servicioData);
 
         // Manejar imagen si se subió una nueva
         $file = $this->request->getFile('imagen');
         if ($file && $file->isValid() && !$file->hasMoved()) {
             // Borrar imagen vieja si existe físicamente
-            $oldImage = $db->table('imagen')->where('id_servicio', $id)->get()->getRow();
-            if ($oldImage && $oldImage->ruta) {
+            $oldImage = $db->table('imagen')->where('s_id', $id)->get()->getRow();
+            if ($oldImage && $oldImage->img_ruta) {
                 // Try to find the file locally and delete it
-                $filename = basename($oldImage->ruta);
+                $filename = basename($oldImage->img_ruta);
                 $localPath = FCPATH . 'assets/media/Servicios/' . $filename;
                 if (!file_exists($localPath)) {
                     // Try old path just in case
@@ -196,7 +195,7 @@ class ServiciosApi extends BaseController
                 if (file_exists($localPath)) {
                     @unlink($localPath);
                 }
-                $db->table('imagen')->where('id_servicio', $id)->delete();
+                $db->table('imagen')->where('s_id', $id)->delete();
             }
 
             $dirPath = FCPATH . 'assets/media/Servicios/';
@@ -210,8 +209,8 @@ class ServiciosApi extends BaseController
 
             if ($this->convertToWebp($file->getTempName(), $destPath)) {
                 $db->table('imagen')->insert([
-                    'id_servicio' => $id,
-                    'ruta' => base_url('public/assets/media/Servicios/' . $newName)
+                    'img_sId' => $id,
+                    'img_ruta' => base_url('assets/media/Servicios/' . $newName)
                 ]);
             }
         }
@@ -237,7 +236,7 @@ class ServiciosApi extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $servicio = $db->table('servicio')->where('id_servicio', $id)->get()->getRow();
+        $servicio = $db->table('servicio')->where('s_id', $id)->get()->getRow();
 
         if (!$servicio) {
             return $this->failNotFound('Servicio no encontrado.');
@@ -246,9 +245,9 @@ class ServiciosApi extends BaseController
         $db->transStart();
 
         // Delete physical image
-        $oldImage = $db->table('imagen')->where('id_servicio', $id)->get()->getRow();
-        if ($oldImage && $oldImage->ruta) {
-            $filename = basename($oldImage->ruta);
+        $oldImage = $db->table('imagen')->where('s_id', $id)->get()->getRow();
+        if ($oldImage && $oldImage->img_ruta) {
+            $filename = basename($oldImage->img_ruta);
             $localPath = FCPATH . 'assets/media/Servicios/' . $filename;
             if (!file_exists($localPath)) {
                 $localPath = FCPATH . 'assets/media/' . $filename;
@@ -256,15 +255,15 @@ class ServiciosApi extends BaseController
             if (file_exists($localPath)) {
                 @unlink($localPath);
             }
-            $db->table('imagen')->where('id_servicio', $id)->delete();
+            $db->table('imagen')->where('s_id', $id)->delete();
         }
 
         // Delete dependencies
-        $db->table('profesional_servicio')->where('id_servicio', $id)->delete();
-        $db->table('horario')->where('id_servicio', $id)->delete();
-        $db->table('turno')->where('id_servicio', $id)->delete();
+        $db->table('profesional_servicio')->where('s_id', $id)->delete();
+        $db->table('horario')->where('s_id', $id)->delete();
+        $db->table('turno')->where('s_id', $id)->delete();
         
-        $db->table('servicio')->where('id_servicio', $id)->delete();
+        $db->table('servicio')->where('s_id', $id)->delete();
 
         $db->transComplete();
 
@@ -293,14 +292,14 @@ class ServiciosApi extends BaseController
         $db->transStart();
 
         // Borrar relaciones actuales
-        $db->table('profesional_servicio')->where('id_servicio', $id)->delete();
+        $db->table('profesional_servicio')->where('s_id', $id)->delete();
 
         if (!empty($profesionales)) {
             $insertData = [];
             foreach ($profesionales as $id_profesional) {
                 $insertData[] = [
-                    'id_servicio' => intval($id),
-                    'id_profesional' => intval($id_profesional)
+                    's_id' => intval($id),
+                    'p_id' => intval($id_profesional)
                 ];
             }
             $db->table('profesional_servicio')->insertBatch($insertData);
@@ -323,17 +322,17 @@ class ServiciosApi extends BaseController
         }
 
         $request = $this->request->getJSON();
-        if (!isset($request->orden) || !is_array($request->orden) || empty($request->orden)) {
+        if (!isset($request->s_orden) || !is_array($request->s_orden) || empty($request->s_orden)) {
             return $this->fail('Se requiere un array de IDs en orden.');
         }
 
         $db = \Config\Database::connect();
         $db->transStart();
 
-        foreach ($request->orden as $position => $id_servicio) {
+        foreach ($request->s_orden as $position => $id_servicio) {
             $db->table('servicio')
-               ->where('id_servicio', intval($id_servicio))
-               ->update(['orden' => intval($position) + 1]);
+               ->where('s_id', intval($id_servicio))
+               ->update(['s_orden' => intval($position) + 1]);
         }
 
         $db->transComplete();

@@ -10,26 +10,26 @@ class Auth extends BaseController
     {
         $request = $this->request->getJSON();
         
-        if (!$request || !isset($request->email) || !isset($request->password)) {
+        if (!$request || !isset($request->email) || !isset($request->u_pass)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos.']);
         }
         
         $email = $request->email;
-        $password = $request->password;
+        $password = $request->u_pass;
         
         $db = \Config\Database::connect();
         $usuario = $db->table('usuario')
-            ->where('correo', $email)
-            ->where('activo', 1)
+            ->where('u_correo', $email)
+            ->where('u_activo', 1)
             ->get()->getRowArray();
             
-        if (!$usuario || !password_verify($password, $usuario['password'])) {
+        if (!$usuario || !password_verify($password, $usuario['u_pass'])) {
             return $this->response->setJSON(['success' => false, 'message' => 'Correo o contraseña incorrectos.']);
         }
         
         // Verificar si es profesional
         $profesional = $db->table('profesional')
-            ->where('id_usuario', $usuario['id_usuario'])
+            ->where('u_id', $usuario['u_id'])
             ->get()->getRowArray();
             
         $rol = 'cliente';
@@ -37,11 +37,11 @@ class Auth extends BaseController
         
         if ($profesional) {
             $rol = 'profesional';
-            $id_profesional = $profesional['id_profesional'];
+            $id_profesional = $profesional['p_id'];
             
             // Verificar si además de profesional, es administrador
             $admin = $db->table('administrador')
-                ->where('id_profesional', $id_profesional)
+                ->where('p_id', $id_profesional)
                 ->get()->getRowArray();
                 
             if ($admin) {
@@ -50,12 +50,12 @@ class Auth extends BaseController
         }
             
         session()->set([
-            'usuario_id'     => $usuario['id_usuario'],
-            'usuario_nombre' => $usuario['nombre_completo'],
-            'usuario_correo' => $usuario['correo'],
-            'usuario_avatar' => $usuario['avatar'],
+            'usuario_id'     => $usuario['u_id'],
+            'usuario_nombre' => $usuario['u_nbreCompleto'],
+            'usuario_correo' => $usuario['u_correo'],
+            'usuario_avatar' => $usuario['u_avatar'],
             'rol'            => $rol,
-            'id_profesional' => $id_profesional,
+            'p_id' => $id_profesional,
         ]);
         return $this->response->setJSON(['success' => true, 'message' => 'Login exitoso.', 'rol' => $rol]);
     }
@@ -64,18 +64,18 @@ class Auth extends BaseController
     {
         $request = $this->request->getJSON();
         
-        if (!$request || !isset($request->name) || !isset($request->email) || !isset($request->phone) || !isset($request->password)) {
+        if (!$request || !isset($request->name) || !isset($request->email) || !isset($request->phone) || !isset($request->u_pass)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos.']);
         }
         
         $usuarioModel = new UsuarioModel();
         
         $data = [
-            'nombre_completo' => $request->name,
-            'correo'          => $request->email,
-            'telefono'        => $request->phone,
-            'password'        => $request->password,
-            'activo'          => 1
+            'u_nbreCompleto' => $request->name,
+            'u_correo'          => $request->email,
+            'u_tel'        => $request->phone,
+            'u_pass'        => $request->u_pass,
+            'u_activo'          => 1
         ];
         $db = \Config\Database::connect();
         
@@ -92,7 +92,7 @@ class Auth extends BaseController
             
             // Crear el registro de cliente asociado
             $db->table('cliente')->insert([
-                'id_usuario' => $userId
+                'u_id' => $userId
             ]);
             
             $db->transComplete();

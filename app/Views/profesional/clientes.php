@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Clientes';
 $activeNav = 'clientes';
-$this->extend('admin/_layout');
+$this->extend('profesional/_layout');
 $this->section('content');
 ?>
 
@@ -60,21 +60,21 @@ $this->section('content');
                         <tr>
                             <td>
                                 <div class="table-user-cell">
-                                    <?php if (!empty($cli['avatar'])): ?>
-                                        <img src="<?= esc($cli['avatar']) ?>" class="table-avatar" alt="Avatar" />
+                                    <?php if (!empty($cli['u_avatar'])): ?>
+                                        <img src="<?= esc($cli['u_avatar']) ?>" class="table-avatar" alt="Avatar" />
                                     <?php else: ?>
                                         <img src="<?= base_url('public/assets/media/íconoPerfil.png') ?>" class="table-avatar" alt="Avatar por defecto" style="object-fit: contain; background: #fff; padding: 4px;" />
                                     <?php endif; ?>
                                     <div>
-                                        <p class="table-user-name"><?= esc($cli['nombre_completo']) ?></p>
-                                        <p class="table-user-email"><?= esc($cli['correo']) ?></p>
+                                        <p class="table-user-name"><?= esc($cli['u_nbreCompleto']) ?></p>
+                                        <p class="table-user-email"><?= esc($cli['u_correo']) ?></p>
                                     </div>
                                 </div>
                             </td>
-                            <td><?= esc($cli['telefono'] ?? '—') ?></td>
-                            <td><?= date('d/m/Y', strtotime($cli['fecha_registro'])) ?></td>
+                            <td><?= esc($cli['u_tel'] ?? '—') ?></td>
+                            <td><?= date('d/m/Y', strtotime($cli['u_fRegistro'])) ?></td>
                             <td>
-                                <?php if ($cli['activo']): ?>
+                                <?php if ($cli['u_activo']): ?>
                                     <span class="badge badge--green">Activo</span>
                                 <?php else: ?>
                                     <span class="badge badge--gray">Inactivo</span>
@@ -84,27 +84,27 @@ $this->section('content');
                                 <div class="table-actions">
                                     <button class="table-btn table-btn--edit btn-convert-cliente" title="Gestionar Rol (Ascender a Profesional)"
                                         data-bs-toggle="modal" data-bs-target="#convertClienteModal"
-                                        data-id="<?= esc($cli['id_cliente']) ?>"
-                                        data-name="<?= esc($cli['nombre_completo']) ?>">
+                                        data-id="<?= esc($cli['c_id']) ?>"
+                                        data-name="<?= esc($cli['u_nbreCompleto']) ?>">
                                         <span class="material-symbols-outlined" style="font-size:1rem;">manage_accounts</span>
                                     </button>
                                     <button class="table-btn table-btn--edit btn-edit-cliente" title="Editar"
                                         data-bs-toggle="modal" data-bs-target="#editClienteModal"
-                                        data-id="<?= esc($cli['id_cliente']) ?>"
-                                        data-name="<?= esc($cli['nombre_completo']) ?>"
-                                        data-email="<?= esc($cli['correo']) ?>"
-                                        data-phone="<?= esc($cli['telefono']) ?>">
+                                        data-id="<?= esc($cli['c_id']) ?>"
+                                        data-name="<?= esc($cli['u_nbreCompleto']) ?>"
+                                        data-email="<?= esc($cli['u_correo']) ?>"
+                                        data-phone="<?= esc($cli['u_tel']) ?>">
                                         <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
                                     </button>
                                     <button class="table-btn table-btn--edit btn-password-cliente" title="Cambiar Contraseña"
                                         data-bs-toggle="modal" data-bs-target="#passwordClienteModal"
-                                        data-id="<?= esc($cli['id_usuario']) ?>"
-                                        data-name="<?= esc($cli['nombre_completo']) ?>">
+                                        data-id="<?= esc($cli['u_id']) ?>"
+                                        data-name="<?= esc($cli['u_nbreCompleto']) ?>">
                                         <span class="material-symbols-outlined" style="font-size:1rem;">key</span>
                                     </button>
                                     <button class="table-btn table-btn--delete btn-delete-cliente" title="Eliminar"
-                                        data-id="<?= esc($cli['id_cliente']) ?>"
-                                        data-name="<?= esc($cli['nombre_completo']) ?>">
+                                        data-id="<?= esc($cli['c_id']) ?>"
+                                        data-name="<?= esc($cli['u_nbreCompleto']) ?>">
                                         <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
                                     </button>
                                 </div>

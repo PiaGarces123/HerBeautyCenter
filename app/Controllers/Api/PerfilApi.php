@@ -19,17 +19,17 @@ class PerfilApi extends BaseController
         $usuario_id = $this->getUserId();
         if (!$usuario_id) return $this->failUnauthorized('No autorizado');
 
-        $nombre = $this->request->getPost('nombre_completo');
-        $telefono = $this->request->getPost('telefono');
-        $correo = $this->request->getPost('correo');
+        $nombre = $this->request->getPost('u_nbreCompleto');
+        $telefono = $this->request->getPost('u_tel');
+        $correo = $this->request->getPost('u_correo');
 
         $db = \Config\Database::connect();
 
         // Verificar si el correo ya existe en otro usuario
         if ($correo) {
             $exist = $db->table('usuario')
-                ->where('correo', $correo)
-                ->where('id_usuario !=', $usuario_id)
+                ->where('u_correo', $correo)
+                ->where('u_id !=', $usuario_id)
                 ->countAllResults();
             if ($exist > 0) {
                 return $this->fail('El correo ya está en uso por otro usuario.');
@@ -37,26 +37,26 @@ class PerfilApi extends BaseController
         }
 
         $data = [
-            'nombre_completo' => trim($nombre),
-            'telefono' => trim($telefono)
+            'u_nbreCompleto' => trim($nombre),
+            'u_tel' => trim($telefono)
         ];
         if (!empty($correo)) {
-            $data['correo'] = trim($correo);
+            $data['u_correo'] = trim($correo);
         }
 
-        $db->table('usuario')->where('id_usuario', $usuario_id)->update($data);
+        $db->table('usuario')->where('u_id', $usuario_id)->update($data);
 
         // Update professional title if applicable
-        $profesional = $db->table('profesional')->where('id_usuario', $usuario_id)->get()->getRowArray();
+        $profesional = $db->table('profesional')->where('u_id', $usuario_id)->get()->getRowArray();
         if ($profesional) {
-            $titulo = $this->request->getPost('titulo');
+            $titulo = $this->request->getPost('p_titulo');
             if (empty(trim($titulo))) {
                 return $this->fail('El título profesional es obligatorio.');
             }
             if (strlen(trim($titulo)) < 3) {
                 return $this->fail('El título profesional debe tener al menos 3 caracteres.');
             }
-            $db->table('profesional')->where('id_profesional', $profesional['id_profesional'])->update(['titulo' => trim($titulo)]);
+            $db->table('profesional')->where('p_id', $profesional['p_id'])->update(['p_titulo' => trim($titulo)]);
         }
 
         // Update session if name changed
@@ -86,14 +86,14 @@ class PerfilApi extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $user = $db->table('usuario')->where('id_usuario', $usuario_id)->get()->getRowArray();
+        $user = $db->table('usuario')->where('u_id', $usuario_id)->get()->getRowArray();
 
-        if (!password_verify($password_antigua, $user['password'])) {
+        if (!password_verify($password_antigua, $user['u_pass'])) {
             return $this->fail('La contraseña actual es incorrecta.');
         }
 
         $hash = password_hash($password_nueva, PASSWORD_DEFAULT);
-        $db->table('usuario')->where('id_usuario', $usuario_id)->update(['password' => $hash]);
+        $db->table('usuario')->where('u_id', $usuario_id)->update(['u_pass' => $hash]);
 
         return $this->respondUpdated(['message' => 'Contraseña actualizada correctamente']);
     }
@@ -103,7 +103,7 @@ class PerfilApi extends BaseController
         $usuario_id = $this->getUserId();
         if (!$usuario_id) return $this->failUnauthorized('No autorizado');
 
-        $file = $this->request->getFile('avatar');
+        $file = $this->request->getFile('u_avatar');
 
         if (!$file || !$file->isValid()) {
             return $this->fail('No se ha enviado ningún archivo válido.');
@@ -126,10 +126,10 @@ class PerfilApi extends BaseController
         $newName = $file->getRandomName();
         $file->move($uploadPath, $newName);
 
-        $ruta = 'public/assets/media/Avatares/' . $newName;
+        $ruta = 'assets/media/Avatares/' . $newName;
 
         $db = \Config\Database::connect();
-        $db->table('usuario')->where('id_usuario', $usuario_id)->update(['avatar' => $ruta]);
+        $db->table('usuario')->where('u_id', $usuario_id)->update(['u_avatar' => $ruta]);
 
         // Update session
         session()->set('usuario_avatar', base_url($ruta));
@@ -148,25 +148,25 @@ class PerfilApi extends BaseController
         $db = \Config\Database::connect();
 
         // Get profesional ID
-        $profesional = $db->table('profesional')->where('id_usuario', $usuario_id)->get()->getRowArray();
+        $profesional = $db->table('profesional')->where('u_id', $usuario_id)->get()->getRowArray();
         if (!$profesional) {
             return $this->fail('El usuario no es un profesional.');
         }
 
-        $redesData = $this->request->getPost('redes'); // Array of elements: ['tipo' => 'instagram', 'link' => 'https://...']
+        $redesData = $this->request->getPost('redes'); // Array of elements: ['rs_tipo' => 'instagram', 'rs_link' => 'https://...']
         
         $db->transStart();
         
         // Clean previous networks
-        $db->table('red_social')->where('id_profesional', $profesional['id_profesional'])->delete();
+        $db->table('red_social')->where('p_id', $profesional['p_id'])->delete();
 
         if (!empty($redesData) && is_array($redesData)) {
             $insertData = [];
             foreach ($redesData as $red) {
-                if (empty($red['tipo']) || empty($red['link'])) continue;
+                if (empty($red['rs_tipo']) || empty($red['rs_link'])) continue;
 
-                $tipo = trim(strtolower($red['tipo']));
-                $link = trim($red['link']);
+                $tipo = trim(strtolower($red['rs_tipo']));
+                $link = trim($red['rs_link']);
 
                 // Cybersecurity: Validate scheme and domain
                 if (strpos($link, 'https://') !== 0) {
@@ -191,9 +191,9 @@ class PerfilApi extends BaseController
                 }
 
                 $insertData[] = [
-                    'id_profesional' => $profesional['id_profesional'],
-                    'tipo' => $tipo,
-                    'link' => esc($link) // Prevent XSS
+                    'p_id' => $profesional['p_id'],
+                    'rs_tipo' => $tipo,
+                    'rs_link' => esc($link) // Prevent XSS
                 ];
             }
 

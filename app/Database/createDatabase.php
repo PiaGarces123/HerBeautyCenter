@@ -97,23 +97,21 @@ echo "<p>✓ Base de datos seleccionada correctamente.</p>";
 $sql = "
 CREATE TABLE IF NOT EXISTS usuario (
 
-    id_usuario INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    u_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-    nombre_completo VARCHAR(150) NOT NULL,
+    u_nbreCompleto VARCHAR(150) NOT NULL,
 
-    correo VARCHAR(150) NOT NULL UNIQUE,
+    u_correo VARCHAR(150) NOT NULL UNIQUE,
 
-    telefono VARCHAR(30),
+    u_tel VARCHAR(30),
 
-    dni VARCHAR(20) UNIQUE,
+    u_avatar VARCHAR(255),
 
-    avatar VARCHAR(255),
+    u_activo TINYINT(1) NOT NULL DEFAULT 1,
 
-    activo TINYINT(1) NOT NULL DEFAULT 1,
+    u_pass VARCHAR(255) NOT NULL,
 
-    password VARCHAR(255) NOT NULL,
-
-    fecha_registro DATETIME NOT NULL
+    u_fRegistro DATETIME NOT NULL
         DEFAULT CURRENT_TIMESTAMP
 
 ) ENGINE=InnoDB
@@ -135,19 +133,19 @@ if ($conn->query($sql) === TRUE) {
 $sql = "
 CREATE TABLE IF NOT EXISTS profesional (
 
-    id_profesional INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    p_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-    id_usuario INT UNSIGNED NOT NULL UNIQUE,
+    u_id INT UNSIGNED NOT NULL UNIQUE,
 
-    titulo VARCHAR(100),
+    p_titulo VARCHAR(100),
 
-    descripcion TEXT,
+    p_desc TEXT,
 
-    anio_inicio_actividades YEAR,
+    p_anioInicioAct YEAR,
 
     CONSTRAINT fk_profesional_usuario
-        FOREIGN KEY (id_usuario)
-        REFERENCES usuario(id_usuario)
+        FOREIGN KEY (u_id)
+        REFERENCES usuario(u_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 
@@ -170,13 +168,13 @@ if ($conn->query($sql) === TRUE) {
 $sql = "
 CREATE TABLE IF NOT EXISTS cliente (
 
-    id_cliente INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    c_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-    id_usuario INT UNSIGNED NOT NULL UNIQUE,
+    c_uId INT UNSIGNED NOT NULL UNIQUE,
 
     CONSTRAINT fk_cliente_usuario
-        FOREIGN KEY (id_usuario)
-        REFERENCES usuario(id_usuario)
+        FOREIGN KEY (c_uId)
+        REFERENCES usuario(u_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 
@@ -199,13 +197,13 @@ if ($conn->query($sql) === TRUE) {
 $sql = "
 CREATE TABLE IF NOT EXISTS administrador (
 
-    id_administrador INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    a_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-    id_profesional INT UNSIGNED NOT NULL UNIQUE,
+    a_pId INT UNSIGNED NOT NULL UNIQUE,
 
     CONSTRAINT fk_administrador_profesional
-        FOREIGN KEY (id_profesional)
-        REFERENCES profesional(id_profesional)
+        FOREIGN KEY (a_pId)
+        REFERENCES profesional(p_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 
@@ -221,34 +219,6 @@ if ($conn->query($sql) === TRUE) {
 }
 
 
-// ============================================================
-// 5. TABLA CATEGORIA
-// ============================================================
-
-$sql = "
-CREATE TABLE IF NOT EXISTS categoria (
-
-    id_categoria INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-
-    nombre VARCHAR(100) NOT NULL UNIQUE,
-
-    descripcion TEXT
-
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
-";
-
-if ($conn->query($sql) === TRUE) {
-    echo "<p>✓ Tabla <strong>categoria</strong> creada.</p>";
-
-    // Insertar categoría por defecto
-    $sqlInsertCategoria = "INSERT IGNORE INTO categoria (id_categoria, nombre, descripcion) VALUES (1, 'General', 'Categoría por defecto')";
-    $conn->query($sqlInsertCategoria);
-} else {
-    echo "<p>✗ Error en tabla categoria: {$conn->error}</p>";
-}
-
 
 // ============================================================
 // 5.1. TABLA SERVICIO
@@ -257,33 +227,25 @@ if ($conn->query($sql) === TRUE) {
 $sql = "
 CREATE TABLE IF NOT EXISTS servicio (
 
-    id_servicio INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    s_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-    id_categoria INT UNSIGNED NOT NULL,
+    s_nbre VARCHAR(100) NOT NULL,
 
-    nombre VARCHAR(100) NOT NULL,
+    s_desc TEXT,
 
-    descripcion TEXT,
+    s_duracionMinutos INT UNSIGNED NOT NULL,
 
-    duracion_minutos INT UNSIGNED NOT NULL,
+    s_precio DECIMAL(10,2) NOT NULL,
 
-    precio DECIMAL(10,2) NOT NULL,
+    s_activo TINYINT(1) NOT NULL DEFAULT 1,
 
-    activo TINYINT(1) NOT NULL DEFAULT 1,
-
-    orden INT NOT NULL DEFAULT 0,
-
-    CONSTRAINT fk_servicio_categoria
-        FOREIGN KEY (id_categoria)
-        REFERENCES categoria(id_categoria)
-        ON DELETE RESTRICT
-        ON UPDATE CASCADE,
+    s_orden INT NOT NULL DEFAULT 0,
 
     CONSTRAINT chk_servicio_duracion
-        CHECK (duracion_minutos > 0),
+        CHECK (s_duracionMinutos > 0),
 
     CONSTRAINT chk_servicio_precio
-        CHECK (precio >= 0)
+        CHECK (s_precio >= 0)
 
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
@@ -304,24 +266,24 @@ if ($conn->query($sql) === TRUE) {
 $sql = "
 CREATE TABLE IF NOT EXISTS profesional_servicio (
 
-    id_profesional INT UNSIGNED NOT NULL,
+    p_id INT UNSIGNED NOT NULL,
 
-    id_servicio INT UNSIGNED NOT NULL,
+    p_sId INT UNSIGNED NOT NULL,
 
     PRIMARY KEY (
-        id_profesional,
-        id_servicio
+        p_id,
+        p_sId
     ),
 
     CONSTRAINT fk_ps_profesional
-        FOREIGN KEY (id_profesional)
-        REFERENCES profesional(id_profesional)
+        FOREIGN KEY (p_id)
+        REFERENCES profesional(p_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
 
     CONSTRAINT fk_ps_servicio
-        FOREIGN KEY (id_servicio)
-        REFERENCES servicio(id_servicio)
+        FOREIGN KEY (p_sId)
+        REFERENCES servicio(s_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 
@@ -344,17 +306,17 @@ if ($conn->query($sql) === TRUE) {
 $sql = "
 CREATE TABLE IF NOT EXISTS red_social (
 
-    id_red_social INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    rs_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-    id_profesional INT UNSIGNED NOT NULL,
+    rs_pId INT UNSIGNED NOT NULL,
 
-    tipo VARCHAR(50) NOT NULL,
+    rs_tipo VARCHAR(50) NOT NULL,
 
-    link VARCHAR(255) NOT NULL,
+    rs_link VARCHAR(255) NOT NULL,
 
     CONSTRAINT fk_red_social_profesional
-        FOREIGN KEY (id_profesional)
-        REFERENCES profesional(id_profesional)
+        FOREIGN KEY (rs_pId)
+        REFERENCES profesional(p_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 
@@ -377,15 +339,15 @@ if ($conn->query($sql) === TRUE) {
 $sql = "
 CREATE TABLE IF NOT EXISTS imagen (
 
-    id_imagen INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    img_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-    id_servicio INT UNSIGNED NOT NULL,
+    img_sId INT UNSIGNED NOT NULL,
 
-    ruta VARCHAR(255) NOT NULL,
+    img_ruta VARCHAR(255) NOT NULL,
 
     CONSTRAINT fk_imagen_servicio
-        FOREIGN KEY (id_servicio)
-        REFERENCES servicio(id_servicio)
+        FOREIGN KEY (img_sId)
+        REFERENCES servicio(s_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 
@@ -408,32 +370,32 @@ if ($conn->query($sql) === TRUE) {
 $sql = "
 CREATE TABLE IF NOT EXISTS horario (
 
-    id_horario INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    h_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-    id_profesional INT UNSIGNED NOT NULL,
+    h_pId INT UNSIGNED NOT NULL,
 
-    id_servicio INT UNSIGNED NOT NULL,
+    h_sId INT UNSIGNED NOT NULL,
 
-    fecha DATE NOT NULL,
+    h_fecha DATE NOT NULL,
 
-    hora_desde TIME NOT NULL,
+    h_horaDesde TIME NOT NULL,
 
-    hora_hasta TIME NOT NULL,
+    h_horaHasta TIME NOT NULL,
 
     CONSTRAINT fk_horario_profesional
-        FOREIGN KEY (id_profesional)
-        REFERENCES profesional(id_profesional)
+        FOREIGN KEY (h_pId)
+        REFERENCES profesional(p_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
 
     CONSTRAINT fk_horario_servicio
-        FOREIGN KEY (id_servicio)
-        REFERENCES servicio(id_servicio)
+        FOREIGN KEY (h_sId)
+        REFERENCES servicio(s_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
 
     CONSTRAINT chk_horario_horas
-        CHECK (hora_hasta > hora_desde)
+        CHECK (h_horaHasta > h_horaDesde)
 
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
@@ -454,19 +416,19 @@ if ($conn->query($sql) === TRUE) {
 $sql = "
 CREATE TABLE IF NOT EXISTS turno (
 
-    id_turno INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    t_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-    id_horario INT UNSIGNED NOT NULL UNIQUE,
+    t_hId INT UNSIGNED NOT NULL UNIQUE,
 
-    id_profesional INT UNSIGNED NOT NULL,
+    t_pId INT UNSIGNED NOT NULL,
 
-    id_cliente INT UNSIGNED NULL,
+    t_cId INT UNSIGNED NULL,
 
-    fecha DATE NOT NULL,
+    t_fecha DATE NOT NULL,
 
-    hora_desde TIME NOT NULL,
+    t_horaDesde TIME NOT NULL,
 
-    hora_hasta TIME NOT NULL,
+    t_horaHasta TIME NOT NULL,
 
     estado ENUM(
         'Disponible',
@@ -480,20 +442,20 @@ CREATE TABLE IF NOT EXISTS turno (
     monto DECIMAL(10,2) NOT NULL DEFAULT 0,
 
     CONSTRAINT fk_turno_horario
-        FOREIGN KEY (id_horario)
-        REFERENCES horario(id_horario)
+        FOREIGN KEY (t_hId)
+        REFERENCES horario(h_id)
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
 
     CONSTRAINT fk_turno_profesional
-        FOREIGN KEY (id_profesional)
-        REFERENCES profesional(id_profesional)
+        FOREIGN KEY (t_pId)
+        REFERENCES profesional(p_id)
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
 
     CONSTRAINT fk_turno_cliente
-        FOREIGN KEY (id_cliente)
-        REFERENCES cliente(id_cliente)
+        FOREIGN KEY (t_cId)
+        REFERENCES cliente(c_id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
 
@@ -501,12 +463,13 @@ CREATE TABLE IF NOT EXISTS turno (
         CHECK (monto >= 0),
 
     CONSTRAINT chk_turno_horas
-        CHECK (hora_hasta > hora_desde)
+        CHECK (t_horaHasta > t_horaDesde)
 
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
 ";
+
 
 if ($conn->query($sql) === TRUE) {
     echo "<p>✓ Tabla <strong>turno</strong> creada.</p>";
@@ -541,5 +504,3 @@ de <strong>Her Beauty Center</strong>.
 // ------------------------------------------------------------
 
 $conn->close();
-
-?>

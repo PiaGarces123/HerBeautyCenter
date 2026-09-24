@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Mis Horarios';
 $activeNav = 'horarios';
-$this->extend('admin/_layout');
+$this->extend('profesional/_layout');
 $this->section('content');
 
 $diasSemana = ['Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
@@ -54,8 +54,8 @@ $diasSemana = ['Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
                         ?>
                     </td>
                     <td>
-                        <?= date('H:i', strtotime($h['hora_desde'])) ?> –
-                        <?= date('H:i', strtotime($h['hora_hasta'])) ?>
+                        <?= date('H:i', strtotime($h['t_horaDesde'])) ?> –
+                        <?= date('H:i', strtotime($h['t_horaHasta'])) ?>
                     </td>
                     <td><?= esc($h['nombre_servicio'] ?? '—') ?></td>
                     <td>

@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Dashboard';
 $activeNav = 'dashboard';
-$this->extend('admin/_layout');
+$this->extend('profesional/_layout');
 $this->section('content');
 ?>
 

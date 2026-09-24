@@ -140,19 +140,19 @@ if (!function_exists('esc')) {
                         ?>
                         <article class="srv-card <?= $isWide ?>">
                             <div class="srv-card__img-wrap">
-                                <img src="<?= $imagen ?>" alt="<?= esc($servicio['nombre']) ?>" class="srv-card__img"
+                                <img src="<?= $imagen ?>" alt="<?= esc($servicio['s_nbre']) ?>" class="srv-card__img"
                                     loading="lazy" />
                                 <div class="srv-card__badge">
                                     <span class="material-symbols-outlined">schedule</span>
-                                    <?= esc($servicio['duracion_minutos']) ?> min
+                                    <?= esc($servicio['s_duracionMinutos']) ?> min
                                 </div>
                             </div>
                             <div class="srv-card__body">
-                                <h3 class="srv-card__title"><?= esc($servicio['nombre']) ?></h3>
-                                <p class="srv-card__desc"><?= esc(mb_strimwidth($servicio['descripcion'] ?? '', 0, 120, '…')) ?>
+                                <h3 class="srv-card__title"><?= esc($servicio['s_nbre']) ?></h3>
+                                <p class="srv-card__desc"><?= esc(mb_strimwidth($servicio['s_desc'] ?? '', 0, 120, '…')) ?>
                                 </p>
-                                <?php if (!empty($servicio['precio']) && $servicio['precio'] > 0): ?>
-                                    <p class="srv-card__price">Desde $<?= number_format($servicio['precio'], 0, ',', '.') ?></p>
+                                <?php if (!empty($servicio['s_precio']) && $servicio['s_precio'] > 0): ?>
+                                    <p class="srv-card__price">Desde $<?= number_format($servicio['s_precio'], 0, ',', '.') ?></p>
                                 <?php endif; ?>
                                 <a href="#contacto" class="srv-card__btn">
                                     Reservar Turno
@@ -185,14 +185,14 @@ if (!function_exists('esc')) {
                 <div class="professionals__grid">
                     <?php foreach ($profesionales as $prof): ?>
                         <?php
-                        $avatar = !empty($prof['avatar']) ? base_url($prof['avatar']) : base_url('public/assets/media/íconoPerfil.png');
+                        $avatar = !empty($prof['u_avatar']) ? base_url($prof['u_avatar']) : base_url('public/assets/media/íconoPerfil.png');
                         ?>
                         <div class="pro-card">
-                            <img alt="<?= esc($prof['nombre_completo']) ?> - <?= esc($prof['titulo']) ?>" class="pro-card__image"
+                            <img alt="<?= esc($prof['u_nbreCompleto']) ?> - <?= esc($prof['p_titulo']) ?>" class="pro-card__image"
                                 src="<?= esc($avatar) ?>" />
-                            <h3 class="pro-card__name"><?= esc($prof['nombre_completo']) ?></h3>
-                            <p class="pro-card__role"><?= esc($prof['titulo']) ?></p>
-                            <p class="pro-card__bio"><?= esc($prof['descripcion']) ?></p>
+                            <h3 class="pro-card__name"><?= esc($prof['u_nbreCompleto']) ?></h3>
+                            <p class="pro-card__role"><?= esc($prof['p_titulo']) ?></p>
+                            <p class="pro-card__bio"><?= esc($prof['p_desc']) ?></p>
                             <div class="pro-card__socials">
                                 <?php if (!empty($prof['redes'])): ?>
                                     <?php foreach ($prof['redes'] as $red): ?>
@@ -389,7 +389,7 @@ if (!function_exists('esc')) {
                                         <option disabled selected value="">Seleccioná un servicio</option>
                                         <?php if (!empty($servicios)): ?>
                                             <?php foreach ($servicios as $s): ?>
-                                                <option value="<?= esc($s['id_servicio']) ?>"><?= esc($s['nombre']) ?></option>
+                                                <option value="<?= esc($s['s_id']) ?>"><?= esc($s['s_nbre']) ?></option>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                         <option value="otro">Otro</option>

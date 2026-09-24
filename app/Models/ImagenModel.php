@@ -7,14 +7,14 @@ use CodeIgniter\Model;
 class ImagenModel extends Model
 {
     protected $table            = 'imagen';
-    protected $primaryKey       = 'id_imagen';
+    protected $primaryKey       = 'img_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id_servicio',
-        'ruta'
+        's_id',
+        'img_ruta'
     ];
 
     // Dates
@@ -22,8 +22,8 @@ class ImagenModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'id_servicio' => 'required|numeric',
-        'ruta'        => 'required|max_length[255]'
+        's_id' => 'required|numeric',
+        'img_ruta'        => 'required|max_length[255]'
     ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;

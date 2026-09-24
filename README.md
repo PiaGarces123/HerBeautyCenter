@@ -1,69 +1,45 @@
-# CodeIgniter 4 Application Starter
+# Her Beauty Center
 
-## What is CodeIgniter?
+Sistema de gestión web para centro de estética desarrollado en **CodeIgniter 4**. Permite la administración de servicios, profesionales, clientes, agendamiento de turnos, y actúa como Landing Page pública.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Características Principales
+- **Catálogo de Servicios:** Gestión de tratamientos de belleza con imágenes y precios.
+- **Gestión de Profesionales:** Administración del personal del centro, sus biografías y redes sociales.
+- **Reserva de Turnos (Agenda):** Sistema de turnos y bloques de horarios por profesional.
+- **Panel de Administración (Backend):** Interfaz segura para controlar métricas, perfiles y reservas.
+- **Landing Page (Frontend):** Interfaz pública integrada al catálogo.
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+## Tecnologías Utilizadas
+- **Backend:** PHP 8.4, CodeIgniter 4.7.4 (MVC).
+- **Base de Datos:** MySQL (InnoDB).
+- **Frontend:** HTML5, CSS, JS (Fetch API/AJAX).
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## Instalación y Configuración
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+1. **Clonar el proyecto y Configurar (.env):**
+   - Renombra el archivo env a .env.
+   - Modifica las variables CI_ENVIRONMENT = development y los datos de database.default.
 
-## Installation & updates
+2. **Crear Base de Datos:**
+   Ejecuta en consola: php app/Database/createDatabase.php
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+3. **Semilla Inicial (Seeder):**
+   Ejecuta: php spark db:seed AdminSeeder
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+## 📂 Arquitectura Principal (MVC)
+El sistema sigue el patrón Modelo-Vista-Controlador. Las carpetas principales dentro de `app/` son:
 
-## Setup
+- **`Controllers/`**: Reciben las peticiones del usuario. Tenemos Controladores tradicionales que devuelven HTML (como `Home.php` y `Admin.php`) y Controladores en la subcarpeta `Api/` que devuelven datos en formato JSON para darle dinamismo a la web sin recargar la página.
+- **`Models/`**: Interactúan con la base de datos. Cada archivo representa una tabla (ej. `ServicioModel.php`, `UsuarioModel.php`). Gestionan las reglas de validación y la seguridad de los datos antes de guardarlos.
+- **`Views/`**: Son las pantallas y plantillas visuales (UI). Contiene la web pública (`index.php`), los modales emergentes (`modals/`) y todas las pantallas protegidas del panel de control (`profesional/`).
+- **`Database/`**: Contiene todo lo necesario para inicializar la base de datos desde cero, incluyendo el script maestro `createDatabase.php` y los Sembradores (`Seeds/`) para inyectar datos por defecto.
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
-
-## Important Change with index.php
-
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
-
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
-
-**Please** read the user guide for a better explanation of how CI4 works!
-
-## Repository Management
-
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
-
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
-
-## Server Requirements
-
-PHP version 8.2 or higher is required, with the following extensions installed:
-
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
-
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
-
-Additionally, make sure that the following extensions are enabled in your PHP:
-
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+Además de `app/`, la otra carpeta vital es **`public/`**:
+Es la única carpeta accesible públicamente a través de internet por motivos de seguridad. 
+- **`index.php`**: El punto de entrada (Front Controller) de CodeIgniter.
+- **`.htaccess`**: Reglas de Apache que eliminan el "index.php" de tus URLs para que sean más limpias (ej. `/admin` en lugar de `/index.php/admin`).
+- **`assets/`**: Almacena todos los recursos estáticos del sitio:
+  - `css/`: Hojas de estilo puras (Vanilla CSS).
+  - `js/`: Lógica asíncrona (Fetch API) e interactividad para el Frontend y Panel de Administración.
+  - `media/`: Imágenes del sistema (Fotos de Servicios, Avatares subidos por usuarios).
+  - `modals/`: Scripts de inicialización específicos para ventanas emergentes.

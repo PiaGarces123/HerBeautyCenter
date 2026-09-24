@@ -23,7 +23,7 @@ class ClientesApi extends BaseController
             !isset($request->name) || empty(trim($request->name)) ||
             !isset($request->email) || empty(trim($request->email)) ||
             !isset($request->phone) || empty(trim($request->phone)) ||
-            !isset($request->password) || empty(trim($request->password))
+            !isset($request->u_pass) || empty(trim($request->u_pass))
         ) {
             return $this->fail('Datos incompletos.');
         }
@@ -31,7 +31,7 @@ class ClientesApi extends BaseController
         $name = trim($request->name);
         $email = trim($request->email);
         $phone = trim($request->phone);
-        $password = $request->password;
+        $password = $request->u_pass;
 
         if (strlen($name) < 7) {
             return $this->fail('El nombre debe tener al menos 7 caracteres.');
@@ -54,7 +54,7 @@ class ClientesApi extends BaseController
 
         $db = \Config\Database::connect();
 
-        $existing = $db->table('usuario')->where('correo', $email)->get()->getRow();
+        $existing = $db->table('usuario')->where('u_correo', $email)->get()->getRow();
         if ($existing) {
             return $this->fail('Ya existe una cuenta con este correo.');
         }
@@ -63,19 +63,19 @@ class ClientesApi extends BaseController
 
         try {
             $usuarioData = [
-                'nombre_completo' => $name,
-                'correo' => $email,
-                'telefono' => $phone,
-                'password' => password_hash($password, PASSWORD_DEFAULT),
-                'activo' => 1,
-                'fecha_registro' => date('Y-m-d H:i:s')
+                'u_nbreCompleto' => $name,
+                'u_correo' => $email,
+                'u_tel' => $phone,
+                'u_pass' => password_hash($password, PASSWORD_DEFAULT),
+                'u_activo' => 1,
+                'u_fRegistro' => date('Y-m-d H:i:s')
             ];
 
             $db->table('usuario')->insert($usuarioData);
             $userId = $db->insertID();
 
             $db->table('cliente')->insert([
-                'id_usuario' => $userId
+                'c_uId' => $userId
             ]);
 
             $db->transComplete();
@@ -102,7 +102,7 @@ class ClientesApi extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $cliente = $db->table('cliente')->where('id_cliente', $id)->get()->getRow();
+        $cliente = $db->table('cliente')->where('c_id', $id)->get()->getRow();
 
         if (!$cliente) {
             return $this->failNotFound('Cliente no encontrado.');
@@ -111,12 +111,12 @@ class ClientesApi extends BaseController
         $db->transStart();
 
         // Eliminar turnos u otras dependencias
-        $db->table('turno')->where('id_cliente', $id)->delete();
+        $db->table('turno')->where('t_cId', $id)->delete();
         
         // Eliminar cliente
-        $db->table('cliente')->where('id_cliente', $id)->delete();
+        $db->table('cliente')->where('c_id', $id)->delete();
         // Eliminar usuario
-        $db->table('usuario')->where('id_usuario', $cliente->id_usuario)->delete();
+        $db->table('usuario')->where('u_id', $cliente->c_uId)->delete();
 
         $db->transComplete();
 
@@ -164,23 +164,23 @@ class ClientesApi extends BaseController
 
         $db = \Config\Database::connect();
         
-        $cliente = $db->table('cliente')->where('id_cliente', $id)->get()->getRow();
+        $cliente = $db->table('cliente')->where('c_id', $id)->get()->getRow();
         if (!$cliente) {
             return $this->failNotFound('Cliente no encontrado.');
         }
 
-        $existing = $db->table('usuario')->where('correo', $email)->where('id_usuario !=', $cliente->id_usuario)->get()->getRow();
+        $existing = $db->table('usuario')->where('u_correo', $email)->where('u_id !=', $cliente->c_uId)->get()->getRow();
         if ($existing) {
             return $this->fail('Ya existe otra cuenta con este correo.');
         }
 
         $usuarioData = [
-            'nombre_completo' => $name,
-            'correo' => $email,
-            'telefono' => $phone
+            'u_nbreCompleto' => $name,
+            'u_correo' => $email,
+            'u_tel' => $phone
         ];
         
-        if (!$db->table('usuario')->where('id_usuario', $cliente->id_usuario)->update($usuarioData)) {
+        if (!$db->table('usuario')->where('u_id', $cliente->c_uId)->update($usuarioData)) {
             return $this->failServerError('Error al actualizar el cliente.');
         }
 
@@ -199,11 +199,11 @@ class ClientesApi extends BaseController
         }
 
         $request = $this->request->getJSON();
-        if (!isset($request->password) || empty(trim($request->password))) {
+        if (!isset($request->u_pass) || empty(trim($request->u_pass))) {
             return $this->fail('Contraseña no proporcionada.');
         }
 
-        $password = trim($request->password);
+        $password = trim($request->u_pass);
 
         $upperCount = preg_match_all('/[A-Z]/', $password);
         $lowerCount = preg_match_all('/[a-z]/', $password);
@@ -216,13 +216,13 @@ class ClientesApi extends BaseController
 
         $db = \Config\Database::connect();
         
-        $usuario = $db->table('usuario')->where('id_usuario', $id_usuario)->get()->getRow();
+        $usuario = $db->table('usuario')->where('u_id', $id_usuario)->get()->getRow();
         if (!$usuario) {
             return $this->failNotFound('Usuario no encontrado.');
         }
 
-        $db->table('usuario')->where('id_usuario', $id_usuario)->update([
-            'password' => password_hash($password, PASSWORD_DEFAULT)
+        $db->table('usuario')->where('u_id', $id_usuario)->update([
+            'u_pass' => password_hash($password, PASSWORD_DEFAULT)
         ]);
 
         return $this->respond(['success' => true, 'message' => 'Contraseña actualizada exitosamente.']);
@@ -256,21 +256,21 @@ class ClientesApi extends BaseController
 
         $db = \Config\Database::connect();
         
-        $cliente = $db->table('cliente')->where('id_cliente', $id_cliente)->get()->getRow();
+        $cliente = $db->table('cliente')->where('c_id', $id_cliente)->get()->getRow();
         if (!$cliente) {
             return $this->failNotFound('Cliente no encontrado.');
         }
         
         // Verificar que no sea profesional ya
-        $profesional = $db->table('profesional')->where('id_usuario', $cliente->id_usuario)->get()->getRow();
+        $profesional = $db->table('profesional')->where('u_id', $cliente->c_uId)->get()->getRow();
         if ($profesional) {
             return $this->fail('Este usuario ya es un profesional.');
         }
 
         $profesionalData = [
-            'id_usuario' => $cliente->id_usuario,
-            'titulo' => $title,
-            'anio_inicio_actividades' => $year
+            'u_id' => $cliente->c_uId,
+            'p_titulo' => $title,
+            'p_anioInicioAct' => $year
         ];
 
         if (!$db->table('profesional')->insert($profesionalData)) {

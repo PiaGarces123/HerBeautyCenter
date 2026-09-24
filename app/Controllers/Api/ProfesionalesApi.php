@@ -23,7 +23,7 @@ class ProfesionalesApi extends BaseController
             !isset($request->name) || empty(trim($request->name)) ||
             !isset($request->email) || empty(trim($request->email)) ||
             !isset($request->phone) || empty(trim($request->phone)) ||
-            !isset($request->password) || empty(trim($request->password)) ||
+            !isset($request->u_pass) || empty(trim($request->u_pass)) ||
             !isset($request->title) || empty(trim($request->title))
         ) {
             return $this->fail('Datos incompletos.');
@@ -32,7 +32,7 @@ class ProfesionalesApi extends BaseController
         $name = trim($request->name);
         $email = trim($request->email);
         $phone = trim($request->phone);
-        $password = $request->password;
+        $password = $request->u_pass;
         $title = trim($request->title);
 
         if (!preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{7,}$/u', $name)) {
@@ -62,7 +62,7 @@ class ProfesionalesApi extends BaseController
         $db = \Config\Database::connect();
 
         // Check if user already exists
-        $existing = $db->table('usuario')->where('correo', trim($request->email))->get()->getRow();
+        $existing = $db->table('usuario')->where('u_correo', trim($request->email))->get()->getRow();
         if ($existing) {
             return $this->fail('Ya existe una cuenta con este correo.');
         }
@@ -71,12 +71,12 @@ class ProfesionalesApi extends BaseController
 
         // 1. Insert into usuario
         $usuarioData = [
-            'nombre_completo' => trim($request->name),
-            'correo' => trim($request->email),
-            'telefono' => isset($request->phone) ? trim($request->phone) : null,
-            'password' => password_hash($request->password, PASSWORD_DEFAULT),
-            'activo' => 1,
-            'fecha_registro' => date('Y-m-d H:i:s')
+            'u_nbreCompleto' => trim($request->name),
+            'u_correo' => trim($request->email),
+            'u_tel' => isset($request->phone) ? trim($request->phone) : null,
+            'u_pass' => password_hash($request->u_pass, PASSWORD_DEFAULT),
+            'u_activo' => 1,
+            'u_fRegistro' => date('Y-m-d H:i:s')
         ];
 
         $db->table('usuario')->insert($usuarioData);
@@ -84,9 +84,9 @@ class ProfesionalesApi extends BaseController
 
         // 2. Insert into profesional
         $profesionalData = [
-            'id_usuario' => $userId,
-            'titulo' => trim($request->title),
-            'anio_inicio_actividades' => isset($request->year) ? intval($request->year) : date('Y')
+            'c_uId' => $userId,
+            'p_titulo' => trim($request->title),
+            'p_anioInicioAct' => isset($request->year) ? intval($request->year) : date('Y')
         ];
 
         $db->table('profesional')->insert($profesionalData);
@@ -122,15 +122,15 @@ class ProfesionalesApi extends BaseController
         $db->transStart();
 
         // 1. Eliminar los servicios actuales de la profesional
-        $db->table('profesional_servicio')->where('id_profesional', $profesional_id)->delete();
+        $db->table('profesional_servicio')->where('p_id', $profesional_id)->delete();
 
         // 2. Insertar los nuevos servicios seleccionados
         if (!empty($servicios)) {
             $insertData = [];
             foreach ($servicios as $id_servicio) {
                 $insertData[] = [
-                    'id_profesional' => $profesional_id,
-                    'id_servicio' => intval($id_servicio)
+                    'p_id' => $profesional_id,
+                    'p_sId' => intval($id_servicio)
                 ];
             }
             $db->table('profesional_servicio')->insertBatch($insertData);
@@ -158,7 +158,7 @@ class ProfesionalesApi extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $profesional = $db->table('profesional')->where('id_profesional', $id)->get()->getRow();
+        $profesional = $db->table('profesional')->where('p_id', $id)->get()->getRow();
 
         if (!$profesional) {
             return $this->failNotFound('Profesional no encontrada.');
@@ -167,17 +167,17 @@ class ProfesionalesApi extends BaseController
         $db->transStart();
 
         // Eliminar administrador si lo fuera
-        $db->table('administrador')->where('id_profesional', $id)->delete();
+        $db->table('administrador')->where('p_id', $id)->delete();
         // Eliminar relaciones de servicios primero
-        $db->table('profesional_servicio')->where('id_profesional', $id)->delete();
+        $db->table('profesional_servicio')->where('p_id', $id)->delete();
         // Eliminar turnos asignados
-        $db->table('turno')->where('id_profesional', $id)->delete();
+        $db->table('turno')->where('p_id', $id)->delete();
         // Eliminar horarios configurados
-        $db->table('horario')->where('id_profesional', $id)->delete();
+        $db->table('horario')->where('p_id', $id)->delete();
         // Eliminar profesional
-        $db->table('profesional')->where('id_profesional', $id)->delete();
+        $db->table('profesional')->where('p_id', $id)->delete();
         // Eliminar usuario
-        $db->table('usuario')->where('id_usuario', $profesional->id_usuario)->delete();
+        $db->table('usuario')->where('u_id', $profesional->u_id)->delete();
 
         $db->transComplete();
 
@@ -231,12 +231,12 @@ class ProfesionalesApi extends BaseController
 
         $db = \Config\Database::connect();
         
-        $profesional = $db->table('profesional')->where('id_profesional', $id)->get()->getRow();
+        $profesional = $db->table('profesional')->where('p_id', $id)->get()->getRow();
         if (!$profesional) {
             return $this->failNotFound('Profesional no encontrada.');
         }
 
-        $existing = $db->table('usuario')->where('correo', $email)->where('id_usuario !=', $profesional->id_usuario)->get()->getRow();
+        $existing = $db->table('usuario')->where('u_correo', $email)->where('u_id !=', $profesional->u_id)->get()->getRow();
         if ($existing) {
             return $this->fail('Ya existe otra cuenta con este correo.');
         }
@@ -244,17 +244,17 @@ class ProfesionalesApi extends BaseController
         $db->transStart();
 
         $usuarioData = [
-            'nombre_completo' => $name,
-            'correo' => $email,
-            'telefono' => $phone
+            'u_nbreCompleto' => $name,
+            'u_correo' => $email,
+            'u_tel' => $phone
         ];
-        $db->table('usuario')->where('id_usuario', $profesional->id_usuario)->update($usuarioData);
+        $db->table('usuario')->where('u_id', $profesional->u_id)->update($usuarioData);
 
         $profesionalData = [
-            'titulo' => $title,
-            'anio_inicio_actividades' => $year
+            'p_titulo' => $title,
+            'p_anioInicioAct' => $year
         ];
-        $db->table('profesional')->where('id_profesional', $id)->update($profesionalData);
+        $db->table('profesional')->where('p_id', $id)->update($profesionalData);
 
         $db->transComplete();
 
@@ -277,11 +277,11 @@ class ProfesionalesApi extends BaseController
         }
 
         $request = $this->request->getJSON();
-        if (!isset($request->password) || empty(trim($request->password))) {
+        if (!isset($request->u_pass) || empty(trim($request->u_pass))) {
             return $this->fail('Contraseña no proporcionada.');
         }
 
-        $password = trim($request->password);
+        $password = trim($request->u_pass);
 
         $upperCount = preg_match_all('/[A-Z]/', $password);
         $lowerCount = preg_match_all('/[a-z]/', $password);
@@ -294,13 +294,13 @@ class ProfesionalesApi extends BaseController
 
         $db = \Config\Database::connect();
         
-        $usuario = $db->table('usuario')->where('id_usuario', $id_usuario)->get()->getRow();
+        $usuario = $db->table('usuario')->where('u_id', $id_usuario)->get()->getRow();
         if (!$usuario) {
             return $this->failNotFound('Usuario no encontrado.');
         }
 
-        $db->table('usuario')->where('id_usuario', $id_usuario)->update([
-            'password' => password_hash($password, PASSWORD_DEFAULT)
+        $db->table('usuario')->where('u_id', $id_usuario)->update([
+            'u_pass' => password_hash($password, PASSWORD_DEFAULT)
         ]);
 
         return $this->respond(['success' => true, 'message' => 'Contraseña actualizada exitosamente.']);

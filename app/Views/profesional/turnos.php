@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Mis Turnos';
 $activeNav = 'turnos';
-$this->extend('admin/_layout');
+$this->extend('profesional/_layout');
 $this->section('content');
 
 $estadoBadge = [
@@ -43,7 +43,7 @@ $estadoBadge = [
             <tbody>
                 <?php foreach ($turnos as $t): ?>
                 <tr>
-                    <td style="color: var(--color-on-surface-variant); font-size:0.8rem;">#<?= esc($t['id_turno']) ?></td>
+                    <td style="color: var(--color-on-surface-variant); font-size:0.8rem;">#<?= esc($t['t_id']) ?></td>
                     <td>
                         <p style="font-weight:600;"><?= date('d/m/Y', strtotime($t['fecha'])) ?></p>
                         <p style="font-size:0.75rem; color: var(--color-on-surface-variant);">
@@ -51,12 +51,12 @@ $estadoBadge = [
                         </p>
                     </td>
                     <td style="font-size:0.875rem;">
-                        <?= date('H:i', strtotime($t['hora_desde'])) ?> –
-                        <?= date('H:i', strtotime($t['hora_hasta'])) ?>
+                        <?= date('H:i', strtotime($t['t_horaDesde'])) ?> –
+                        <?= date('H:i', strtotime($t['t_horaHasta'])) ?>
                     </td>
                     <td><?= esc($t['nombre_profesional'] ?? '—') ?></td>
                     <td><?= esc($t['nombre_cliente'] ?? '<span style="color:var(--color-on-surface-variant)">Sin asignar</span>') ?></td>
-                    <td style="font-weight:600;">$<?= number_format($t['monto'], 0, ',', '.') ?></td>
+                    <td style="font-weight:600;">$<?= number_format($t['t_monto'], 0, ',', '.') ?></td>
                     <td>
                         <?php if ($t['abonado']): ?>
                             <span class="badge badge--green">Sí</span>

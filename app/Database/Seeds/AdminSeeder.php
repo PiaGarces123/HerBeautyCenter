@@ -16,19 +16,19 @@ class AdminSeeder extends Seeder
         $administradorModel = new AdministradorModel();
 
         // Verificar si ya existe el usuario
-        $existe = $usuarioModel->where('correo', 'garcesbrocalmaru@gmail.com')->first();
+        $existe = $usuarioModel->where('u_correo', 'garcesbrocalmaru@gmail.com')->first();
         if ($existe) {
-            echo "El usuario ya existe en la base de datos (ID: " . $existe['id_usuario'] . ").\n";
+            echo "El usuario ya existe en la base de datos (ID: " . $existe['u_id'] . ").\n";
             return;
         }
 
         // 1. Crear Usuario
         $usuarioId = $usuarioModel->insert([
-            'nombre_completo' => 'Admin (Maru)',
-            'correo'          => 'garcesbrocalmaru@gmail.com',
-            'telefono'        => '1100000000',
-            'password'        => 'HH22oo..',
-            'activo'          => 1
+            'u_nbreCompleto' => 'Admin (Maru)',
+            'u_correo'          => 'garcesbrocalmaru@gmail.com',
+            'u_tel'        => '1100000000',
+            'u_pass'        => 'HH22oo..',
+            'u_activo'          => 1
         ]);
 
         if (!$usuarioId) {
@@ -39,8 +39,8 @@ class AdminSeeder extends Seeder
 
         // 2. Crear Profesional
         $profesionalId = $profesionalModel->insert([
-            'id_usuario' => $usuarioId,
-            'titulo' => 'Administradora'
+            'u_id' => $usuarioId,
+            'p_titulo' => 'Administradora'
         ]);
 
         if (!$profesionalId) {
@@ -51,7 +51,7 @@ class AdminSeeder extends Seeder
 
         // 3. Crear Administrador
         $adminId = $administradorModel->insert([
-            'id_profesional' => $profesionalId
+            'a_pId' => $profesionalId
         ]);
 
         if (!$adminId) {

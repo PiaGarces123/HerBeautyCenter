@@ -25,10 +25,10 @@ class CheckAuth extends BaseCommand
         $usuarioModel = new UsuarioModel();
         
         $data = [
-            'nombre_completo' => $testName,
-            'correo'          => $testEmail,
-            'password'        => $testPassword,
-            'activo'          => 1
+            'u_nbreCompleto' => $testName,
+            'u_correo'          => $testEmail,
+            'u_pass'        => $testPassword,
+            'u_activo'          => 1
         ];
 
         if ($usuarioModel->insert($data)) {
@@ -36,25 +36,25 @@ class CheckAuth extends BaseCommand
             CLI::write("✓ Usuario insertado con ID: $userId", 'green');
 
             $db->table('cliente')->insert([
-                'id_usuario' => $userId
+                'u_id' => $userId
             ]);
             CLI::write("✓ Registro cliente asociado creado.", 'green');
 
             CLI::write("2. Probando verificación de contraseña (Login)...", 'yellow');
             $usuario = $db->table('usuario')
-                ->where('correo', $testEmail)
-                ->where('activo', 1)
+                ->where('u_correo', $testEmail)
+                ->where('u_activo', 1)
                 ->get()->getRowArray();
 
-            if ($usuario && password_verify($testPassword, $usuario['password'])) {
-                CLI::write("✓ Login verificado exitosamente para: " . $usuario['correo'], 'green');
+            if ($usuario && password_verify($testPassword, $usuario['u_pass'])) {
+                CLI::write("✓ Login verificado exitosamente para: " . $usuario['u_correo'], 'green');
             } else {
                 CLI::error("✗ Falló la verificación de contraseña en login.");
             }
 
             // Cleanup
-            $db->table('cliente')->where('id_usuario', $userId)->delete();
-            $db->table('usuario')->where('id_usuario', $userId)->delete();
+            $db->table('cliente')->where('u_id', $userId)->delete();
+            $db->table('usuario')->where('u_id', $userId)->delete();
             CLI::write("✓ Limpieza de datos de prueba completada.", 'green');
         } else {
             CLI::error("✗ Error al registrar usuario: " . json_encode($usuarioModel->errors()));

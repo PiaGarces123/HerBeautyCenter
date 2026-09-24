@@ -7,16 +7,16 @@ use CodeIgniter\Model;
 class ProfesionalModel extends Model
 {
     protected $table            = 'profesional';
-    protected $primaryKey       = 'id_profesional';
+    protected $primaryKey       = 'p_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id_usuario',
-        'titulo',
-        'descripcion',
-        'anio_inicio_actividades'
+        'u_id',
+        'p_titulo',
+        'p_desc',
+        'p_anioInicioAct'
     ];
 
     // Dates
@@ -24,11 +24,11 @@ class ProfesionalModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'id_usuario'              => 'required|is_unique[profesional.id_usuario,id_profesional,{id_profesional}]',
-        'anio_inicio_actividades' => 'permit_empty|exact_length[4]|numeric'
+        'u_id'              => 'required|is_unique[profesional.u_id,p_id,{p_id}]',
+        'p_anioInicioAct' => 'permit_empty|exact_length[4]|numeric'
     ];
     protected $validationMessages   = [
-        'id_usuario' => [
+        'u_id' => [
             'is_unique' => 'Este usuario ya está registrado como profesional.'
         ]
     ];

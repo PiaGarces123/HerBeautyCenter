@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Servicios';
 $activeNav = 'servicios';
-$this->extend('admin/_layout');
+$this->extend('profesional/_layout');
 $this->section('content');
 ?>
 
@@ -79,16 +79,16 @@ $this->section('content');
             </thead>
             <tbody>
                 <?php foreach ($servicios as $s): ?>
-                <tr data-id="<?= esc($s['id_servicio']) ?>">
+                <tr data-id="<?= esc($s['s_id']) ?>">
                     <td class="drag-handle-cell d-none" style="cursor:grab; text-align:center; color:var(--color-outline); padding:0 0.5rem;">
                         <span class="material-symbols-outlined" style="font-size:1.2rem;">drag_indicator</span>
                     </td>
-                    <td class="orden-cell" style="font-weight:700; color:var(--color-on-surface-variant); font-size:0.85rem;"><?= esc($s['orden']) ?></td>
+                    <td class="orden-cell" style="font-weight:700; color:var(--color-on-surface-variant); font-size:0.85rem;"><?= esc($s['s_orden']) ?></td>
                     <td>
                         <?php if (!empty($s['imagen_ruta'])): ?>
                             <img src="<?= esc($s['imagen_ruta']) ?>"
                                  style="width:3.5rem; height:2.5rem; object-fit:cover; border-radius:var(--radius-md);"
-                                 alt="<?= esc($s['nombre']) ?>" loading="lazy" />
+                                 alt="<?= esc($s['s_nbre']) ?>" loading="lazy" />
                         <?php else: ?>
                             <span class="table-avatar-placeholder" style="width:3.5rem; height:2.5rem; border-radius:var(--radius-md);">
                                 <span class="material-symbols-outlined" style="font-size:1.1rem;">image</span>
@@ -96,18 +96,18 @@ $this->section('content');
                         <?php endif; ?>
                     </td>
                     <td>
-                        <p class="table-user-name"><?= esc($s['nombre']) ?></p>
+                        <p class="table-user-name"><?= esc($s['s_nbre']) ?></p>
                     </td>
                     <td style="max-width: 18rem; white-space: normal; font-size: 0.82rem; color: var(--color-on-surface-variant);">
-                        <?= esc(mb_strimwidth($s['descripcion'] ?? '', 0, 70, '…')) ?>
+                        <?= esc(mb_strimwidth($s['s_desc'] ?? '', 0, 70, '…')) ?>
                     </td>
                     <td style="max-width: 12rem; white-space: normal; font-size: 0.82rem; color: var(--color-on-surface-variant);">
                         <?= esc($s['profesionales_nombres'] ?: 'Sin asignar') ?>
                     </td>
-                    <td><?= esc($s['duracion_minutos']) ?> min</td>
-                    <td style="font-weight:600;">Desde $<?= number_format($s['precio'], 0, ',', '.') ?></td>
+                    <td><?= esc($s['s_duracionMinutos']) ?> min</td>
+                    <td style="font-weight:600;">Desde $<?= number_format($s['s_precio'], 0, ',', '.') ?></td>
                     <td>
-                        <?php if ($s['activo']): ?>
+                        <?php if ($s['u_activo']): ?>
                             <span class="badge badge--green">Activo</span>
                         <?php else: ?>
                             <span class="badge badge--gray">Inactivo</span>
@@ -117,25 +117,25 @@ $this->section('content');
                         <div class="table-actions">
                             <button class="table-btn table-btn--edit btn-assign-prof" title="Asignar Profesionales"
                                 data-bs-toggle="modal" data-bs-target="#assignProfesionalesModal"
-                                data-id="<?= esc($s['id_servicio']) ?>"
-                                data-name="<?= esc($s['nombre']) ?>"
+                                data-id="<?= esc($s['s_id']) ?>"
+                                data-name="<?= esc($s['s_nbre']) ?>"
                                 data-profs="<?= esc($s['profesionales_ids']) ?>">
                                 <span class="material-symbols-outlined" style="font-size:1rem;">group_add</span>
                             </button>
                             <button class="table-btn table-btn--edit btn-edit-servicio" title="Editar"
                                 data-bs-toggle="modal" data-bs-target="#editServicioModal"
-                                data-id="<?= esc($s['id_servicio']) ?>"
-                                data-name="<?= esc($s['nombre']) ?>"
-                                data-desc="<?= esc($s['descripcion']) ?>"
-                                data-dur="<?= esc($s['duracion_minutos']) ?>"
-                                data-price="<?= esc($s['precio']) ?>"
-                                data-active="<?= esc($s['activo']) ?>"
+                                data-id="<?= esc($s['s_id']) ?>"
+                                data-name="<?= esc($s['s_nbre']) ?>"
+                                data-desc="<?= esc($s['s_desc']) ?>"
+                                data-dur="<?= esc($s['s_duracionMinutos']) ?>"
+                                data-price="<?= esc($s['s_precio']) ?>"
+                                data-active="<?= esc($s['u_activo']) ?>"
                                 data-img="<?= esc($s['imagen_ruta']) ?>">
                                 <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
                             </button>
                             <button class="table-btn table-btn--delete btn-delete-servicio" title="Eliminar"
-                                data-id="<?= esc($s['id_servicio']) ?>"
-                                data-name="<?= esc($s['nombre']) ?>">
+                                data-id="<?= esc($s['s_id']) ?>"
+                                data-name="<?= esc($s['s_nbre']) ?>">
                                 <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
                             </button>
                         </div>
@@ -311,9 +311,9 @@ $this->section('content');
                     <div class="list-group mb-3" style="border-radius: 0.5rem; overflow: hidden; border: 1px solid var(--color-outline-variant);">
                         <?php if(!empty($todos_profesionales)): foreach($todos_profesionales as $prof): ?>
                             <label class="list-group-item d-flex gap-3 align-items-center" style="border: none; border-bottom: 1px solid var(--color-outline-variant); padding: 1rem;">
-                                <input class="form-check-input flex-shrink-0 assign-prof-checkbox" type="checkbox" value="<?= esc($prof['id_profesional']) ?>" style="font-size: 1.25rem;">
+                                <input class="form-check-input flex-shrink-0 assign-prof-checkbox" type="checkbox" value="<?= esc($prof['p_id']) ?>" style="font-size: 1.25rem;">
                                 <span class="pt-1 form-checked-content">
-                                    <strong><?= esc($prof['nombre_completo']) ?></strong>
+                                    <strong><?= esc($prof['u_nbreCompleto']) ?></strong>
                                 </span>
                             </label>
                         <?php endforeach; else: ?>
