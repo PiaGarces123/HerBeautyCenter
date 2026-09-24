@@ -14,28 +14,30 @@ use Config\Paths;
 
 /*
  *---------------------------------------------------------------
- * Sample file for Preloading
+ * Archivo de muestra para Precarga (Preloading)
  *---------------------------------------------------------------
- * See https://www.php.net/manual/en/opcache.preloading.php
+ * Más información en: https://www.php.net/manual/es/opcache.preloading.php
  *
- * How to Use:
- *   0. Copy this file to your project root folder.
- *   1. Set the $paths property of the preload class below.
- *   2. Set opcache.preload in php.ini.
+ * Cómo usarlo:
+ *   0. Copia este archivo a la carpeta raíz de tu proyecto.
+ *   1. Configura la lista de archivos (la propiedad $paths de abajo).
+ *   2. Activa opcache.preload en tu archivo php.ini de la siguiente manera:
  *     php.ini:
- *     opcache.preload=/path/to/preload.php
+ *     opcache.preload=/ruta/a/tu/preload.php
+ *
+ * (Nota: Esto sirve para cargar todo en memoria y hacer la web súper rápida)
  */
 
-// Load the paths config file
+// Carga el archivo de configuración de rutas
 require __DIR__ . '/app/Config/Paths.php';
 
-// Path to the front controller
+// Ruta al Front Controller (El portero principal del sistema)
 define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR);
 
 class preload
 {
     /**
-     * @var array Paths to preload.
+     * @var array Rutas a los archivos que queremos precargar en la RAM.
      */
     private array $paths = [
         [
