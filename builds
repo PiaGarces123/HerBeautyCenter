@@ -8,39 +8,67 @@ define('GITHUB_URL', 'https://github.com/codeigniter4/codeigniter4');
 
 /*
  * --------------------------------------------------------------------
- * Stability Toggle
+ * Alternador de Estabilidad (Stability Toggle)
  * --------------------------------------------------------------------
- * Use this script to toggle the CodeIgniter dependency between the
- * latest stable release and the most recent development update.
+ * Utiliza este script para cambiar la dependencia de CodeIgniter entre
+ * la última versión estable (release) y la actualización de desarrollo
+ * más reciente (development/next).
  *
- * Usage: php builds [release|development|next]
+ * Uso: php builds [release|development|next]
  */
 
+// Captura el argumento pasado por la línea de comandos
 $branch = $argv[1] ?? '';
 
-// Determine the requested stability
-if ($branch === '' || ! in_array($branch, ['release', 'development', 'next'], true)) {
+// Validar que se haya ingresado un argumento válido ('release', 'development' o 'next')
+if ($branch === '' || !in_array($branch, ['release', 'development', 'next'], true)) {
     echo 'Usage: php builds [release|development|next]' . PHP_EOL;
 
     exit;
 }
 
+// Array para almacenar la lista de archivos que sufran modificaciones
 $modified = [];
 
-// Locate each file and update it for the requested stability
-
+// --------------------------------------------------------------------
+// Modificación del archivo composer.json
+// --------------------------------------------------------------------
 $file = __DIR__ . DIRECTORY_SEPARATOR . 'composer.json';
 
 if (is_file($file)) {
     $contents = file_get_contents($file);
 
     if ((string) $contents !== '') {
+        // Decodifica el JSON a un array asociativo de PHP
         $array = json_decode($contents, true);
 
         if (is_array($array)) {
+            // Si el modo NO es 'release' (es decir, 'development' o 'next')
             if ($branch !== 'release') {
                 $array['minimum-stability'] = 'dev';
-                $array['prefer-stable']     = true;
+                $array['prefer-stable'] = true;
+                $array['repositories'] ??= [];
+
+                $found = false;
+
+                // Verifica si el repositorio de desarrollo ya existe en la configuración
+                foreach ($array['repositories'] as $repository) {
+                    if ($repository['url'] === GITHUB_URL) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                // Si no existe, agrega el repositorio de GitHub al array de repositorios
+                if (!$found) {
+                    $array['repositories'][] = [
+                        'type' => 'vcs',
+                        'url' => GITHUB_URL,
+                    ];
+                }
+
+                // Asigna la versión según corresponda ('next' o 'development') y remueve el paquete estable
+                $array['prefer-stable'] = true;
                 $array['repositories'] ??= [];
 
                 $found = false;
@@ -52,19 +80,23 @@ if (is_file($file)) {
                     }
                 }
 
-                if (! $found) {
+                if (!$found) {
                     $array['repositories'][] = [
                         'type' => 'vcs',
-                        'url'  => GITHUB_URL,
+                        'url' => GITHUB_URL,
                     ];
                 }
 
                 $array['require']['codeigniter4/codeigniter4'] = $branch === 'next' ? NEXT_MINOR : DEVELOP_BRANCH;
                 unset($array['require']['codeigniter4/framework']);
+
+
             } else {
+                // Si el modo ES 'release', elimina la estabilidad dev y limpia los repositorios
                 unset($array['minimum-stability']);
 
                 if (isset($array['repositories'])) {
+                    // Elimina el repositorio de GitHub si existe
                     foreach ($array['repositories'] as $i => $repository) {
                         if ($repository['url'] === GITHUB_URL) {
                             unset($array['repositories'][$i]);
@@ -72,17 +104,21 @@ if (is_file($file)) {
                         }
                     }
 
+                    // Si no quedan repositorios, elimina la clave 'repositories'
                     if ($array['repositories'] === []) {
                         unset($array['repositories']);
                     }
                 }
 
+                // Asigna el paquete estable y remueve la versión de desarrollo
                 $array['require']['codeigniter4/framework'] = LATEST_RELEASE;
                 unset($array['require']['codeigniter4/codeigniter4']);
             }
 
+            // Guarda los cambios formateando el archivo JSON
             file_put_contents($file, json_encode($array, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
 
+            // Agrega el archivo a la lista de modificados
             $modified[] = $file;
         } else {
             echo 'Warning: Unable to decode composer.json! Skipping...' . PHP_EOL;
@@ -92,28 +128,38 @@ if (is_file($file)) {
     }
 }
 
+// --------------------------------------------------------------------
+// Actualización de rutas en archivos de configuración y pruebas
+// --------------------------------------------------------------------
 $files = [
     __DIR__ . DIRECTORY_SEPARATOR . 'app/Config/Paths.php',
     __DIR__ . DIRECTORY_SEPARATOR . 'phpunit.dist.xml',
     __DIR__ . DIRECTORY_SEPARATOR . 'phpunit.xml',
 ];
 
+// Reemplaza las referencias de las rutas del paquete 'framework' por 'codeigniter4' (o viceversa)
 foreach ($files as $file) {
     if (is_file($file)) {
         $contents = file_get_contents($file);
 
+        // Si el modo NO es 'release', cambia de 'framework' a 'codeigniter4'
         if ($branch !== 'release') {
             $contents = str_replace('vendor/codeigniter4/framework', 'vendor/codeigniter4/codeigniter4', $contents);
         } else {
+            // Si el modo ES 'release', revierte el cambio
             $contents = str_replace('vendor/codeigniter4/codeigniter4', 'vendor/codeigniter4/framework', $contents);
         }
 
         file_put_contents($file, $contents);
 
+        // Agrega el archivo a la lista de modificados
         $modified[] = $file;
     }
 }
 
+// --------------------------------------------------------------------
+// Impresión del resumen de ejecución
+// --------------------------------------------------------------------
 if ($modified === []) {
     echo 'No files modified.' . PHP_EOL;
 } else {
@@ -124,5 +170,6 @@ if ($modified === []) {
     }
 }
 
+// Instrucciones para el usuario tras ejecutar el script
 echo 'Run `composer update` to sync changes with your vendor folder.' . PHP_EOL;
 echo 'Don\'t forget to update the project files in app folder from "vendor/codeigniter4/*/app/".' . PHP_EOL;

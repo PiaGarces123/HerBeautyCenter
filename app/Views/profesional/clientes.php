@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Clientes';
 $activeNav = 'clientes';
 $this->extend('profesional/_layout');
@@ -10,24 +10,24 @@ $this->section('content');
         <h2 class="admin-page-header__title">Clientes</h2>
         <p class="admin-page-header__subtitle">Gestión de usuarios registrados como clientes</p>
     </div>
-    <button class="btn btn--primary" style="gap:0.5rem; font-size:0.75rem;" data-bs-toggle="modal" data-bs-target="#createClienteModal">
-        <span class="material-symbols-outlined" style="font-size:1rem;">person_add</span>
+    <button class="btn btn--primary admin-action-btn" data-bs-toggle="modal" data-bs-target="#createClienteModal">
+        <span class="material-symbols-outlined admin-action-icon">person_add</span>
         Nuevo cliente
     </button>
 </div>
 
 <div class="admin-table-card">
-    <div class="admin-table-card__header" style="justify-content: center; width: 100%; margin-bottom: 1rem;">
+    <div class="admin-table-card__header admin-table-header-center">
         <h3 class="admin-table-card__title"
-            style="text-transform: uppercase; font-weight: bold; text-align: center; width: 100%;">Listado de clientes</h3>
+            class="admin-table-main-title">Listado de clientes</h3>
     </div>
 
-    <form method="GET" action="<?= base_url('admin/clientes') ?>" class="admin-filter-bar" style="display: flex; gap: 1rem; align-items: center; padding: 0 1.5rem 1.5rem; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 200px;">
-            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" style="border-radius: 0.5rem; padding: 0.6rem 1rem;">
+    <form method="GET" action="<?= base_url('admin/clientes') ?>" class="admin-filter-bar admin-table-filter-bar">
+        <div class="admin-table-filter-col">
+            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" class="admin-form-input">
         </div>
-        <div style="min-width: 200px;">
-            <select name="sort" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
+        <div class="admin-table-filter-col">
+            <select name="sort" class="form-control admin-form-input">
                 <option value="">Predeterminado</option>
                 <option value="a-z" <?= (isset($_GET['sort']) && $_GET['sort'] === 'a-z') ? 'selected' : '' ?>>Nombre &uarr; &mdash; A &rarr; Z</option>
                 <option value="z-a" <?= (isset($_GET['sort']) && $_GET['sort'] === 'z-a') ? 'selected' : '' ?>>Nombre &darr; &mdash; Z &rarr; A</option>
@@ -35,11 +35,11 @@ $this->section('content');
                 <option value="nuevos" <?= (isset($_GET['sort']) && $_GET['sort'] === 'nuevos') ? 'selected' : '' ?>>Fecha &darr; &mdash; Más recientes primero</option>
             </select>
         </div>
-        <button type="submit" class="btn btn--primary" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem;">
+        <button type="submit" class="btn btn--primary admin-modal-submit">
             Filtrar
         </button>
         <?php if (!empty($_GET['search']) || !empty($_GET['sort'])): ?>
-            <a href="<?= base_url('admin/clientes') ?>" class="btn" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem; border: 1px solid var(--color-outline); text-decoration: none; color: var(--color-primary);">Limpiar</a>
+            <a href="<?= base_url('admin/clientes') ?>" class="btn admin-modal-submit admin-action-btn--outline">Limpiar</a>
         <?php endif; ?>
     </form>
 
@@ -63,7 +63,7 @@ $this->section('content');
                                     <?php if (!empty($cli['u_avatar'])): ?>
                                         <img src="<?= esc($cli['u_avatar']) ?>" class="table-avatar" alt="Avatar" />
                                     <?php else: ?>
-                                        <img src="<?= base_url('public/assets/media/íconoPerfil.png') ?>" class="table-avatar" alt="Avatar por defecto" style="object-fit: contain; background: #fff; padding: 4px;" />
+                                        <img src="<?= base_url('public/assets/media/íconoPerfil.png') ?>" class="table-avatar" alt="Avatar por defecto" class="avatar-default" />
                                     <?php endif; ?>
                                     <div>
                                         <p class="table-user-name"><?= esc($cli['u_nbreCompleto']) ?></p>
@@ -86,7 +86,7 @@ $this->section('content');
                                         data-bs-toggle="modal" data-bs-target="#convertClienteModal"
                                         data-id="<?= esc($cli['c_id']) ?>"
                                         data-name="<?= esc($cli['u_nbreCompleto']) ?>">
-                                        <span class="material-symbols-outlined" style="font-size:1rem;">manage_accounts</span>
+                                        <span class="material-symbols-outlined admin-action-icon">manage_accounts</span>
                                     </button>
                                     <button class="table-btn table-btn--edit btn-edit-cliente" title="Editar"
                                         data-bs-toggle="modal" data-bs-target="#editClienteModal"
@@ -94,18 +94,18 @@ $this->section('content');
                                         data-name="<?= esc($cli['u_nbreCompleto']) ?>"
                                         data-email="<?= esc($cli['u_correo']) ?>"
                                         data-phone="<?= esc($cli['u_tel']) ?>">
-                                        <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+                                        <span class="material-symbols-outlined admin-action-icon">edit</span>
                                     </button>
                                     <button class="table-btn table-btn--edit btn-password-cliente" title="Cambiar Contraseña"
                                         data-bs-toggle="modal" data-bs-target="#passwordClienteModal"
                                         data-id="<?= esc($cli['u_id']) ?>"
                                         data-name="<?= esc($cli['u_nbreCompleto']) ?>">
-                                        <span class="material-symbols-outlined" style="font-size:1rem;">key</span>
+                                        <span class="material-symbols-outlined admin-action-icon">key</span>
                                     </button>
                                     <button class="table-btn table-btn--delete btn-delete-cliente" title="Eliminar"
                                         data-id="<?= esc($cli['c_id']) ?>"
                                         data-name="<?= esc($cli['u_nbreCompleto']) ?>">
-                                        <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+                                        <span class="material-symbols-outlined admin-action-icon">delete</span>
                                     </button>
                                 </div>
                             </td>
@@ -117,8 +117,8 @@ $this->section('content');
         
         <!-- Paginación -->
         <?php if (isset($pager_links) && $pager_links): ?>
-            <div class="d-flex justify-content-between align-items-center mt-4 px-3" style="flex-wrap: wrap; gap: 1rem;">
-                <span style="font-size: 0.85rem; color: var(--color-on-surface-variant); font-weight: 500;">
+            <div class="d-flex justify-content-between align-items-center mt-4 px-3 admin-table-actions-row">
+                <span class="fw-bold text-muted">
                     Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> Clientes
                 </span>
                 <div>
@@ -137,38 +137,38 @@ $this->section('content');
 <!-- Modal: Crear Cliente -->
 <div class="modal fade" id="createClienteModal" tabindex="-1" aria-labelledby="createClienteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
-                <h5 class="modal-title fs-5 fw-bold" id="createClienteModalLabel" style="color: var(--color-primary);">Nuevo Cliente</h5>
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
+                <h5 class="modal-title fs-5 fw-bold admin-modal-title" id="createClienteModalLabel">Nuevo Cliente</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="createClienteForm" class="needs-validation" novalidate>
-                    <div id="createClienteError" class="alert alert-danger d-none" style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
+                    <div id="createClienteError" class="alert alert-danger d-none admin-modal-alert"></div>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="createCliName" placeholder="Nombre completo" required
-                                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{7,}$" style="border-radius: 0.5rem; padding: 0.8rem;">
+                                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{7,}$" class="admin-form-input">
                             <div class="invalid-feedback">Debe contener al menos 7 letras.</div>
                         </div>
                         <div class="col-md-6">
                             <input type="email" class="form-control" id="createCliEmail" placeholder="Correo electrónico"
-                                required pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" style="border-radius: 0.5rem; padding: 0.8rem;">
+                                required pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" class="admin-form-input">
                             <div class="invalid-feedback">Ingresá un correo válido (ej: correo@gmail.com).</div>
                         </div>
                         <div class="col-md-12">
                             <input type="text" class="form-control" id="createCliPhone" placeholder="Teléfono" required
-                                minlength="8" style="border-radius: 0.5rem; padding: 0.8rem;">
+                                minlength="8" class="admin-form-input">
                             <div class="invalid-feedback">Campo obligatorio: al menos 8 números.</div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-group has-validation">
                                 <input type="password" class="form-control" id="createCliPassword"
                                     placeholder="Contraseña de acceso" required minlength="8"
-                                    style="border-radius: 0.5rem 0 0 0.5rem; padding: 0.8rem;">
+                                    class="admin-form-input-left">
                                 <button class="btn btn-outline-secondary toggle-password" type="button"
-                                    style="border-radius: 0 0.5rem 0.5rem 0; border-color: #dee2e6;">
-                                    <span class="material-symbols-outlined" style="font-size: 1.1rem; line-height: 1;">visibility</span>
+                                    class="admin-form-input-group-text">
+                                    <span class="material-symbols-outlined admin-visibility-icon">visibility</span>
                                 </button>
                                 <div class="invalid-feedback">Obligatorio: 2 mayúsculas, 2 minúsculas, 2 números, 2 símbolos.</div>
                             </div>
@@ -177,17 +177,17 @@ $this->section('content');
                             <div class="input-group has-validation">
                                 <input type="password" class="form-control" id="createCliPasswordConfirm"
                                     placeholder="Confirmar contraseña" required minlength="8"
-                                    style="border-radius: 0.5rem 0 0 0.5rem; padding: 0.8rem;">
+                                    class="admin-form-input-left">
                                 <button class="btn btn-outline-secondary toggle-password" type="button"
-                                    style="border-radius: 0 0.5rem 0.5rem 0; border-color: #dee2e6;">
-                                    <span class="material-symbols-outlined" style="font-size: 1.1rem; line-height: 1;">visibility</span>
+                                    class="admin-form-input-group-text">
+                                    <span class="material-symbols-outlined admin-visibility-icon">visibility</span>
                                 </button>
                                 <div class="invalid-feedback">Las contraseñas deben coincidir.</div>
                             </div>
                         </div>
                     </div>
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-pink" style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Guardar cliente</button>
+                        <button type="submit" class="btn btn-pink admin-modal-submit">Guardar cliente</button>
                     </div>
                 </form>
             </div>
@@ -198,34 +198,34 @@ $this->section('content');
 <!-- Modal: Editar Cliente -->
 <div class="modal fade" id="editClienteModal" tabindex="-1" aria-labelledby="editClienteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
-                <h5 class="modal-title fs-5 fw-bold" id="editClienteModalLabel" style="color: var(--color-primary);">Editar Cliente</h5>
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
+                <h5 class="modal-title fs-5 fw-bold admin-modal-title" id="editClienteModalLabel">Editar Cliente</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="editClienteForm" class="needs-validation" novalidate>
                     <input type="hidden" id="editCliId">
-                    <div id="editClienteError" class="alert alert-danger d-none" style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
+                    <div id="editClienteError" class="alert alert-danger d-none admin-modal-alert"></div>
                     <div class="row g-3">
                         <div class="col-md-12">
                             <input type="text" class="form-control" id="editCliName" placeholder="Nombre completo" required
-                                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{7,}$" style="border-radius: 0.5rem; padding: 0.8rem;">
+                                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{7,}$" class="admin-form-input">
                             <div class="invalid-feedback">Debe contener al menos 7 letras.</div>
                         </div>
                         <div class="col-md-6">
                             <input type="email" class="form-control" id="editCliEmail" placeholder="Correo electrónico"
-                                required pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" style="border-radius: 0.5rem; padding: 0.8rem;">
+                                required pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" class="admin-form-input">
                             <div class="invalid-feedback">Ingresá un correo válido.</div>
                         </div>
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="editCliPhone" placeholder="Teléfono" required
-                                minlength="8" style="border-radius: 0.5rem; padding: 0.8rem;">
+                                minlength="8" class="admin-form-input">
                             <div class="invalid-feedback">Campo obligatorio: al menos 8 números.</div>
                         </div>
                     </div>
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-pink" style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Guardar cambios</button>
+                        <button type="submit" class="btn btn-pink admin-modal-submit">Guardar cambios</button>
                     </div>
                 </form>
             </div>
@@ -236,26 +236,26 @@ $this->section('content');
 <!-- Modal: Cambiar Contraseña -->
 <div class="modal fade" id="passwordClienteModal" tabindex="-1" aria-labelledby="passwordClienteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
-                <h5 class="modal-title fs-5 fw-bold" id="passwordClienteModalLabel" style="color: var(--color-primary);">Cambiar Contraseña</h5>
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
+                <h5 class="modal-title fs-5 fw-bold admin-modal-title" id="passwordClienteModalLabel">Cambiar Contraseña</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="passwordClienteForm" class="needs-validation" novalidate>
                     <input type="hidden" id="pwdCliId">
-                    <div id="passwordClienteError" class="alert alert-danger d-none" style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
-                    <p style="font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 1rem;">Establecer nueva contraseña para <span id="pwdCliNameText"></span>:</p>
+                    <div id="passwordClienteError" class="alert alert-danger d-none admin-modal-alert"></div>
+                    <p class="admin-modal-subtitle">Establecer nueva contraseña para <span id="pwdCliNameText"></span>:</p>
                     
                     <div class="row g-3">
                         <div class="col-md-12">
                             <div class="input-group has-validation">
                                 <input type="password" class="form-control" id="newCliPassword"
                                     placeholder="Nueva contraseña" required minlength="8"
-                                    style="border-radius: 0.5rem 0 0 0.5rem; padding: 0.8rem;">
+                                    class="admin-form-input-left">
                                 <button class="btn btn-outline-secondary toggle-password" type="button"
-                                    style="border-radius: 0 0.5rem 0.5rem 0; border-color: #dee2e6;">
-                                    <span class="material-symbols-outlined" style="font-size: 1.1rem; line-height: 1;">visibility</span>
+                                    class="admin-form-input-group-text">
+                                    <span class="material-symbols-outlined admin-visibility-icon">visibility</span>
                                 </button>
                                 <div class="invalid-feedback" id="newCliPwdError">Campo obligatorio: al menos 2 mayúsculas, 2 minúsculas, 2 números, 2 símbolos.</div>
                             </div>
@@ -264,17 +264,17 @@ $this->section('content');
                             <div class="input-group has-validation">
                                 <input type="password" class="form-control" id="newCliPasswordConfirm"
                                     placeholder="Confirmar nueva contraseña" required minlength="8"
-                                    style="border-radius: 0.5rem 0 0 0.5rem; padding: 0.8rem;">
+                                    class="admin-form-input-left">
                                 <button class="btn btn-outline-secondary toggle-password" type="button"
-                                    style="border-radius: 0 0.5rem 0.5rem 0; border-color: #dee2e6;">
-                                    <span class="material-symbols-outlined" style="font-size: 1.1rem; line-height: 1;">visibility</span>
+                                    class="admin-form-input-group-text">
+                                    <span class="material-symbols-outlined admin-visibility-icon">visibility</span>
                                 </button>
                                 <div class="invalid-feedback">Las contraseñas deben coincidir.</div>
                             </div>
                         </div>
                     </div>
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-pink" style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Actualizar Contraseña</button>
+                        <button type="submit" class="btn btn-pink admin-modal-submit">Actualizar Contraseña</button>
                     </div>
                 </form>
             </div>
@@ -285,28 +285,28 @@ $this->section('content');
 <!-- Modal: Convertir a Profesional -->
 <div class="modal fade" id="convertClienteModal" tabindex="-1" aria-labelledby="convertClienteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
-                <h5 class="modal-title fs-5 fw-bold" id="convertClienteModalLabel" style="color: var(--color-primary);">Convertir a Profesional</h5>
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
+                <h5 class="modal-title fs-5 fw-bold admin-modal-title" id="convertClienteModalLabel">Convertir a Profesional</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="convertClienteForm" class="needs-validation" novalidate>
                     <input type="hidden" id="convertCliId">
-                    <div id="convertClienteError" class="alert alert-danger d-none" style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
-                    <p style="font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 1rem;">Estás por dar rol de profesional a <span id="convertCliNameText" style="color:var(--color-primary);"></span>. Por favor completa los datos faltantes:</p>
+                    <div id="convertClienteError" class="alert alert-danger d-none admin-modal-alert"></div>
+                    <p class="admin-modal-subtitle">Estás por dar rol de profesional a <span id="convertCliNameText" class="admin-modal-title"></span>. Por favor completa los datos faltantes:</p>
                     
                     <div class="row g-3">
                         <div class="col-md-12">
                             <input type="text" class="form-control" id="convertCliTitle"
                                 placeholder="Título profesional (Ej: Manicurista)" required
                                 pattern="^(?:[^a-zA-ZáéíóúÁÉÍÓÚñÑ]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]){3}.*$"
-                                style="border-radius: 0.5rem; padding: 0.8rem;">
+                                class="admin-form-input">
                             <div class="invalid-feedback">Campo obligatorio: al menos 3 letras.</div>
                         </div>
                         <div class="col-md-12">
                             <select class="form-select" id="convertCliYear" required
-                                style="border-radius: 0.5rem; padding: 0.8rem;">
+                                class="admin-form-input">
                                 <option value="" disabled selected>Año de inicio de actividades</option>
                                 <?php
                                 $currentYear = date('Y');
@@ -318,7 +318,7 @@ $this->section('content');
                         </div>
                     </div>
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-pink" style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Confirmar Conversión</button>
+                        <button type="submit" class="btn btn-pink admin-modal-submit">Confirmar Conversión</button>
                     </div>
                 </form>
             </div>
@@ -693,3 +693,8 @@ $this->section('content');
 </script>
 
 <?php $this->endSection(); ?>
+
+
+
+
+

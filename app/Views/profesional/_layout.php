@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Layout compartido del Panel Administración
  * Her Beauty Center
@@ -56,7 +56,8 @@ $navItems = [
     <!-- ===== SIDEBAR ===== -->
     <aside class="admin-sidebar" id="adminSidebar">
         <!-- Brand -->
-        <a href="<?= base_url() ?>" style="text-decoration: none;">
+        <!-- Enlace al sitio principal (sin subrayado) -->
+        <a href="<?= base_url() ?>" class="admin-sidebar__brand-link">
             <div class="admin-sidebar__brand">
                 <img src="<?= base_url('public/assets/media/logoText.png') ?>" alt="Her Beauty Center"
                     class="admin-sidebar__logo" />
@@ -79,7 +80,7 @@ $navItems = [
                 <?php endif; ?>
             <?php endforeach; ?>
 
-            <span class="admin-nav-label" style="margin-top: 0.5rem;">Cuenta</span>
+            <span class="admin-nav-label admin-nav-label--spaced">Cuenta</span>
             <a href="<?= base_url('admin/logout') ?>" class="admin-nav-link">
                 <span class="material-symbols-outlined">logout</span>
                 Cerrar sesión
@@ -93,7 +94,7 @@ $navItems = [
                     <?php if ($avatar): ?>
                         <img src="<?= esc($avatar) ?>" alt="Avatar" />
                     <?php else: ?>
-                        <span class="material-symbols-outlined" style="font-size: 1.2rem;">person</span>
+                        <span class="material-symbols-outlined">person</span>
                     <?php endif; ?>
                 </div>
                 <div class="admin-sidebar__user-info">
@@ -115,7 +116,8 @@ $navItems = [
 
         <!-- Top Bar -->
         <header class="admin-topbar">
-            <div style="display:flex; align-items:center; gap: 0.75rem;">
+            <!-- Fila izquierda: botón hamburguesa + título de la página -->
+            <div class="admin-topbar__left">
                 <!-- Botón hamburguesa (solo móvil) -->
                 <button class="admin-topbar__icon-btn admin-topbar__menu-btn" id="sidebarToggle"
                     aria-label="Abrir menú">
@@ -124,9 +126,9 @@ $navItems = [
                 <h1 class="admin-topbar__title"><?= esc($pageTitle) ?></h1>
             </div>
             <div class="admin-topbar__actions">
-                <a href="<?= base_url() ?>" class="btn btn-pink d-flex align-items-center gap-1"
-                    style="padding: 0.375rem 0.75rem; text-decoration: none;" title="Ver sitio web">
-                    <span class="material-symbols-outlined" style="font-size: 1.25rem;">search</span> Ver Sitio
+                <a href="<?= base_url() ?>" class="btn btn-pink d-flex align-items-center gap-1 admin-topbar__site-btn"
+                    title="Ver sitio web">
+                    <span class="material-symbols-outlined">search</span> Ver Sitio
                 </a>
             </div>
         </header>
@@ -167,3 +169,7 @@ $navItems = [
 </body>
 
 </html>
+
+
+
+

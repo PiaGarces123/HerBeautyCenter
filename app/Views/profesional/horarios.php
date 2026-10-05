@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Mis Horarios';
 $activeNav = 'horarios';
 $this->extend('profesional/_layout');
@@ -13,15 +13,15 @@ $diasSemana = ['Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
         <h2 class="admin-page-header__title">Mis Horarios</h2>
         <p class="admin-page-header__subtitle">Tu disponibilidad para recibir turnos</p>
     </div>
-    <a href="#" class="btn btn--primary" style="gap:0.5rem; font-size:0.75rem;">
-        <span class="material-symbols-outlined" style="font-size:1rem;">add</span>
+    <a href="#" class="btn btn--primary admin-action-btn">
+        <span class="material-symbols-outlined admin-action-icon">add</span>
         Agregar horario
     </a>
 </div>
 
 <?php if (empty($profesional)): ?>
     <div class="admin-alert admin-alert--error">
-        <span class="material-symbols-outlined" style="font-size:1.1rem; flex-shrink:0;">error</span>
+        <span class="material-symbols-outlined admin-visibility-icon flex-shrink-0">error</span>
         Tu usuario no está vinculado a un perfil de profesional. Contactá al administrador principal.
     </div>
 <?php else: ?>
@@ -46,7 +46,7 @@ $diasSemana = ['Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
             <tbody>
                 <?php foreach ($horarios as $h): ?>
                 <tr>
-                    <td style="font-weight:600;"><?= date('d/m/Y', strtotime($h['fecha'])) ?></td>
+                    <td class="fw-bold"><?= date('d/m/Y', strtotime($h['fecha'])) ?></td>
                     <td>
                         <?php
                             $diaSemana = date('l', strtotime($h['fecha']));
@@ -61,10 +61,10 @@ $diasSemana = ['Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
                     <td>
                         <div class="table-actions">
                             <button class="table-btn table-btn--edit" title="Editar">
-                                <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+                                <span class="material-symbols-outlined admin-action-icon">edit</span>
                             </button>
                             <button class="table-btn table-btn--delete" title="Eliminar">
-                                <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+                                <span class="material-symbols-outlined admin-action-icon">delete</span>
                             </button>
                         </div>
                     </td>
@@ -76,8 +76,8 @@ $diasSemana = ['Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
     
     <!-- Paginación -->
     <?php if (isset($pager_links) && $pager_links): ?>
-        <div class="d-flex justify-content-between align-items-center mt-4 px-3" style="flex-wrap: wrap; gap: 1rem;">
-            <span style="font-size: 0.85rem; color: var(--color-on-surface-variant); font-weight: 500;">
+        <div class="d-flex justify-content-between align-items-center mt-4 px-3 admin-table-actions-row">
+            <span class="fw-bold text-muted">
                 Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> Horarios
             </span>
             <div>
@@ -96,3 +96,8 @@ $diasSemana = ['Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
 <?php endif; ?>
 
 <?php $this->endSection(); ?>
+
+
+
+
+

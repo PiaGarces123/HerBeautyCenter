@@ -1,0 +1,173 @@
+/* ==========================================================================
+   INDEX-PAGE.CSS — Estilos de la página principal pública (index.php)
+   Incluye estilos del header, menú móvil, formulario de contacto y modales.
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   HEADER — Sección de usuario logueado (header.php)
+   -------------------------------------------------------------------------- */
+
+/* Contenedor con el badge de usuario + botón logout */
+.header-user-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Enlace al panel admin en el header */
+.header-admin-link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.85rem;
+}
+
+/* Ícono dentro del enlace al panel admin */
+.header-admin-link .material-symbols-outlined {
+    font-size: 1.15rem;
+}
+
+/* Badge/pastilla que muestra el nombre del usuario logueado */
+.header-user-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    background: var(--color-surface-container-high);
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Ícono de perfil dentro del badge de usuario */
+.header-user-badge .material-symbols-outlined {
+    font-size: 1.15rem;
+    color: var(--color-primary);
+}
+
+/* Botón de cerrar sesión en el header */
+.header-logout-link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.85rem;
+    border-color: var(--color-outline-variant);
+}
+
+/* Ícono de logout */
+.header-logout-link .material-symbols-outlined {
+    font-size: 1.15rem;
+    color: var(--color-on-surface-variant);
+}
+
+
+/* --------------------------------------------------------------------------
+   MENÚ MÓVIL — Links de usuario logueado (index.php)
+   -------------------------------------------------------------------------- */
+
+/* Separador superior en el menú móvil para la sección de usuario */
+.mobile-menu__user-section {
+    margin-top: 1rem;
+    border-top: 1px solid var(--color-outline-variant);
+    padding-top: 1rem;
+}
+
+/* Link al panel admin dentro del menú móvil */
+.mobile-menu__admin-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* Nombre del usuario en el menú móvil (cuando no es admin) */
+.mobile-menu__user-greeting {
+    padding: 0.4rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-on-surface);
+}
+
+/* Ícono de perfil en el saludo del menú móvil */
+.mobile-menu__user-greeting .material-symbols-outlined {
+    color: var(--color-primary);
+}
+
+/* Link de cerrar sesión en el menú móvil */
+.mobile-menu__logout-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-error);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* Botón de iniciar sesión en el menú móvil (ancho completo) */
+.mobile-menu__login-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   SECCIÓN DE SERVICIOS — Mensajes de estado vacío
+   -------------------------------------------------------------------------- */
+
+/* Texto que se muestra cuando no hay servicios ni profesionales cargados en la BD */
+.section-empty-msg {
+    text-align: center;
+    color: var(--color-on-surface-variant);
+    font-style: italic;
+}
+
+
+/* --------------------------------------------------------------------------
+   TARJETAS DE PROFESIONALES — Ícono de red social genérica
+   -------------------------------------------------------------------------- */
+
+/* Ícono de enlace genérico (cuando el tipo de red no es Instagram, Facebook ni TikTok) */
+.pro-card__social-link .material-symbols-outlined {
+    font-size: 18px;
+}
+
+
+/* --------------------------------------------------------------------------
+   SECCIÓN DE CONTACTO — Mapa + Formulario
+   -------------------------------------------------------------------------- */
+
+/* Iframe de Google Maps (border:0 es requerido por las políticas de Google Maps) */
+.contact__map-container iframe {
+    border: 0;
+}
+
+/* Segunda fila del formulario de contacto (servicio + mensaje) */
+.contact__form-row--spaced {
+    margin-top: 15px;
+}
+
+/* Botón de envío del formulario de contacto */
+.contact__submit-btn {
+    align-self: center;
+    margin-top: 20px;
+}
+
+/* Mensaje de validación inválida de los campos del formulario de contacto.
+   Posicionado absolute para no desplazar el layout de las filas. */
+.contact__invalid-feedback {
+    position: absolute;
+    bottom: -20px;
+    font-size: 0.75rem;
+}

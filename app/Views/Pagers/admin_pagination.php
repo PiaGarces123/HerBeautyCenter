@@ -1,29 +1,27 @@
-<?php
-/**
- * @var \CodeIgniter\Pager\PagerRenderer $pager
- */
-$pager->setSurroundCount(2);
-?>
+<?php $pager->setSurroundCount(2) ?>
 
+<!-- 
+    Paginador Personalizado del Panel
+-->
 <nav aria-label="Navegación de páginas">
-    <ul class="pagination pagination-sm justify-content-center mb-0" style="gap: 0.25rem;">
+    <ul class="pagination pagination-sm justify-content-center mb-0 admin-pagination">
         <?php if ($pager->hasPrevious()) : ?>
             <li class="page-item">
-                <a href="<?= $pager->getPrevious() ?>" class="page-link" aria-label="Anterior" style="border-radius: 0.5rem; color: #d6858e; border-color: #d6858e;">
-                    <span aria-hidden="true" class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">chevron_left</span>
+                <a href="<?= $pager->getPrevious() ?>" class="page-link admin-page-link" aria-label="Anterior">
+                    <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_left</span>
                 </a>
             </li>
         <?php else : ?>
             <li class="page-item disabled">
-                <span class="page-link" style="border-radius: 0.5rem; background-color: #f8f9fa;">
-                    <span aria-hidden="true" class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">chevron_left</span>
+                <span class="page-link admin-page-link--disabled">
+                    <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_left</span>
                 </span>
             </li>
         <?php endif ?>
 
         <?php foreach ($pager->links() as $link) : ?>
             <li class="page-item <?= $link['active'] ? 'active' : '' ?>">
-                <a href="<?= $link['uri'] ?>" class="page-link" style="border-radius: 0.5rem; <?= $link['active'] ? 'background-color: #d6858e; border-color: #d6858e;' : 'color: #d6858e; border-color: #d6858e;' ?>">
+                <a href="<?= $link['uri'] ?>" class="page-link <?= $link['active'] ? 'admin-page-link--active' : 'admin-page-link' ?>">
                     <?= $link['title'] ?>
                 </a>
             </li>
@@ -31,14 +29,14 @@ $pager->setSurroundCount(2);
 
         <?php if ($pager->hasNext()) : ?>
             <li class="page-item">
-                <a href="<?= $pager->getNext() ?>" class="page-link" aria-label="Siguiente" style="border-radius: 0.5rem; color: #d6858e; border-color: #d6858e;">
-                    <span aria-hidden="true" class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">chevron_right</span>
+                <a href="<?= $pager->getNext() ?>" class="page-link admin-page-link" aria-label="Siguiente">
+                    <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_right</span>
                 </a>
             </li>
         <?php else : ?>
             <li class="page-item disabled">
-                <span class="page-link" style="border-radius: 0.5rem; background-color: #f8f9fa;">
-                    <span aria-hidden="true" class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">chevron_right</span>
+                <span class="page-link admin-page-link--disabled">
+                    <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_right</span>
                 </span>
             </li>
         <?php endif ?>

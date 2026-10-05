@@ -951,3 +951,399 @@
         display: flex;
     }
 }
+
+
+/* ==========================================================================
+   CLASES EXTRAÍDAS DE INLINE STYLES — _layout.php & dashboard.php
+   ========================================================================== */
+
+/* Separador de sección "Cuenta" en el nav del sidebar */
+.admin-nav-label--spaced {
+    margin-top: 0.5rem;
+}
+
+/* Fila flex del topbar (hamburguesa + título) */
+.admin-topbar__left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Botón "Ver Sitio" del topbar */
+.admin-topbar__site-btn {
+    padding: 0.375rem 0.75rem;
+    text-decoration: none;
+}
+
+/* Ícono dentro del botón "Ver Sitio" */
+.admin-topbar__site-btn .material-symbols-outlined {
+    font-size: 1.25rem;
+}
+
+/* Enlace del brand del sidebar (quita el subrayado del <a>) */
+.admin-sidebar__brand-link {
+    text-decoration: none;
+}
+
+/* Ícono de persona en el avatar del sidebar (cuando no hay foto) */
+.admin-sidebar__avatar .material-symbols-outlined {
+    font-size: 1.2rem;
+}
+
+/* Ícono de flecha en las quick-cards del dashboard */
+.quick-card__arrow .material-symbols-outlined {
+    font-size: 1rem;
+}
+
+/* Placeholder de carga de las stat-cards */
+.stat-card__placeholder {
+    height: 100px;
+}
+
+
+/* --------------------------------------------------------------------------
+   STAT CARD — Variantes de color del ícono (dashboard.php)
+   Cada color corresponde a un tipo de estadística diferente.
+   -------------------------------------------------------------------------- */
+
+/* Servicio más solicitado (rosa suave) */
+.stat-card__icon--rose {
+    background: #ffd3c8;
+    color: #7a5950;
+}
+
+/* Servicio menos solicitado (fucsia/rosa oscuro) */
+.stat-card__icon--fuchsia {
+    background: #fce4ec;
+    color: #880e4f;
+}
+
+/* Clientes (azul marino) */
+.stat-card__icon--navy {
+    background: #dce9f7;
+    color: #1e4f8a;
+}
+
+/* Turnos de hoy (verde) */
+.stat-card__icon--green {
+    background: #e2ede6;
+    color: #2d6a4f;
+}
+
+/* Próximos turnos (azul índigo) */
+.stat-card__icon--indigo {
+    background: #e8eaf6;
+    color: #283593;
+}
+
+/* Servicio más solicitado del profesional (naranja) */
+.stat-card__icon--orange {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+/* Servicios que ofrece el profesional (cyan/teal) */
+.stat-card__icon--teal {
+    background: #e0f7fa;
+    color: #006064;
+}
+
+/* Valores de texto pequeño en las stat-cards */
+.stat-card__value--sm {
+    font-size: 1.2rem;
+}
+
+.stat-card__label--sm {
+    font-size: 0.8rem;
+}
+
+.stat-card__muted--xs {
+    font-size: 0.75rem;
+}
+
+/* Tendencia destacada dentro de stat-card (texto en color primario) */
+.stat-card__trend {
+    color: var(--color-primary);
+}
+
+/* ==========================================================================
+   CLASES GENÉRICAS PARA PAGINACIÓN DEL PANEL
+   ========================================================================== */
+
+.admin-pagination {
+    gap: 0.25rem;
+}
+
+.admin-page-link {
+    border-radius: 0.5rem !important;
+    color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.admin-page-link:hover {
+    background-color: var(--color-surface-variant);
+    color: var(--color-primary) !important;
+}
+
+.admin-page-link--active {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    color: #fff !important;
+}
+
+.admin-page-link--disabled {
+    border-radius: 0.5rem !important;
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+}
+
+.admin-page-icon {
+    font-size: 1rem !important;
+    vertical-align: middle !important;
+}
+
+/* ==========================================================================
+   CLASES GENÉRICAS PARA MODALES Y FORMULARIOS DEL PANEL
+   Extraídas de inline styles a lo largo de las vistas de administración.
+   ========================================================================== */
+
+/* Contenedor principal del modal */
+.admin-modal-content {
+    border-radius: var(--radius-xl) !important;
+    border: none !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+/* Cabecera del modal */
+.admin-modal-header {
+    border-bottom: 1px solid var(--color-outline-variant) !important;
+    padding: 1.5rem !important;
+}
+
+/* Título del modal */
+.admin-modal-title {
+    color: var(--color-primary) !important;
+}
+
+/* Cuerpo del modal */
+.admin-modal-body {
+    padding: 1.5rem !important;
+}
+
+/* Inputs de formulario estándar */
+.admin-form-input {
+    border-radius: 0.5rem !important;
+    padding: 0.8rem !important;
+}
+
+/* Alerts dentro de modales */
+.admin-modal-alert {
+    border-radius: 0.5rem !important;
+    font-size: 0.9rem !important;
+    padding: 0.75rem !important;
+}
+
+/* Títulos de sección dentro de modales */
+.admin-modal-subtitle {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: #555 !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Lista de checkbox/switches con scroll */
+.admin-modal-scroll-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+/* Botones principales de los modales (Guardar/Actualizar) */
+.admin-modal-submit {
+    border-radius: 0.5rem !important;
+    padding: 0.75rem !important;
+    font-weight: 600 !important;
+}
+
+/* Grupos de input (ej. contraseña + ojito) */
+.admin-form-input-group-text {
+    border-radius: 0 0.5rem 0.5rem 0 !important;
+    border-color: #dee2e6 !important;
+}
+
+.admin-form-input-left {
+    border-radius: 0.5rem 0 0 0.5rem !important;
+    padding: 0.8rem !important;
+}
+
+.admin-visibility-icon {
+    font-size: 1.1rem !important;
+    line-height: 1 !important;
+}
+
+/* Helpers misceláneos */
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+/* Clases para avatares */
+.avatar-default {
+    object-fit: contain !important;
+    background: #fff !important;
+    padding: 4px !important;
+}
+
+.avatar-custom {
+    object-fit: cover !important;
+}
+
+/* ==========================================================================
+   CLASES GENÉRICAS PARA PERFILES Y LAYOUTS VARIOS
+   ========================================================================== */
+
+.admin-profile-card {
+    padding: 1.75rem !important;
+}
+
+.admin-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.admin-social-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.admin-social-select {
+    width: 150px !important;
+    border-radius: 0.5rem !important;
+}
+
+.admin-social-input {
+    flex: 1 !important;
+    border-radius: 0.5rem !important;
+}
+
+.admin-hr {
+    border: none !important;
+    border-top: 1px solid var(--color-outline-variant) !important;
+    margin: 2rem 0 !important;
+}
+
+.admin-form-group {
+    margin-bottom: 1.25rem !important;
+}
+
+.admin-btn-sm {
+    font-size: 0.75rem !important;
+}
+
+.admin-w-100 {
+    width: 100% !important;
+}
+
+/* ==========================================================================
+   CLASES GENÉRICAS PARA TABLAS Y BOTONES DE ACCIÓN (PANEL)
+   ========================================================================== */
+
+/* Botones de filtros / acciones (pequeños con icono) */
+.admin-action-btn {
+    gap: 0.5rem !important;
+    font-size: 0.75rem !important;
+}
+
+.admin-action-btn--outline {
+    border: 1px solid var(--color-outline) !important;
+    color: var(--color-primary) !important;
+    background: transparent !important;
+}
+
+.admin-action-btn--outline:hover {
+    background: var(--color-surface-variant) !important;
+}
+
+/* Iconos dentro de botones pequeños */
+.admin-action-icon {
+    font-size: 1rem !important;
+}
+
+/* Iconos de arrastrar (drag handle) en tablas */
+.admin-drag-icon {
+    font-size: 1.2rem !important;
+}
+
+/* Contenedor de la barra de filtros superior de tabla */
+.admin-table-filter-bar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 0 1.5rem 1.5rem;
+    flex-wrap: wrap;
+}
+
+.admin-table-filter-col {
+    flex: 1;
+    min-width: 200px;
+}
+
+.admin-table-filter-col-sm {
+    min-width: 150px;
+}
+
+/* Contenedores de botones de tabla flex */
+.admin-table-actions-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Títulos de sección encima de tabla */
+.admin-table-main-title {
+    text-transform: uppercase !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+.admin-table-header-center {
+    justify-content: center !important;
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Celdas con texto descriptivo multilínea */
+.admin-table-text-cell {
+    max-width: 18rem !important;
+    white-space: normal !important;
+    font-size: 0.82rem !important;
+    color: var(--color-on-surface-variant) !important;
+}
+
+.admin-table-text-cell--sm {
+    max-width: 12rem !important;
+}
+
+/* Imágenes dentro de tablas */
+.admin-table-img {
+    width: 3.5rem !important;
+    height: 2.5rem !important;
+    object-fit: cover !important;
+    border-radius: var(--radius-md) !important;
+}
+
+/* Previsualización de imágenes subidas en form */
+.admin-img-preview {
+    max-height: 150px !important;
+    border-radius: var(--radius-md) !important;
+    object-fit: cover !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+

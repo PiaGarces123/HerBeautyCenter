@@ -10,44 +10,44 @@ $this->section('content');
         <h2 class="admin-page-header__title">Profesionales</h2>
         <p class="admin-page-header__subtitle">Equipo de especialistas del centro</p>
     </div>
-    <button class="btn btn--primary" style="gap:0.5rem; font-size:0.75rem;" data-bs-toggle="modal"
+    <button class="btn btn--primary admin-action-btn" data-bs-toggle="modal"
         data-bs-target="#createProfesionalModal">
-        <span class="material-symbols-outlined" style="font-size:1rem;">add</span>
+        <span class="material-symbols-outlined admin-action-icon">add</span>
         Nueva profesional
     </button>
 </div>
 
 <div class="admin-table-card">
-    <div class="admin-table-card__header" style="justify-content: center; width: 100%; margin-bottom: 1rem;">
+    <div class="admin-table-card__header admin-table-header-center">
         <h3 class="admin-table-card__title"
-            style="text-transform: uppercase; font-weight: bold; text-align: center; width: 100%;">Listado de
+            class="admin-table-main-title">Listado de
             profesionales</h3>
     </div>
 
-    <form method="GET" action="<?= base_url('admin/profesionales') ?>" class="admin-filter-bar" style="display: flex; gap: 1rem; align-items: center; padding: 0 1.5rem 1.5rem; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 200px;">
-            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" style="border-radius: 0.5rem; padding: 0.6rem 1rem;">
+    <form method="GET" action="<?= base_url('admin/profesionales') ?>" class="admin-filter-bar admin-table-filter-bar">
+        <div class="admin-table-filter-col">
+            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" class="admin-form-input">
         </div>
-        <div style="min-width: 180px;">
-            <select name="servicio" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
+        <div class="admin-table-filter-col-sm">
+            <select name="servicio" class="form-control admin-form-input">
                 <option value="">Servicio: Todos</option>
                 <?php foreach ($todos_servicios as $srv): ?>
                     <option value="<?= $srv['s_id'] ?>" <?= (isset($_GET['servicio']) && $_GET['servicio'] == $srv['s_id']) ? 'selected' : '' ?>><?= esc($srv['s_nbre']) ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
-        <div style="min-width: 150px;">
-            <select name="estado" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
+        <div class="admin-table-filter-col-sm">
+            <select name="estado" class="form-control admin-form-input">
                 <option value="">Estado: Todos</option>
                 <option value="activo" <?= (isset($_GET['estado']) && $_GET['estado'] === 'activo') ? 'selected' : '' ?>>Activo</option>
                 <option value="inactivo" <?= (isset($_GET['estado']) && $_GET['estado'] === 'inactivo') ? 'selected' : '' ?>>Inactivo</option>
             </select>
         </div>
-        <button type="submit" class="btn btn--primary" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem;">
+        <button type="submit" class="btn btn--primary admin-modal-submit">
             Filtrar
         </button>
         <?php if (!empty($_GET['search']) || !empty($_GET['servicio']) || !empty($_GET['estado'])): ?>
-            <a href="<?= base_url('admin/profesionales') ?>" class="btn" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem; border: 1px solid var(--color-outline); text-decoration: none; color: var(--color-primary);">Limpiar</a>
+            <a href="<?= base_url('admin/profesionales') ?>" class="btn admin-modal-submit admin-action-btn--outline">Limpiar</a>
         <?php endif; ?>
     </form>
 
@@ -72,7 +72,7 @@ $this->section('content');
                                     <?php if (!empty($prof['u_avatar'])): ?>
                                         <img src="<?= esc($prof['u_avatar']) ?>" class="table-avatar" alt="Avatar" />
                                     <?php else: ?>
-                                        <img src="<?= base_url('public/assets/media/íconoPerfil.png') ?>" class="table-avatar" alt="Avatar por defecto" style="object-fit: contain; background: #fff; padding: 4px;" />
+                                        <img src="<?= base_url('public/assets/media/íconoPerfil.png') ?>" class="table-avatar" alt="Avatar por defecto" class="avatar-default" />
                                     <?php endif; ?>
                                     <div>
                                         <p class="table-user-name"><?= esc($prof['u_nbreCompleto']) ?></p>
@@ -82,7 +82,7 @@ $this->section('content');
                             </td>
                             <td><?= esc($prof['p_titulo'] ?? '—') ?></td>
                             <td
-                                style="max-width: 18rem; white-space: normal; font-size: 0.82rem; color: var(--color-on-surface-variant);">
+                                class="admin-table-text-cell">
                                 <?= esc($prof['servicios_ofrecidos'] ?: 'Sin servicios registrados') ?>
                             </td>
                             <td><?= esc($prof['p_anioInicioAct'] ?? '—') ?></td>
@@ -100,7 +100,7 @@ $this->section('content');
                                         data-id="<?= esc($prof['p_id']) ?>"
                                         data-name="<?= esc($prof['u_nbreCompleto']) ?>"
                                         data-services="<?= esc($prof['servicios_ids'] ?? '') ?>">
-                                        <span class="material-symbols-outlined" style="font-size:1rem;">checklist</span>
+                                        <span class="material-symbols-outlined admin-action-icon">checklist</span>
                                     </button>
                                     <button class="table-btn table-btn--edit btn-edit-profesional" title="Editar"
                                         data-bs-toggle="modal" data-bs-target="#editProfesionalModal"
@@ -110,18 +110,18 @@ $this->section('content');
                                         data-phone="<?= esc($prof['u_tel']) ?>"
                                         data-title="<?= esc($prof['p_titulo']) ?>"
                                         data-year="<?= esc($prof['p_anioInicioAct']) ?>">
-                                        <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+                                        <span class="material-symbols-outlined admin-action-icon">edit</span>
                                     </button>
                                     <button class="table-btn table-btn--edit btn-password-profesional" title="Cambiar Contraseña"
                                         data-bs-toggle="modal" data-bs-target="#passwordProfesionalModal"
                                         data-id="<?= esc($prof['u_id']) ?>"
                                         data-name="<?= esc($prof['u_nbreCompleto']) ?>">
-                                        <span class="material-symbols-outlined" style="font-size:1rem;">key</span>
+                                        <span class="material-symbols-outlined admin-action-icon">key</span>
                                     </button>
                                     <button class="table-btn table-btn--delete btn-delete-profesional" title="Eliminar"
                                         data-id="<?= esc($prof['p_id']) ?>"
                                         data-name="<?= esc($prof['u_nbreCompleto']) ?>">
-                                        <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+                                        <span class="material-symbols-outlined admin-action-icon">delete</span>
                                     </button>
                                 </div>
                             </td>
@@ -133,8 +133,8 @@ $this->section('content');
         
         <!-- Paginación -->
         <?php if (isset($pager_links) && $pager_links): ?>
-            <div class="d-flex justify-content-between align-items-center mt-4 px-3" style="flex-wrap: wrap; gap: 1rem;">
-                <span style="font-size: 0.85rem; color: var(--color-on-surface-variant); font-weight: 500;">
+            <div class="d-flex justify-content-between align-items-center mt-4 px-3 admin-table-actions-row">
+                <span class="fw-bold text-muted">
                     Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> Profesionales
                 </span>
                 <div>
@@ -154,33 +154,33 @@ $this->section('content');
 <div class="modal fade" id="createProfesionalModal" tabindex="-1" aria-labelledby="createProfesionalModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
                 <h5 class="modal-title fs-5 fw-bold" id="createProfesionalModalLabel"
-                    style="color: var(--color-primary);">Nueva Profesional</h5>
+                    class="admin-modal-title">Nueva Profesional</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="createProfesionalForm" class="needs-validation" novalidate>
                     <div id="createProfesionalError" class="alert alert-danger d-none"
-                        style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
+                        class="admin-modal-alert"></div>
                     <div id="createProfesionalSuccess" class="alert alert-success d-none"
-                        style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
+                        class="admin-modal-alert"></div>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="profName" placeholder="Nombre completo" required
-                                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{7,}$" style="border-radius: 0.5rem; padding: 0.8rem;">
+                                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{7,}$" class="admin-form-input">
                             <div class="invalid-feedback">Debe contener al menos 7 letras.</div>
                         </div>
                         <div class="col-md-6">
                             <input type="email" class="form-control" id="profEmail" placeholder="Correo electrónico"
                                 required pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$"
-                                style="border-radius: 0.5rem; padding: 0.8rem;">
+                                class="admin-form-input">
                             <div class="invalid-feedback">Ingresá un correo válido (ej: correo@gmail.com).</div>
                         </div>
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="profPhone" placeholder="Teléfono" required
-                                minlength="8" style="border-radius: 0.5rem; padding: 0.8rem;">
+                                minlength="8" class="admin-form-input">
                             <div class="invalid-feedback">Campo obligatorio: al menos 8 números.
                             </div>
                         </div>
@@ -188,18 +188,18 @@ $this->section('content');
                             <input type="text" class="form-control" id="profTitle"
                                 placeholder="Título profesional (Ej: Manicurista)" required
                                 pattern="^(?:[^a-zA-ZáéíóúÁÉÍÓÚñÑ]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]){3}.*$"
-                                style="border-radius: 0.5rem; padding: 0.8rem;">
+                                class="admin-form-input">
                             <div class="invalid-feedback">Campo obligatorio: al menos 3 letras.</div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-group has-validation">
                                 <input type="password" class="form-control" id="profPassword"
                                     placeholder="Contraseña de acceso temporal" required minlength="8"
-                                    style="border-radius: 0.5rem 0 0 0.5rem; padding: 0.8rem;">
+                                    class="admin-form-input-left">
                                 <button class="btn btn-outline-secondary toggle-password" type="button"
-                                    style="border-radius: 0 0.5rem 0.5rem 0; border-color: #dee2e6;">
+                                    class="admin-form-input-group-text">
                                     <span class="material-symbols-outlined"
-                                        style="font-size: 1.1rem; line-height: 1;">visibility</span>
+                                        class="admin-visibility-icon">visibility</span>
                                 </button>
                                 <div class="invalid-feedback" id="pwdError">Campo obligatorio: al menos 2 mayúsculas,
                                     2 minúsculas, 2 números, 2 símbolos).</div>
@@ -209,18 +209,18 @@ $this->section('content');
                             <div class="input-group has-validation">
                                 <input type="password" class="form-control" id="profPasswordConfirm"
                                     placeholder="Confirmar contraseña" required minlength="8"
-                                    style="border-radius: 0.5rem 0 0 0.5rem; padding: 0.8rem;">
+                                    class="admin-form-input-left">
                                 <button class="btn btn-outline-secondary toggle-password" type="button"
-                                    style="border-radius: 0 0.5rem 0.5rem 0; border-color: #dee2e6;">
+                                    class="admin-form-input-group-text">
                                     <span class="material-symbols-outlined"
-                                        style="font-size: 1.1rem; line-height: 1;">visibility</span>
+                                        class="admin-visibility-icon">visibility</span>
                                 </button>
                                 <div class="invalid-feedback">Las contraseñas deben coincidir.</div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <select class="form-select" id="profYear" required
-                                style="border-radius: 0.5rem; padding: 0.8rem;">
+                                class="admin-form-input">
                                 <option value="" disabled selected>Año de inicio de actividades</option>
                                 <?php
                                 $currentYear = date('Y');
@@ -233,7 +233,7 @@ $this->section('content');
                     </div>
                     <div class="d-grid mt-4">
                         <button type="submit" class="btn btn-pink"
-                            style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Guardar
+                            class="admin-modal-submit">Guardar
                             profesional</button>
                     </div>
                 </form>
@@ -246,27 +246,27 @@ $this->section('content');
 <div class="modal fade" id="assignServicesModal" tabindex="-1" aria-labelledby="assignServicesModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
-                <h5 class="modal-title fs-5 fw-bold" id="assignServicesModalLabel" style="color: var(--color-primary);">
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
+                <h5 class="modal-title fs-5 fw-bold admin-modal-title" id="assignServicesModalLabel">
                     Asignar Servicios <br><small id="assignServicesProfName"
-                        style="font-size:0.8rem; color:#666; font-weight:normal;"></small>
+                        class="admin-text-sm text-muted fw-normal"></small>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="assignServicesForm">
                     <input type="hidden" id="assignProfId" name="profesional_id">
                     <div id="assignServicesError" class="alert alert-danger d-none"
-                        style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
+                        class="admin-modal-alert"></div>
                     <div id="assignServicesSuccess" class="alert alert-success d-none"
-                        style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
+                        class="admin-modal-alert"></div>
 
-                    <p style="font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 1rem;">Selecciona los
+                    <p class="admin-modal-subtitle">Selecciona los
                         servicios:</p>
 
                     <div class="services-list"
-                        style="display:flex; flex-direction:column; gap:0.5rem; max-height: 250px; overflow-y: auto; padding-right: 0.5rem;">
+                        class="admin-modal-scroll-list">
                         <?php if (!empty($todos_servicios)): ?>
                             <?php foreach ($todos_servicios as $srv): ?>
                                 <div class="form-check custom-checkbox">
@@ -274,19 +274,19 @@ $this->section('content');
                                         value="<?= esc($srv['s_id']) ?>" id="srv_<?= esc($srv['s_id']) ?>"
                                         name="servicios[]">
                                     <label class="form-check-label" for="srv_<?= esc($srv['s_id']) ?>"
-                                        style="font-size: 0.9rem; cursor:pointer;">
+                                        class="admin-text-sm cursor-pointer">
                                         <?= esc($srv['s_nbre']) ?>
                                     </label>
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p class="text-muted" style="font-size: 0.8rem;">No hay servicios registrados en el sistema.</p>
+                            <p class="text-muted admin-text-sm text-muted">No hay servicios registrados en el sistema.</p>
                         <?php endif; ?>
                     </div>
 
                     <div class="d-grid mt-4">
                         <button type="submit" class="btn btn-pink"
-                            style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Guardar
+                            class="admin-modal-submit">Guardar
                             Asignación</button>
                     </div>
                 </form>
@@ -299,44 +299,44 @@ $this->section('content');
 <div class="modal fade" id="editProfesionalModal" tabindex="-1" aria-labelledby="editProfesionalModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
                 <h5 class="modal-title fs-5 fw-bold" id="editProfesionalModalLabel"
-                    style="color: var(--color-primary);">Editar Profesional</h5>
+                    class="admin-modal-title">Editar Profesional</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="editProfesionalForm" class="needs-validation" novalidate>
                     <input type="hidden" id="editProfId">
                     <div id="editProfesionalError" class="alert alert-danger d-none"
-                        style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
+                        class="admin-modal-alert"></div>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="editProfName" placeholder="Nombre completo" required
-                                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{7,}$" style="border-radius: 0.5rem; padding: 0.8rem;">
+                                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{7,}$" class="admin-form-input">
                             <div class="invalid-feedback">Debe contener al menos 7 letras.</div>
                         </div>
                         <div class="col-md-6">
                             <input type="email" class="form-control" id="editProfEmail" placeholder="Correo electrónico"
                                 required pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$"
-                                style="border-radius: 0.5rem; padding: 0.8rem;">
+                                class="admin-form-input">
                             <div class="invalid-feedback">Ingresá un correo válido (ej: correo@gmail.com).</div>
                         </div>
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="editProfPhone" placeholder="Teléfono" required
-                                minlength="8" style="border-radius: 0.5rem; padding: 0.8rem;">
+                                minlength="8" class="admin-form-input">
                             <div class="invalid-feedback">Campo obligatorio: al menos 8 números.</div>
                         </div>
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="editProfTitle"
                                 placeholder="Título profesional (Ej: Manicurista)" required
                                 pattern="^(?:[^a-zA-ZáéíóúÁÉÍÓÚñÑ]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]){3}.*$"
-                                style="border-radius: 0.5rem; padding: 0.8rem;">
+                                class="admin-form-input">
                             <div class="invalid-feedback">Campo obligatorio: al menos 3 letras.</div>
                         </div>
                         <div class="col-md-12">
                             <select class="form-select" id="editProfYear" required
-                                style="border-radius: 0.5rem; padding: 0.8rem;">
+                                class="admin-form-input">
                                 <option value="" disabled selected>Año de inicio de actividades</option>
                                 <?php
                                 $currentYear = date('Y');
@@ -349,7 +349,7 @@ $this->section('content');
                     </div>
                     <div class="d-grid mt-4">
                         <button type="submit" class="btn btn-pink"
-                            style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Guardar
+                            class="admin-modal-submit">Guardar
                             cambios</button>
                     </div>
                 </form>
@@ -362,29 +362,29 @@ $this->section('content');
 <div class="modal fade" id="passwordProfesionalModal" tabindex="-1" aria-labelledby="passwordProfesionalModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
                 <h5 class="modal-title fs-5 fw-bold" id="passwordProfesionalModalLabel"
-                    style="color: var(--color-primary);">Cambiar Contraseña</h5>
+                    class="admin-modal-title">Cambiar Contraseña</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="passwordProfesionalForm" class="needs-validation" novalidate>
                     <input type="hidden" id="pwdProfId">
                     <div id="passwordProfesionalError" class="alert alert-danger d-none"
-                        style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
-                    <p style="font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 1rem;">Establecer nueva contraseña para <span id="pwdProfNameText"></span>:</p>
+                        class="admin-modal-alert"></div>
+                    <p class="admin-modal-subtitle">Establecer nueva contraseña para <span id="pwdProfNameText"></span>:</p>
                     
                     <div class="row g-3">
                         <div class="col-md-12">
                             <div class="input-group has-validation">
                                 <input type="password" class="form-control" id="newProfPassword"
                                     placeholder="Nueva contraseña" required minlength="8"
-                                    style="border-radius: 0.5rem 0 0 0.5rem; padding: 0.8rem;">
+                                    class="admin-form-input-left">
                                 <button class="btn btn-outline-secondary toggle-password" type="button"
-                                    style="border-radius: 0 0.5rem 0.5rem 0; border-color: #dee2e6;">
+                                    class="admin-form-input-group-text">
                                     <span class="material-symbols-outlined"
-                                        style="font-size: 1.1rem; line-height: 1;">visibility</span>
+                                        class="admin-visibility-icon">visibility</span>
                                 </button>
                                 <div class="invalid-feedback" id="newPwdError">Campo obligatorio: al menos 2 mayúsculas,
                                     2 minúsculas, 2 números, 2 símbolos.</div>
@@ -394,11 +394,11 @@ $this->section('content');
                             <div class="input-group has-validation">
                                 <input type="password" class="form-control" id="newProfPasswordConfirm"
                                     placeholder="Confirmar nueva contraseña" required minlength="8"
-                                    style="border-radius: 0.5rem 0 0 0.5rem; padding: 0.8rem;">
+                                    class="admin-form-input-left">
                                 <button class="btn btn-outline-secondary toggle-password" type="button"
-                                    style="border-radius: 0 0.5rem 0.5rem 0; border-color: #dee2e6;">
+                                    class="admin-form-input-group-text">
                                     <span class="material-symbols-outlined"
-                                        style="font-size: 1.1rem; line-height: 1;">visibility</span>
+                                        class="admin-visibility-icon">visibility</span>
                                 </button>
                                 <div class="invalid-feedback">Las contraseñas deben coincidir.</div>
                             </div>
@@ -406,7 +406,7 @@ $this->section('content');
                     </div>
                     <div class="d-grid mt-4">
                         <button type="submit" class="btn btn-pink"
-                            style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Actualizar Contraseña</button>
+                            class="admin-modal-submit">Actualizar Contraseña</button>
                     </div>
                 </form>
             </div>
@@ -867,3 +867,7 @@ $this->section('content');
 </script>
 
 <?php $this->endSection(); ?>
+
+
+
+

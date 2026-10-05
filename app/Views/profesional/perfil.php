@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Mi Perfil';
 $activeNav = 'perfil';
 $this->extend('profesional/_layout');
@@ -23,64 +23,64 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
 
     <!-- Card izquierda: avatar + resumen -->
     <div class="admin-profile-card">
-        <img id="profileAvatarImg" src="<?= esc($avatar) ?>" class="admin-profile-card__avatar" alt="Foto de perfil" style="<?= empty($u['u_avatar']) ? 'object-fit:contain; background:#fff; padding:4px;' : 'object-fit:cover;' ?>" />
+        <img id="profileAvatarImg" src="<?= esc($avatar) ?>" class="admin-profile-card__avatar" alt="Foto de perfil" class="<?= empty($u['u_avatar']) ? 'avatar-default' : 'avatar-custom' ?>" />
 
         <p class="admin-profile-card__name"><?= esc($u['u_nbreCompleto'] ?? '—') ?></p>
         <p class="admin-profile-card__role"><?= $p ? 'Profesional' : 'Administrador' ?></p>
         <p class="admin-profile-card__email"><?= esc($u['u_correo'] ?? '') ?></p>
 
         <?php if (!empty($u['u_fRegistro'])): ?>
-            <p style="font-size:0.75rem; color: var(--color-on-surface-variant); margin-top: 0.5rem;">
+            <p class="admin-text-sm text-muted mt-2">
                 Miembro desde <?= date('d/m/Y', strtotime($u['u_fRegistro'])) ?>
             </p>
         <?php endif; ?>
 
-        <input type="file" id="avatarInput" accept="image/jpeg, image/png, image/webp" style="display:none;" />
-        <button type="button" id="btnChangeAvatar" class="btn btn--outline" style="width:100%; margin-top:1rem; font-size:0.75rem;">
+        <input type="file" id="avatarInput" accept="image/jpeg, image/png, image/webp" class="d-none" />
+        <button type="button" id="btnChangeAvatar" class="btn btn--outline admin-w-100 mt-3 admin-btn-sm">
             Cambiar foto
         </button>
-        <div id="avatarFeedback" style="font-size: 0.8rem; margin-top: 0.5rem;"></div>
+        <div id="avatarFeedback" class="admin-text-sm mt-2"></div>
     </div>
 
     <!-- Card derecha: formulario de edición -->
-    <div class="admin-table-card" style="padding: 1.75rem;">
-        <h3 class="admin-table-card__title" style="margin-bottom: 1.5rem;">Editar datos</h3>
+    <div class="admin-table-card admin-profile-card">
+        <h3 class="admin-table-card__title mb-4">Editar datos</h3>
 
         <form id="perfilForm">
-            <div id="perfilFeedback" class="alert d-none" style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem; margin-bottom: 1rem;"></div>
+            <div id="perfilFeedback" class="alert d-none admin-modal-alert mb-3"></div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem; margin-bottom:1.25rem;">
-                <div class="form-group" style="margin:0;">
+            <div class="admin-grid-2">
+                <div class="form-group m-0">
                     <label class="form-label" for="nombre_completo">Nombre completo</label>
                     <input class="form-input" type="text" id="nombre_completo" name="nombre_completo"
                            value="<?= esc($u['u_nbreCompleto'] ?? '') ?>" required />
                 </div>
-                <div class="form-group" style="margin:0;">
+                <div class="form-group m-0">
                     <label class="form-label" for="telefono">Teléfono</label>
                     <input class="form-input" type="tel" id="telefono" name="telefono"
                            value="<?= esc($u['u_tel'] ?? '') ?>" />
                 </div>
             </div>
 
-            <div class="form-group" style="margin-bottom: 1.25rem;">
+            <div class="form-group admin-form-group">
                 <label class="form-label" for="correo">Correo electrónico</label>
                 <input class="form-input" type="email" id="correo" name="correo"
                        value="<?= esc($u['u_correo'] ?? '') ?>" required />
             </div>
 
             <?php if ($p): ?>
-            <div class="form-group" style="margin-bottom: 1.25rem;">
+            <div class="form-group admin-form-group">
                 <label class="form-label" for="titulo">Título Profesional</label>
                 <input class="form-input" type="text" id="titulo" name="titulo"
                        value="<?= esc($p['p_titulo'] ?? '') ?>" placeholder="Ej: Especialista en Uñas" required minlength="3" />
             </div>
             <?php endif; ?>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
-                <button type="button" class="btn btn--outline" data-bs-toggle="modal" data-bs-target="#changePasswordModal" style="font-size:0.75rem; color: var(--color-on-surface-variant); border-color: var(--color-outline-variant);">
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <button type="button" class="btn btn--outline" data-bs-toggle="modal" data-bs-target="#changePasswordModal" class="admin-btn-sm text-muted">
                     Cambiar contraseña
                 </button>
-                <button type="submit" class="btn btn--primary" style="font-size:0.75rem;">
+                <button type="submit" class="btn btn--primary admin-btn-sm">
                     Guardar cambios
                 </button>
             </div>
@@ -88,19 +88,19 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
 
         <?php if ($p): ?>
         <!-- REDES SOCIALES -->
-        <hr style="border:none; border-top: 1px solid var(--color-outline-variant); margin: 2rem 0;" />
-        <h3 class="admin-table-card__title" style="margin-bottom: 1rem;">Mis Redes Sociales</h3>
-        <p style="font-size: 0.85rem; color: var(--color-on-surface-variant); margin-bottom: 1.5rem;">
+        <hr class="admin-hr" />
+        <h3 class="admin-table-card__title mb-3">Mis Redes Sociales</h3>
+        <p class="admin-text-sm text-muted mb-4">
             Añade tus redes sociales. Solo se permiten enlaces seguros (<code>https://</code>).
         </p>
 
         <form id="redesForm">
-            <div id="redesFeedback" class="alert d-none" style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem; margin-bottom: 1rem;"></div>
+            <div id="redesFeedback" class="alert d-none admin-modal-alert mb-3"></div>
             
             <div id="redesContainer">
                 <?php if (empty($redes)): ?>
-                    <div class="red-social-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                        <select name="redes[0][tipo]" class="form-control" style="width: 150px; border-radius: 0.5rem;">
+                    <div class="red-social-row admin-social-row">
+                        <select name="redes[0][tipo]" class="form-control admin-social-select">
                             <option value="">Seleccionar...</option>
                             <option value="instagram">Instagram</option>
                             <option value="facebook">Facebook</option>
@@ -109,13 +109,13 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
                             <option value="linkedin">LinkedIn</option>
                             <option value="whatsapp">WhatsApp</option>
                         </select>
-                        <input type="url" name="redes[0][link]" class="form-control" placeholder="https://..." style="flex:1; border-radius: 0.5rem;" />
-                        <button type="button" class="btn btn-outline-danger btn-remove-red" style="border-radius: 0.5rem;">&times;</button>
+                        <input type="url" name="redes[0][link]" class="form-control" placeholder="https://..." class="admin-social-input" />
+                        <button type="button" class="btn btn-outline-danger btn-remove-red admin-form-input">&times;</button>
                     </div>
                 <?php else: ?>
                     <?php foreach ($redes as $i => $red): ?>
-                        <div class="red-social-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                            <select name="redes[<?= $i ?>][tipo]" class="form-control" style="width: 150px; border-radius: 0.5rem;">
+                        <div class="red-social-row admin-social-row">
+                            <select name="redes[<?= $i ?>][tipo]" class="form-control admin-social-select">
                                 <option value="">Seleccionar...</option>
                                 <option value="instagram" <?= $red['tipo'] == 'instagram' ? 'selected' : '' ?>>Instagram</option>
                                 <option value="facebook" <?= $red['tipo'] == 'facebook' ? 'selected' : '' ?>>Facebook</option>
@@ -124,19 +124,19 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
                                 <option value="linkedin" <?= $red['tipo'] == 'linkedin' ? 'selected' : '' ?>>LinkedIn</option>
                                 <option value="whatsapp" <?= $red['tipo'] == 'whatsapp' ? 'selected' : '' ?>>WhatsApp</option>
                             </select>
-                            <input type="url" name="redes[<?= $i ?>][link]" class="form-control" value="<?= esc($red['link']) ?>" placeholder="https://..." style="flex:1; border-radius: 0.5rem;" />
-                            <button type="button" class="btn btn-outline-danger btn-remove-red" style="border-radius: 0.5rem;">&times;</button>
+                            <input type="url" name="redes[<?= $i ?>][link]" class="form-control" value="<?= esc($red['link']) ?>" placeholder="https://..." class="admin-social-input" />
+                            <button type="button" class="btn btn-outline-danger btn-remove-red admin-form-input">&times;</button>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
 
-            <button type="button" id="btnAddRed" class="btn btn--outline" style="font-size: 0.75rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.25rem;">
-                <span class="material-symbols-outlined" style="font-size: 1rem;">add</span> Añadir red
+            <button type="button" id="btnAddRed" class="btn btn--outline admin-btn-sm mb-4 d-flex align-items-center gap-1">
+                <span class="material-symbols-outlined fs-5">add</span> Añadir red
             </button>
 
-            <div style="display: flex; justify-content: flex-end;">
-                <button type="submit" class="btn btn--primary" style="font-size:0.75rem;">
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn--primary admin-btn-sm">
                     Guardar redes
                 </button>
             </div>
@@ -149,28 +149,28 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
 <!-- Modal Cambiar Contraseña -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
-                <h5 class="modal-title fs-5 fw-bold" style="color: var(--color-primary);">Cambiar Contraseña</h5>
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
+                <h5 class="modal-title fs-5 fw-bold admin-modal-title">Cambiar Contraseña</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="passwordForm">
-                    <div id="passwordFeedback" class="alert d-none" style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
+                    <div id="passwordFeedback" class="alert d-none admin-modal-alert"></div>
                     
                     <div class="form-group mb-3">
                         <label class="form-label">Contraseña actual</label>
-                        <input type="password" name="password_antigua" class="form-control" required style="border-radius: 0.5rem; padding: 0.8rem;">
+                        <input type="password" name="password_antigua" class="form-control" required class="admin-form-input">
                     </div>
                     
                     <div class="form-group mb-3">
                         <label class="form-label">Nueva contraseña</label>
-                        <input type="password" name="password_nueva" class="form-control" required minlength="8" style="border-radius: 0.5rem; padding: 0.8rem;">
+                        <input type="password" name="password_nueva" class="form-control" required minlength="8" class="admin-form-input">
                     </div>
                     
                     <div class="form-group mb-3">
                         <label class="form-label">Confirmar contraseña</label>
-                        <input type="password" name="password_confirmar" class="form-control" required minlength="8" style="border-radius: 0.5rem; padding: 0.8rem;">
+                        <input type="password" name="password_confirmar" class="form-control" required minlength="8" class="admin-form-input">
                     </div>
 
                     <div class="d-flex justify-content-end mt-4">
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         row.className = 'red-social-row';
         row.style = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
         row.innerHTML = `
-            <select name="redes[${redIndex}][tipo]" class="form-control" style="width: 150px; border-radius: 0.5rem;">
+            <select name="redes[${redIndex}][tipo]" class="form-control admin-social-select">
                 <option value="">Seleccionar...</option>
                 <option value="instagram">Instagram</option>
                 <option value="facebook">Facebook</option>
@@ -292,8 +292,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <option value="linkedin">LinkedIn</option>
                 <option value="whatsapp">WhatsApp</option>
             </select>
-            <input type="url" name="redes[${redIndex}][link]" class="form-control" placeholder="https://..." style="flex:1; border-radius: 0.5rem;" />
-            <button type="button" class="btn btn-outline-danger btn-remove-red" style="border-radius: 0.5rem;">&times;</button>
+            <input type="url" name="redes[${redIndex}][link]" class="form-control" placeholder="https://..." class="admin-social-input" />
+            <button type="button" class="btn btn-outline-danger btn-remove-red admin-form-input">&times;</button>
         `;
         container.appendChild(row);
         redIndex++;
@@ -348,3 +348,8 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <?php $this->endSection(); ?>
+
+
+
+
+

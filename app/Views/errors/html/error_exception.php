@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 use CodeIgniter\HTTP\Header;
 use CodeIgniter\CodeIgniter;
 
@@ -427,3 +427,4 @@ $errorId = uniqid('error', true);
 
 </body>
 </html>
+

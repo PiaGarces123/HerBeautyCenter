@@ -1,49 +1,48 @@
-# Disable directory browsing
+# Desactivar la exploración de directorios (evita que se listen los archivos si no hay un index)
 Options -Indexes
 
 # ----------------------------------------------------------------------
-# Rewrite engine
+# Motor de Reescribimiento de URLs (Rewrite engine)
 # ----------------------------------------------------------------------
 
-# Turning on the rewrite engine is necessary for the following rules and features.
-# FollowSymLinks must be enabled for this to work.
+# Activar el motor de reescritura es necesario para las siguientes reglas y funciones.
+# Requiere que 'FollowSymLinks' esté habilitado para funcionar.
 <IfModule mod_rewrite.c>
-	Options +FollowSymlinks
-	RewriteEngine On
+  Options +FollowSymlinks
+  RewriteEngine On
 
-	# If you installed CodeIgniter in a subfolder, you will need to
-	# change the following line to match the subfolder you need.
-	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
-	# RewriteBase /
+  # Si instalaste CodeIgniter en una subcarpeta, deberás cambiar la siguiente
+  # línea para que coincida con la ruta de tu subcarpeta.
+  # http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
+  # RewriteBase /
 
-	# Redirect Trailing Slashes...
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteCond %{REQUEST_URI} (.+)/$
-	RewriteRule ^ %1 [L,R=301]
+  # Eliminar la barra inclinada al final de la URL (Trailing Slash)...
+  # Si la petición no es un directorio físico y termina en '/', redirige a la URL sin la '/' final (Redirección 301 permanente)
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} (.+)/$
+  RewriteRule ^ %1 [L,R=301]
 
-	# Rewrite "www.example.com -> example.com"
-	RewriteCond %{HTTPS} !=on
-	RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-	RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
+  # Redireccionar "www.ejemplo.com -> ejemplo.com" (fuerza el dominio sin www)
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
 
-	# Checks to see if the user is attempting to access a valid file,
-	# such as an image or css document, if this isn't true it sends the
-	# request to the front controller, index.php
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule ^([\s\S]*)$ index.php/$1 [L,NC,QSA]
+  # Comprueba si el usuario está intentando acceder a un archivo o carpeta real (imágenes, CSS, JS, etc.).
+  # Si no existe, envía la petición al controlador frontal (index.php) para que CodeIgniter maneje la ruta.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^([\s\S]*)$ index.php/$1 [L,NC,QSA]
 
-	# Ensure Authorization header is passed along
-	RewriteCond %{HTTP:Authorization} .
-	RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+  # Garantizar que el encabezado de Autorización (Authorization Header) se pase correctamente en las peticiones HTTP/API
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 </IfModule>
 
 <IfModule !mod_rewrite.c>
-	# If we don't have mod_rewrite installed, all 404's
-	# can be sent to index.php, and everything works as normal.
-	ErrorDocument 404 index.php
+  # Si el módulo mod_rewrite no está instalado en el servidor Apache,
+  # redirige todos los errores 404 a index.php para mantener el funcionamiento básico de las rutas.
+  ErrorDocument 404 index.php
 </IfModule>
 
-# Disable server signature start
+# Desactivar la firma del servidor (oculta la versión de Apache/SO por motivos de seguridad)
 ServerSignature Off
-# Disable server signature end

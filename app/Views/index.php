@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Funciones de compatibilidad por si se accede al archivo fuera de CodeIgniter
 if (!function_exists('base_url')) {
     function base_url($path = '')
@@ -36,10 +36,20 @@ if (!function_exists('esc')) {
 
     <!-- Custom CSS (overrides Bootstrap) -->
     <link rel="stylesheet" href="public/assets/css/styles.css?v=<?= time() ?>" />
+
+    <!-- Estilos específicos de la página principal pública -->
+    <link rel="stylesheet" href="public/assets/css/index-page.css?v=<?= time() ?>" />
 </head>
 
 <body class="site-body">
 
+    <!-- 
+      |======================================================
+      | INCLUSIÓN DEL HEADER
+      | Llama a la vista 'app/Views/modals/header.php' e inserta 
+      | la barra de navegación superior (Navbar).
+      |====================================================== 
+    -->
     <?= $this->include('modals/header') ?>
 
     <!-- Mobile Navigation Drawer -->
@@ -55,29 +65,24 @@ if (!function_exists('esc')) {
                 <li><a class="mobile-menu__link" href="#profesionales">Profesionales</a></li>
                 <li><a class="mobile-menu__link" href="#nosotros">Nosotros</a></li>
                 <li><a class="mobile-menu__link" href="#contacto">Contacto</a></li>
-                <li style="margin-top: 1rem; border-top: 1px solid var(--color-outline-variant); padding-top: 1rem;">
+                <li class="mobile-menu__user-section">
                     <?php if (function_exists('session') && session()->get('usuario_id')): ?>
                         <?php if (session()->get('rol') === 'admin'): ?>
-                            <a class="mobile-menu__link" href="<?= base_url('admin') ?>"
-                                style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-primary); font-weight: 600;">
+                            <a class="mobile-menu__link mobile-menu__admin-link" href="<?= base_url('admin') ?>">
                                 <span class="material-symbols-outlined">dashboard</span> Panel Admin
                             </a>
                         <?php else: ?>
-                            <div
-                                style="padding: 0.4rem 0; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; color: var(--color-on-surface);">
-                                <span class="material-symbols-outlined"
-                                    style="color: var(--color-primary);">account_circle</span>
+                            <div class="mobile-menu__user-greeting">
+                                <span class="material-symbols-outlined">account_circle</span>
                                 <?= esc(session()->get('usuario_nombre')) ?>
                             </div>
                         <?php endif; ?>
-                        <a class="mobile-menu__link" href="<?= base_url('logout') ?>"
-                            style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-error); font-size: 0.9rem; margin-top: 0.5rem;">
+                        <a class="mobile-menu__link mobile-menu__logout-link" href="<?= base_url('logout') ?>">
                             <span class="material-symbols-outlined">logout</span> Cerrar Sesión
                         </a>
                     <?php else: ?>
-                        <button class="btn btn--primary" id="mobileLoginBtn" data-bs-toggle="modal"
-                            data-bs-target="#loginModal"
-                            style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <button class="btn btn--primary mobile-menu__login-btn" id="mobileLoginBtn" data-bs-toggle="modal"
+                            data-bs-target="#loginModal">
                             <span class="material-symbols-outlined">login</span> Iniciar Sesión / Registro
                         </button>
                     <?php endif; ?>
@@ -116,7 +121,14 @@ if (!function_exists('esc')) {
         <!-- Spacer Divider -->
         <div class="section-divider"></div>
 
-        <!-- Services Section -->
+        <!-- 
+          |======================================================
+          | SECCIÓN DE SERVICIOS
+          | Aquí se muestra la grilla de servicios disponibles. 
+          | Recibe la variable $servicios desde el controlador (Home.php).
+          | Si hay servicios cargados en la BD, los itera (foreach).
+          |====================================================== 
+        -->
         <section class="services" id="servicios">
             <div class="section-header">
                 <h2 class="section-title">Nuestros servicios</h2>
@@ -126,14 +138,14 @@ if (!function_exists('esc')) {
 
             <?php if (!empty($servicios)): ?>
                 <div class="srv-grid">
-                    <?php 
+                    <?php
                     $cardIndex = 0;
                     foreach ($servicios as $servicio):
                         // La ruta ya es URL absoluta guardada en la BD
                         $imagen = !empty($servicio['imagen_ruta'])
                             ? esc($servicio['imagen_ruta'])
                             : esc(base_url('public/assets/media/servicio_default.jpeg'));
-                        
+
                         // Patron bento box (la primera de cada 5 es ancha)
                         $isWide = ($cardIndex % 5 === 0) ? 'srv-card--wide' : '';
                         $cardIndex++;
@@ -149,7 +161,7 @@ if (!function_exists('esc')) {
                             </div>
                             <div class="srv-card__body">
                                 <h3 class="srv-card__title"><?= esc($servicio['s_nbre']) ?></h3>
-                                <p class="srv-card__desc"><?= esc(mb_strimwidth($servicio['s_desc'] ?? '', 0, 120, '…')) ?>
+                                <p class="srv-card__desc"><?= esc(mb_strimwidth($servicio['s_desc'] ?? '', 0, 120, '�?�')) ?>
                                 </p>
                                 <?php if (!empty($servicio['s_precio']) && $servicio['s_precio'] > 0): ?>
                                     <p class="srv-card__price">Desde $<?= number_format($servicio['s_precio'], 0, ',', '.') ?></p>
@@ -163,8 +175,7 @@ if (!function_exists('esc')) {
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <p style="text-align:center; color: var(--color-on-surface-variant); font-style: italic;">No hay servicios
-                    disponibles por el momento.</p>
+                <p class="section-empty-msg">No hay servicios disponibles por el momento.</p>
             <?php endif; ?>
         </section>
 
@@ -172,7 +183,13 @@ if (!function_exists('esc')) {
         <!-- Spacer Divider -->
         <div class="section-divider"></div>
 
-        <!-- Professionals Section -->
+        <!-- 
+          |======================================================
+          | SECCIÓN DE PROFESIONALES
+          | Recibe la variable $profesionales desde el controlador (Home.php).
+          | Muestra a cada profesional con su foto, descripción y redes sociales.
+          |====================================================== 
+        -->
         <section class="professionals" id="profesionales">
 
             <div class="section-header">
@@ -188,8 +205,8 @@ if (!function_exists('esc')) {
                         $avatar = !empty($prof['u_avatar']) ? base_url($prof['u_avatar']) : base_url('public/assets/media/íconoPerfil.png');
                         ?>
                         <div class="pro-card">
-                            <img alt="<?= esc($prof['u_nbreCompleto']) ?> - <?= esc($prof['p_titulo']) ?>" class="pro-card__image"
-                                src="<?= esc($avatar) ?>" />
+                            <img alt="<?= esc($prof['u_nbreCompleto']) ?> - <?= esc($prof['p_titulo']) ?>"
+                                class="pro-card__image" src="<?= esc($avatar) ?>" />
                             <h3 class="pro-card__name"><?= esc($prof['u_nbreCompleto']) ?></h3>
                             <p class="pro-card__role"><?= esc($prof['p_titulo']) ?></p>
                             <p class="pro-card__bio"><?= esc($prof['p_desc']) ?></p>
@@ -216,8 +233,8 @@ if (!function_exists('esc')) {
                                                     <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
                                                 </svg>
                                             <?php else: ?>
-                                                <!-- Link genérico -->
-                                                <span class="material-symbols-outlined" style="font-size: 18px;">link</span>
+                                                <!-- Ícono genérico de enlace cuando la red social no es Instagram, Facebook ni TikTok -->
+                                                <span class="material-symbols-outlined pro-card__social-icon-generic">link</span>
                                             <?php endif; ?>
                                         </a>
                                     <?php endforeach; ?>
@@ -228,7 +245,7 @@ if (!function_exists('esc')) {
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <p style="text-align:center; color: var(--color-on-surface-variant); font-style: italic;">No hay profesionales disponibles por el momento.</p>
+                <p class="section-empty-msg">No hay profesionales disponibles por el momento.</p>
             <?php endif; ?>
         </section>
 
@@ -298,7 +315,7 @@ if (!function_exists('esc')) {
                         <div class="contact__map-container">
                             <iframe
                                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3334.78301708746!2d-66.3358812243156!3d-33.29833917345016!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95d439007adc689f%3A0xce11097090a24a75!2sHer%20Beauty%20Center!5e0!3m2!1sen!2sar!4v1787751775301!5m2!1sen!2sar"
-                                width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                                width="600" height="450" allowfullscreen="" loading="lazy"
                                 referrerpolicy="strict-origin-when-cross-origin"></iframe>
                         </div>
 
@@ -371,18 +388,21 @@ if (!function_exists('esc')) {
                                 <div class="form-group position-relative">
                                     <label class="form-label" for="name">Nombre completo</label>
                                     <input class="form-input" id="name" name="name" placeholder="Tu nombre" required
-                                        type="text" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,}$" />
-                                    <div class="invalid-feedback" style="position: absolute; bottom: -20px; font-size: 0.75rem;">Debe contener al menos 3 letras.</div>
+                                        type="text" pattern="^[a-zA-ZáéíóúÁ�?Í�" �sñ�'\s]{3,}$" />
+                                    <div class="invalid-feedback contact__invalid-feedback">Debe contener al menos 3
+                                        letras.</div>
                                 </div>
                                 <div class="form-group position-relative">
                                     <label class="form-label" for="email">Email</label>
-                                    <input class="form-input" id="email" name="email" placeholder="ejemplo@gmail.com (Opcional)"
-                                        type="email" pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" />
-                                    <div class="invalid-feedback" style="position: absolute; bottom: -20px; font-size: 0.75rem;">Ingresa un correo válido.</div>
+                                    <input class="form-input" id="email" name="email"
+                                        placeholder="ejemplo@gmail.com (Opcional)" type="email"
+                                        pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" />
+                                    <div class="invalid-feedback contact__invalid-feedback">Ingresa un correo válido.
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="form-row" style="margin-top: 15px;">
+
+                            <div class="form-row contact__form-row--spaced">
                                 <div class="form-group position-relative">
                                     <label class="form-label" for="service">Servicio de interés</label>
                                     <select class="form-select" id="service" name="service" required>
@@ -394,17 +414,21 @@ if (!function_exists('esc')) {
                                         <?php endif; ?>
                                         <option value="otro">Otro</option>
                                     </select>
-                                    <div class="invalid-feedback" style="position: absolute; bottom: -20px; font-size: 0.75rem;">Selecciona un servicio.</div>
+                                    <div class="invalid-feedback contact__invalid-feedback">Selecciona un servicio.
+                                    </div>
                                 </div>
                                 <div class="form-group position-relative">
                                     <label class="form-label" for="message">Consulta</label>
                                     <textarea class="form-textarea" id="message" name="message"
-                                        placeholder="¿En qué te podemos ayudar?" required rows="4" minlength="5"></textarea>
-                                    <div class="invalid-feedback" style="position: absolute; bottom: -20px; font-size: 0.75rem;">El mensaje debe tener al menos 5 caracteres.</div>
+                                        placeholder="¿En qué te podemos ayudar?" required rows="4"
+                                        minlength="5"></textarea>
+                                    <div class="invalid-feedback contact__invalid-feedback">El mensaje debe tener al
+                                        menos 5 caracteres.</div>
                                 </div>
                             </div>
 
-                            <button class="btn btn--primary form-btn" type="submit" style="align-self: center; margin-top: 20px;">Enviar consulta</button>
+                            <button class="btn btn--primary form-btn contact__submit-btn" type="submit">Enviar
+                                consulta</button>
                         </form>
                     </div>
                 </div>
@@ -412,9 +436,14 @@ if (!function_exists('esc')) {
         </section>
     </main>
 
+    <!-- 
+      |======================================================
+      | PIE DE PÁGINA (FOOTER) Y MODALES GLOBALES
+      | - footer.php: Contiene la estructura final de la página (links, copy).
+      | - modalsBase.php: Contiene el HTML oculto de los modales de Login y Registro.
+      |====================================================== 
+    -->
     <?= $this->include('modals/footer') ?>
-
-    <!-- Reusable Base Modals -->
     <?= $this->include('modals/modalsBase') ?>
 
     <!-- Bootstrap 5.3 JS Bundle -->

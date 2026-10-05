@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Mis Turnos';
 $activeNav = 'turnos';
 $this->extend('profesional/_layout');
@@ -43,20 +43,20 @@ $estadoBadge = [
             <tbody>
                 <?php foreach ($turnos as $t): ?>
                 <tr>
-                    <td style="color: var(--color-on-surface-variant); font-size:0.8rem;">#<?= esc($t['t_id']) ?></td>
+                    <td class="text-muted admin-text-sm">#<?= esc($t['t_id']) ?></td>
                     <td>
-                        <p style="font-weight:600;"><?= date('d/m/Y', strtotime($t['fecha'])) ?></p>
-                        <p style="font-size:0.75rem; color: var(--color-on-surface-variant);">
+                        <p class="fw-bold"><?= date('d/m/Y', strtotime($t['fecha'])) ?></p>
+                        <p class="text-muted admin-text-sm">
                             <?= date('l', strtotime($t['fecha'])) ?>
                         </p>
                     </td>
-                    <td style="font-size:0.875rem;">
+                    <td class="admin-text-sm">
                         <?= date('H:i', strtotime($t['t_horaDesde'])) ?> –
                         <?= date('H:i', strtotime($t['t_horaHasta'])) ?>
                     </td>
                     <td><?= esc($t['nombre_profesional'] ?? '—') ?></td>
-                    <td><?= esc($t['nombre_cliente'] ?? '<span style="color:var(--color-on-surface-variant)">Sin asignar</span>') ?></td>
-                    <td style="font-weight:600;">$<?= number_format($t['t_monto'], 0, ',', '.') ?></td>
+                    <td><?= esc($t['nombre_cliente'] ?? '<span class="text-muted">Sin asignar</span>') ?></td>
+                    <td class="fw-bold">$<?= number_format($t['t_monto'], 0, ',', '.') ?></td>
                     <td>
                         <?php if ($t['abonado']): ?>
                             <span class="badge badge--green">Sí</span>
@@ -72,7 +72,7 @@ $estadoBadge = [
                     <td>
                         <div class="table-actions">
                             <button class="table-btn table-btn--edit" title="Editar turno">
-                                <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+                                <span class="material-symbols-outlined admin-action-icon">edit</span>
                             </button>
                         </div>
                     </td>
@@ -84,8 +84,8 @@ $estadoBadge = [
     
     <!-- Paginación -->
     <?php if (isset($pager_links) && $pager_links): ?>
-        <div class="d-flex justify-content-between align-items-center mt-4 px-3" style="flex-wrap: wrap; gap: 1rem;">
-            <span style="font-size: 0.85rem; color: var(--color-on-surface-variant); font-weight: 500;">
+        <div class="d-flex justify-content-between align-items-center mt-4 px-3 admin-table-actions-row">
+            <span class="fw-bold text-muted">
                 Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> Turnos
             </span>
             <div>
@@ -102,3 +102,8 @@ $estadoBadge = [
 </div>
 
 <?php $this->endSection(); ?>
+
+
+
+
+

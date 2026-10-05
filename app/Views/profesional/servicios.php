@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Servicios';
 $activeNav = 'servicios';
 $this->extend('profesional/_layout');
@@ -10,41 +10,41 @@ $this->section('content');
         <h2 class="admin-page-header__title">Servicios</h2>
         <p class="admin-page-header__subtitle">Tratamientos y servicios que ofrece el centro</p>
     </div>
-    <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
-        <button id="btnToggleOrden" class="btn" style="gap:0.5rem; font-size:0.75rem; border:1px solid var(--color-outline); color:var(--color-primary); background:transparent;">
-            <span class="material-symbols-outlined" style="font-size:1rem;">drag_indicator</span>
+    <div class="admin-table-actions-row">
+        <button id="btnToggleOrden" class="btn admin-action-btn admin-action-btn--outline">
+            <span class="material-symbols-outlined admin-action-icon">drag_indicator</span>
             Reordenar
         </button>
-        <button id="btnGuardarOrden" class="btn btn--primary d-none" style="gap:0.5rem; font-size:0.75rem;">
-            <span class="material-symbols-outlined" style="font-size:1rem;">save</span>
+        <button id="btnGuardarOrden" class="btn btn--primary d-none admin-action-btn">
+            <span class="material-symbols-outlined admin-action-icon">save</span>
             Guardar Orden
         </button>
-        <button class="btn btn--primary" style="gap:0.5rem; font-size:0.75rem;" data-bs-toggle="modal" data-bs-target="#createServicioModal">
-            <span class="material-symbols-outlined" style="font-size:1rem;">add</span>
+        <button class="btn btn--primary admin-action-btn" data-bs-toggle="modal" data-bs-target="#createServicioModal">
+            <span class="material-symbols-outlined admin-action-icon">add</span>
             Nuevo servicio
         </button>
     </div>
 </div>
 
 <div class="admin-table-card">
-    <div class="admin-table-card__header" style="justify-content: center; width: 100%; margin-bottom: 1rem;">
+    <div class="admin-table-card__header admin-table-header-center">
         <h3 class="admin-table-card__title"
-            style="text-transform: uppercase; font-weight: bold; text-align: center; width: 100%;">Listado de servicios</h3>
+            class="admin-table-main-title">Listado de servicios</h3>
     </div>
 
-    <form method="GET" action="<?= base_url('admin/servicios') ?>" class="admin-filter-bar" style="display: flex; gap: 1rem; align-items: center; padding: 0 1.5rem 1.5rem; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 200px;">
-            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" style="border-radius: 0.5rem; padding: 0.6rem 1rem;">
+    <form method="GET" action="<?= base_url('admin/servicios') ?>" class="admin-filter-bar admin-table-filter-bar">
+        <div class="admin-table-filter-col">
+            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" class="admin-form-input">
         </div>
-        <div style="min-width: 150px;">
-            <select name="estado" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
+        <div class="admin-table-filter-col-sm">
+            <select name="estado" class="form-control admin-form-input">
                 <option value="">Estado: Todos</option>
                 <option value="activo" <?= (isset($_GET['estado']) && $_GET['estado'] === 'activo') ? 'selected' : '' ?>>Activo</option>
                 <option value="inactivo" <?= (isset($_GET['estado']) && $_GET['estado'] === 'inactivo') ? 'selected' : '' ?>>Inactivo</option>
             </select>
         </div>
-        <div style="min-width: 200px;">
-            <select name="sort" class="form-control" style="border-radius: 0.5rem; padding: 0.6rem;">
+        <div class="admin-table-filter-col">
+            <select name="sort" class="form-control admin-form-input">
                 <option value="">Predeterminado</option>
                 <option value="a-z" <?= (isset($_GET['sort']) && $_GET['sort'] === 'a-z') ? 'selected' : '' ?>>Nombre &uarr; &mdash; A &rarr; Z</option>
                 <option value="z-a" <?= (isset($_GET['sort']) && $_GET['sort'] === 'z-a') ? 'selected' : '' ?>>Nombre &darr; &mdash; Z &rarr; A</option>
@@ -52,11 +52,11 @@ $this->section('content');
                 <option value="mayor-tiempo" <?= (isset($_GET['sort']) && $_GET['sort'] === 'mayor-tiempo') ? 'selected' : '' ?>>Tiempo &darr; &mdash; Mayor a menor</option>
             </select>
         </div>
-        <button type="submit" class="btn btn--primary" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem;">
+        <button type="submit" class="btn btn--primary admin-modal-submit">
             Filtrar
         </button>
         <?php if (!empty($_GET['search']) || !empty($_GET['estado']) || !empty($_GET['sort'])): ?>
-            <a href="<?= base_url('admin/servicios') ?>" class="btn" style="padding: 0.6rem 1.5rem; border-radius: 0.5rem; border: 1px solid var(--color-outline); text-decoration: none; color: var(--color-primary);">Limpiar</a>
+            <a href="<?= base_url('admin/servicios') ?>" class="btn admin-modal-submit admin-action-btn--outline">Limpiar</a>
         <?php endif; ?>
     </form>
 
@@ -65,8 +65,8 @@ $this->section('content');
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th id="thDragHandle" class="d-none" style="width:2.5rem;"></th>
-                    <th style="width:3rem;">#</th>
+                    <th id="thDragHandle" class="d-none admin-table-text-cell--sm"></th>
+                    <th class="admin-table-text-cell--sm">#</th>
                     <th>Imagen</th>
                     <th>Nombre</th>
                     <th>Descripción</th>
@@ -80,32 +80,32 @@ $this->section('content');
             <tbody>
                 <?php foreach ($servicios as $s): ?>
                 <tr data-id="<?= esc($s['s_id']) ?>">
-                    <td class="drag-handle-cell d-none" style="cursor:grab; text-align:center; color:var(--color-outline); padding:0 0.5rem;">
-                        <span class="material-symbols-outlined" style="font-size:1.2rem;">drag_indicator</span>
+                    <td class="drag-handle-cell d-none text-center text-muted">
+                        <span class="material-symbols-outlined admin-drag-icon">drag_indicator</span>
                     </td>
-                    <td class="orden-cell" style="font-weight:700; color:var(--color-on-surface-variant); font-size:0.85rem;"><?= esc($s['s_orden']) ?></td>
+                    <td class="orden-cell fw-bold text-muted admin-text-sm"><?= esc($s['s_orden']) ?></td>
                     <td>
                         <?php if (!empty($s['imagen_ruta'])): ?>
                             <img src="<?= esc($s['imagen_ruta']) ?>"
-                                 style="width:3.5rem; height:2.5rem; object-fit:cover; border-radius:var(--radius-md);"
+                                 class="admin-table-img"
                                  alt="<?= esc($s['s_nbre']) ?>" loading="lazy" />
                         <?php else: ?>
-                            <span class="table-avatar-placeholder" style="width:3.5rem; height:2.5rem; border-radius:var(--radius-md);">
-                                <span class="material-symbols-outlined" style="font-size:1.1rem;">image</span>
+                            <span class="table-avatar-placeholder admin-table-img">
+                                <span class="material-symbols-outlined admin-visibility-icon">image</span>
                             </span>
                         <?php endif; ?>
                     </td>
                     <td>
                         <p class="table-user-name"><?= esc($s['s_nbre']) ?></p>
                     </td>
-                    <td style="max-width: 18rem; white-space: normal; font-size: 0.82rem; color: var(--color-on-surface-variant);">
+                    <td class="admin-table-text-cell">
                         <?= esc(mb_strimwidth($s['s_desc'] ?? '', 0, 70, '…')) ?>
                     </td>
-                    <td style="max-width: 12rem; white-space: normal; font-size: 0.82rem; color: var(--color-on-surface-variant);">
+                    <td class="admin-table-text-cell--sm">
                         <?= esc($s['profesionales_nombres'] ?: 'Sin asignar') ?>
                     </td>
                     <td><?= esc($s['s_duracionMinutos']) ?> min</td>
-                    <td style="font-weight:600;">Desde $<?= number_format($s['s_precio'], 0, ',', '.') ?></td>
+                    <td class="fw-bold">Desde $<?= number_format($s['s_precio'], 0, ',', '.') ?></td>
                     <td>
                         <?php if ($s['u_activo']): ?>
                             <span class="badge badge--green">Activo</span>
@@ -120,7 +120,7 @@ $this->section('content');
                                 data-id="<?= esc($s['s_id']) ?>"
                                 data-name="<?= esc($s['s_nbre']) ?>"
                                 data-profs="<?= esc($s['profesionales_ids']) ?>">
-                                <span class="material-symbols-outlined" style="font-size:1rem;">group_add</span>
+                                <span class="material-symbols-outlined admin-action-icon">group_add</span>
                             </button>
                             <button class="table-btn table-btn--edit btn-edit-servicio" title="Editar"
                                 data-bs-toggle="modal" data-bs-target="#editServicioModal"
@@ -131,12 +131,12 @@ $this->section('content');
                                 data-price="<?= esc($s['s_precio']) ?>"
                                 data-active="<?= esc($s['u_activo']) ?>"
                                 data-img="<?= esc($s['imagen_ruta']) ?>">
-                                <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+                                <span class="material-symbols-outlined admin-action-icon">edit</span>
                             </button>
                             <button class="table-btn table-btn--delete btn-delete-servicio" title="Eliminar"
                                 data-id="<?= esc($s['s_id']) ?>"
                                 data-name="<?= esc($s['s_nbre']) ?>">
-                                <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+                                <span class="material-symbols-outlined admin-action-icon">delete</span>
                             </button>
                         </div>
                     </td>
@@ -148,8 +148,8 @@ $this->section('content');
     
     <!-- Paginación -->
     <?php if (isset($pager_links) && $pager_links): ?>
-        <div class="d-flex justify-content-between align-items-center mt-4 px-3" style="flex-wrap: wrap; gap: 1rem;">
-            <span style="font-size: 0.85rem; color: var(--color-on-surface-variant); font-weight: 500;">
+        <div class="d-flex justify-content-between align-items-center mt-4 px-3 admin-table-actions-row">
+            <span class="fw-bold text-muted">
                 Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> Servicios
             </span>
             <div>
@@ -168,60 +168,60 @@ $this->section('content');
 <!-- Modal: Crear Servicio -->
 <div class="modal fade" id="createServicioModal" tabindex="-1" aria-labelledby="createServicioModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
-                <h5 class="modal-title fs-5 fw-bold" id="createServicioModalLabel" style="color: var(--color-primary);">Nuevo Servicio</h5>
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
+                <h5 class="modal-title fs-5 fw-bold admin-modal-title" id="createServicioModalLabel">Nuevo Servicio</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="createServicioForm" class="needs-validation" novalidate enctype="multipart/form-data">
-                    <div id="createServicioError" class="alert alert-danger d-none" style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
+                    <div id="createServicioError" class="alert alert-danger d-none admin-modal-alert"></div>
                     <div class="row g-3">
                         <div class="col-md-8">
                             <input type="text" class="form-control" id="createSrvName" name="nombre" placeholder="Nombre del servicio" required minlength="3" pattern="^[^-].*"
-                                style="border-radius: 0.5rem; padding: 0.8rem;">
+                                class="admin-form-input">
                             <div class="invalid-feedback">Mínimo 3 caracteres y no puede empezar con "-".</div>
                         </div>
                         <div class="col-md-4">
-                            <select class="form-select" id="createSrvActive" name="activo" required style="border-radius: 0.5rem; padding: 0.8rem;">
+                            <select class="form-select" id="createSrvActive" name="activo" required class="admin-form-input">
                                 <option value="1" selected>Activo</option>
                                 <option value="0">Inactivo</option>
                             </select>
                         </div>
                         <div class="col-md-12">
                             <textarea class="form-control" id="createSrvDesc" name="descripcion" placeholder="Descripción breve" rows="3" required minlength="10"
-                                style="border-radius: 0.5rem; padding: 0.8rem;"></textarea>
+                                class="admin-form-input"></textarea>
                             <div class="invalid-feedback">Mínimo 10 caracteres y no puede empezar con "-".</div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-group has-validation">
-                                <span class="input-group-text" style="border-radius: 0.5rem 0 0 0.5rem; background: var(--color-surface-variant);"><span class="material-symbols-outlined" style="font-size:1.1rem;">schedule</span></span>
+                                <span class="input-group-text admin-form-input-left bg-light"><span class="material-symbols-outlined admin-visibility-icon">schedule</span></span>
                                 <input type="number" class="form-control" id="createSrvDur" name="duracion_minutos" placeholder="Duración (minutos)" required
-                                    min="5" max="480" style="border-radius: 0 0.5rem 0.5rem 0; padding: 0.8rem;">
+                                    min="5" max="480" class="admin-form-input-group-text p-2">
                                 <div class="invalid-feedback">Entre 5 y 480 minutos.</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-group has-validation">
-                                <span class="input-group-text" style="border-radius: 0.5rem 0 0 0.5rem; background: var(--color-surface-variant);"><span class="material-symbols-outlined" style="font-size:1.1rem;">attach_money</span></span>
+                                <span class="input-group-text admin-form-input-left bg-light"><span class="material-symbols-outlined admin-visibility-icon">attach_money</span></span>
                                 <input type="number" step="0.01" class="form-control" id="createSrvPrice" name="precio" placeholder="Precio ($) Opcional"
-                                    min="0" style="border-radius: 0 0.5rem 0.5rem 0; padding: 0.8rem;">
+                                    min="0" class="admin-form-input-group-text p-2">
                                 <div class="invalid-feedback">Mínimo 0.</div>
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label" style="font-size: 0.85rem; font-weight: 500; color: var(--color-on-surface-variant);">Imagen Representativa</label>
+                            <label class="form-label fw-bold text-muted admin-text-sm">Imagen Representativa</label>
                             <input class="form-control" type="file" id="createSrvImg" name="imagen" accept=".png, .jpg, .jpeg, .webp" required
-                                style="border-radius: 0.5rem;">
-                            <div class="form-text" style="font-size: 0.8rem;">Recomendado: 800x600px. Máximo: 2MB. Formatos: PNG, JPG, WEBP.</div>
+                                class="admin-form-input">
+                            <div class="form-text admin-text-sm text-muted">Recomendado: 800x600px. Máximo: 2MB. Formatos: PNG, JPG, WEBP.</div>
                             <div class="invalid-feedback">Por favor, subí una imagen válida (Máx 2MB).</div>
                             <div class="mt-2 text-center d-none" id="createSrvImgPreviewContainer">
-                                <img id="createSrvImgPreview" src="" alt="Previsualización" style="max-height: 150px; border-radius: var(--radius-md); object-fit: cover; box-shadow: var(--shadow-sm);">
+                                <img id="createSrvImgPreview" src="" alt="Previsualización" class="admin-img-preview">
                             </div>
                         </div>
                     </div>
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-pink" style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Guardar servicio</button>
+                        <button type="submit" class="btn btn-pink admin-modal-submit">Guardar servicio</button>
                     </div>
                 </form>
             </div>
@@ -232,61 +232,61 @@ $this->section('content');
 <!-- Modal: Editar Servicio -->
 <div class="modal fade" id="editServicioModal" tabindex="-1" aria-labelledby="editServicioModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
-                <h5 class="modal-title fs-5 fw-bold" id="editServicioModalLabel" style="color: var(--color-primary);">Editar Servicio</h5>
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
+                <h5 class="modal-title fs-5 fw-bold admin-modal-title" id="editServicioModalLabel">Editar Servicio</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="editServicioForm" class="needs-validation" novalidate enctype="multipart/form-data">
                     <input type="hidden" id="editSrvId">
-                    <div id="editServicioError" class="alert alert-danger d-none" style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
+                    <div id="editServicioError" class="alert alert-danger d-none admin-modal-alert"></div>
                     <div class="row g-3">
                         <div class="col-md-8">
                             <input type="text" class="form-control" id="editSrvName" name="nombre" placeholder="Nombre del servicio" required minlength="3" pattern="^[^-].*"
-                                style="border-radius: 0.5rem; padding: 0.8rem;">
+                                class="admin-form-input">
                             <div class="invalid-feedback">Mínimo 3 caracteres y no puede empezar con "-".</div>
                         </div>
                         <div class="col-md-4">
-                            <select class="form-select" id="editSrvActive" name="activo" required style="border-radius: 0.5rem; padding: 0.8rem;">
+                            <select class="form-select" id="editSrvActive" name="activo" required class="admin-form-input">
                                 <option value="1">Activo</option>
                                 <option value="0">Inactivo</option>
                             </select>
                         </div>
                         <div class="col-md-12">
                             <textarea class="form-control" id="editSrvDesc" name="descripcion" placeholder="Descripción breve" rows="3" required minlength="10"
-                                style="border-radius: 0.5rem; padding: 0.8rem;"></textarea>
+                                class="admin-form-input"></textarea>
                             <div class="invalid-feedback">Mínimo 10 caracteres y no puede empezar con "-".</div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-group has-validation">
-                                <span class="input-group-text" style="border-radius: 0.5rem 0 0 0.5rem; background: var(--color-surface-variant);"><span class="material-symbols-outlined" style="font-size:1.1rem;">schedule</span></span>
+                                <span class="input-group-text admin-form-input-left bg-light"><span class="material-symbols-outlined admin-visibility-icon">schedule</span></span>
                                 <input type="number" class="form-control" id="editSrvDur" name="duracion_minutos" placeholder="Duración (minutos)" required
-                                    min="5" max="480" style="border-radius: 0 0.5rem 0.5rem 0; padding: 0.8rem;">
+                                    min="5" max="480" class="admin-form-input-group-text p-2">
                                 <div class="invalid-feedback">Entre 5 y 480 minutos.</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-group has-validation">
-                                <span class="input-group-text" style="border-radius: 0.5rem 0 0 0.5rem; background: var(--color-surface-variant);"><span class="material-symbols-outlined" style="font-size:1.1rem;">attach_money</span></span>
+                                <span class="input-group-text admin-form-input-left bg-light"><span class="material-symbols-outlined admin-visibility-icon">attach_money</span></span>
                                 <input type="number" step="0.01" class="form-control" id="editSrvPrice" name="precio" placeholder="Precio ($) Opcional"
-                                    min="0" style="border-radius: 0 0.5rem 0.5rem 0; padding: 0.8rem;">
+                                    min="0" class="admin-form-input-group-text p-2">
                                 <div class="invalid-feedback">Mínimo 0.</div>
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label" style="font-size: 0.85rem; font-weight: 500; color: var(--color-on-surface-variant);">Reemplazar Imagen (Opcional)</label>
+                            <label class="form-label fw-bold text-muted admin-text-sm">Reemplazar Imagen (Opcional)</label>
                             <input class="form-control" type="file" id="editSrvImg" name="imagen" accept=".png, .jpg, .jpeg, .webp"
-                                style="border-radius: 0.5rem;">
-                            <div class="form-text" style="font-size: 0.8rem;">Recomendado: 800x600px. Máximo: 2MB. Formatos: PNG, JPG, WEBP.</div>
+                                class="admin-form-input">
+                            <div class="form-text admin-text-sm text-muted">Recomendado: 800x600px. Máximo: 2MB. Formatos: PNG, JPG, WEBP.</div>
                             <div class="invalid-feedback">Por favor, subí una imagen válida (Máx 2MB).</div>
                             <div class="mt-2 text-center d-none" id="editSrvImgPreviewContainer">
-                                <img id="editSrvImgPreview" src="" alt="Previsualización" style="max-height: 150px; border-radius: var(--radius-md); object-fit: cover; box-shadow: var(--shadow-sm);">
+                                <img id="editSrvImgPreview" src="" alt="Previsualización" class="admin-img-preview">
                             </div>
                         </div>
                     </div>
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-pink" style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Actualizar servicio</button>
+                        <button type="submit" class="btn btn-pink admin-modal-submit">Actualizar servicio</button>
                     </div>
                 </form>
             </div>
@@ -297,31 +297,31 @@ $this->section('content');
 <!-- Modal: Asignar Profesionales -->
 <div class="modal fade" id="assignProfesionalesModal" tabindex="-1" aria-labelledby="assignProfesionalesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: var(--radius-xl); border: none; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="border-bottom: 1px solid var(--color-outline-variant); padding: 1.5rem;">
-                <h5 class="modal-title fs-5 fw-bold" id="assignProfesionalesModalLabel" style="color: var(--color-primary);">Asignar Profesionales</h5>
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
+                <h5 class="modal-title fs-5 fw-bold admin-modal-title" id="assignProfesionalesModalLabel">Asignar Profesionales</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
+            <div class="modal-body admin-modal-body">
                 <form id="assignProfesionalesForm">
                     <input type="hidden" id="assignSrvId">
-                    <div id="assignProfesionalesError" class="alert alert-danger d-none" style="border-radius: 0.5rem; font-size: 0.9rem; padding: 0.75rem;"></div>
-                    <p style="font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 1rem;">Seleccioná lxs profesionales que brindarán: <span id="assignSrvNameText" style="color:var(--color-primary);"></span></p>
+                    <div id="assignProfesionalesError" class="alert alert-danger d-none admin-modal-alert"></div>
+                    <p class="admin-modal-subtitle">Seleccioná lxs profesionales que brindarán: <span id="assignSrvNameText" class="admin-modal-title"></span></p>
                     
-                    <div class="list-group mb-3" style="border-radius: 0.5rem; overflow: hidden; border: 1px solid var(--color-outline-variant);">
+                    <div class="list-group mb-3 admin-modal-alert">
                         <?php if(!empty($todos_profesionales)): foreach($todos_profesionales as $prof): ?>
-                            <label class="list-group-item d-flex gap-3 align-items-center" style="border: none; border-bottom: 1px solid var(--color-outline-variant); padding: 1rem;">
-                                <input class="form-check-input flex-shrink-0 assign-prof-checkbox" type="checkbox" value="<?= esc($prof['p_id']) ?>" style="font-size: 1.25rem;">
+                            <label class="list-group-item d-flex gap-3 align-items-center border-0 border-bottom p-3">
+                                <input class="form-check-input flex-shrink-0 assign-prof-checkbox" type="checkbox" value="<?= esc($prof['p_id']) ?>" class="fs-4">
                                 <span class="pt-1 form-checked-content">
                                     <strong><?= esc($prof['u_nbreCompleto']) ?></strong>
                                 </span>
                             </label>
                         <?php endforeach; else: ?>
-                            <div style="padding:1rem; text-align:center; color:#777; font-size:0.85rem;">No hay profesionales disponibles.</div>
+                            <div class="p-3 text-center text-muted admin-text-sm">No hay profesionales disponibles.</div>
                         <?php endif; ?>
                     </div>
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-pink" style="border-radius: 0.5rem; padding: 0.75rem; font-weight: 600;">Guardar Asignaciones</button>
+                        <button type="submit" class="btn btn-pink admin-modal-submit">Guardar Asignaciones</button>
                     </div>
                 </form>
             </div>
@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnGuardar.addEventListener('click', async () => {
         const ids = Array.from(tbody.querySelectorAll('tr[data-id]')).map(tr => tr.getAttribute('data-id'));
         btnGuardar.disabled = true;
-        btnGuardar.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">hourglass_top</span> Guardando...';
+        btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">hourglass_top</span> Guardando...';
 
         try {
             const res = await fetch('<?= base_url("api/servicios/ordenar") ?>', {
@@ -693,12 +693,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 Swal.fire({ title: 'Error', text: data.message || 'Error al guardar el orden.', icon: 'error', confirmButtonColor: '#d6858e' });
                 btnGuardar.disabled = false;
-                btnGuardar.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">save</span> Guardar Orden';
+                btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">save</span> Guardar Orden';
             }
         } catch (e) {
             Swal.fire({ title: 'Error', text: 'Error de conexión.', icon: 'error', confirmButtonColor: '#d6858e' });
             btnGuardar.disabled = false;
-            btnGuardar.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">save</span> Guardar Orden';
+            btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">save</span> Guardar Orden';
         }
     });
 });
@@ -710,3 +710,8 @@ document.addEventListener('DOMContentLoaded', () => {
 </style>
 
 <?php $this->endSection(); ?>
+
+
+
+
+

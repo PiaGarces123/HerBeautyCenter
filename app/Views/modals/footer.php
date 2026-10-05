@@ -1,4 +1,4 @@
-<!-- Redesigned Footer -->
+﻿<!-- Redesigned Footer -->
 <footer class="footer">
     <div class="footer__simple-container">
         <!-- Left Logo -->

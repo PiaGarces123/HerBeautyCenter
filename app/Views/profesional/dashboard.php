@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Dashboard';
 $activeNav = 'dashboard';
 $this->extend('profesional/_layout');
@@ -8,10 +8,10 @@ $this->section('content');
 <!-- ===== STAT CARDS (Cargados por API) ===== -->
 <div class="admin-stats-grid" id="dashboardCardsContainer">
     <!-- El contenido se cargará por JS dependiendo del rol -->
-    <div class="stat-card placeholder-glow"><span class="placeholder col-12" style="height:100px;"></span></div>
-    <div class="stat-card placeholder-glow"><span class="placeholder col-12" style="height:100px;"></span></div>
-    <div class="stat-card placeholder-glow"><span class="placeholder col-12" style="height:100px;"></span></div>
-    <div class="stat-card placeholder-glow"><span class="placeholder col-12" style="height:100px;"></span></div>
+    <div class="stat-card placeholder-glow"><span class="placeholder col-12 stat-card__placeholder"></span></div>
+    <div class="stat-card placeholder-glow"><span class="placeholder col-12 stat-card__placeholder"></span></div>
+    <div class="stat-card placeholder-glow"><span class="placeholder col-12 stat-card__placeholder"></span></div>
+    <div class="stat-card placeholder-glow"><span class="placeholder col-12 stat-card__placeholder"></span></div>
 </div>
 
 <!-- ===== ACCESOS RÁPIDOS ===== -->
@@ -31,7 +31,7 @@ $this->section('content');
         <p class="quick-card__title">Profesionales</p>
         <p class="quick-card__desc">Administrá el equipo de profesionales del centro: perfiles, títulos y especialidades.</p>
         <span class="quick-card__arrow">
-            Ver profesionales <span class="material-symbols-outlined" style="font-size:1rem;">arrow_forward</span>
+            Ver profesionales <span class="material-symbols-outlined">arrow_forward</span>
         </span>
     </a>
 
@@ -42,7 +42,7 @@ $this->section('content');
         <p class="quick-card__title">Servicios</p>
         <p class="quick-card__desc">Gestioná los servicios que ofrece el centro: precios, descripciones e imágenes.</p>
         <span class="quick-card__arrow">
-            Ver servicios <span class="material-symbols-outlined" style="font-size:1rem;">arrow_forward</span>
+            Ver servicios <span class="material-symbols-outlined">arrow_forward</span>
         </span>
     </a>
     <?php endif; ?>
@@ -54,7 +54,7 @@ $this->section('content');
         <p class="quick-card__title">Mis Turnos</p>
         <p class="quick-card__desc">Revisá todos los turnos agendados, su estado y los datos del cliente.</p>
         <span class="quick-card__arrow">
-            Ver turnos <span class="material-symbols-outlined" style="font-size:1rem;">arrow_forward</span>
+            Ver turnos <span class="material-symbols-outlined">arrow_forward</span>
         </span>
     </a>
 
@@ -65,7 +65,7 @@ $this->section('content');
         <p class="quick-card__title">Mis Horarios</p>
         <p class="quick-card__desc">Configurá tu disponibilidad horaria para que los clientes puedan reservar turnos.</p>
         <span class="quick-card__arrow">
-            Ver horarios <span class="material-symbols-outlined" style="font-size:1rem;">arrow_forward</span>
+            Ver horarios <span class="material-symbols-outlined">arrow_forward</span>
         </span>
     </a>
 
@@ -76,7 +76,7 @@ $this->section('content');
         <p class="quick-card__title">Mi Perfil</p>
         <p class="quick-card__desc">Actualizá tu información personal, foto de perfil y contraseña de acceso.</p>
         <span class="quick-card__arrow">
-            Ver perfil <span class="material-symbols-outlined" style="font-size:1rem;">arrow_forward</span>
+            Ver perfil <span class="material-symbols-outlined">arrow_forward</span>
         </span>
     </a>
 </div>
@@ -97,25 +97,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                 htmlContent += `
                     <div class="stat-card">
                         <span class="material-symbols-outlined stat-card__watermark">spa</span>
-                        <div class="stat-card__icon" style="background:#ffd3c8; color:#7a5950;">
+                        <div class="stat-card__icon stat-card__icon--rose">
                             <span class="material-symbols-outlined">spa</span>
                         </div>
-                        <p class="stat-card__value" style="font-size: 1.2rem;">${dataAdmin.masSolicitado.nombre}</p>
-                        <p class="stat-card__label" style="font-size: 0.8rem;">Servicio más solicitado</p>
-                        <p class="text-muted" style="font-size:0.75rem;">${dataAdmin.masSolicitado.total} turnos <br><strong style="color:var(--color-primary);">${dataAdmin.masSolicitado.tendencia}</strong></p>
+                        <p class="stat-card__value stat-card__value--sm">${dataAdmin.masSolicitado.nombre}</p>
+                        <p class="stat-card__label stat-card__label--sm">Servicio más solicitado</p>
+                        <p class="text-muted stat-card__muted--xs">${dataAdmin.masSolicitado.total} turnos <br><strong class="stat-card__trend">${dataAdmin.masSolicitado.tendencia}</strong></p>
                     </div>
                     <div class="stat-card">
                         <span class="material-symbols-outlined stat-card__watermark">trending_down</span>
-                        <div class="stat-card__icon" style="background:#fce4ec; color:#880e4f;">
+                        <div class="stat-card__icon stat-card__icon--fuchsia">
                             <span class="material-symbols-outlined">trending_down</span>
                         </div>
-                        <p class="stat-card__value" style="font-size: 1.2rem;">${dataAdmin.menosSolicitado.nombre}</p>
-                        <p class="stat-card__label" style="font-size: 0.8rem;">Servicio menos solicitado</p>
-                        <p class="text-muted" style="font-size:0.75rem;">${dataAdmin.menosSolicitado.total} turnos</p>
+                        <p class="stat-card__value stat-card__value--sm">${dataAdmin.menosSolicitado.nombre}</p>
+                        <p class="stat-card__label stat-card__label--sm">Servicio menos solicitado</p>
+                        <p class="text-muted stat-card__muted--xs">${dataAdmin.menosSolicitado.total} turnos</p>
                     </div>
                     <div class="stat-card">
                         <span class="material-symbols-outlined stat-card__watermark">group</span>
-                        <div class="stat-card__icon" style="background:#dce9f7; color:#1e4f8a;">
+                        <div class="stat-card__icon stat-card__icon--navy">
                             <span class="material-symbols-outlined">group</span>
                         </div>
                         <p class="stat-card__value">${dataAdmin.clientes}</p>
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             htmlContent += `
                 <div class="stat-card">
                     <span class="material-symbols-outlined stat-card__watermark">today</span>
-                    <div class="stat-card__icon" style="background:#e2ede6; color:#2d6a4f;">
+                    <div class="stat-card__icon stat-card__icon--green">
                         <span class="material-symbols-outlined">today</span>
                     </div>
                     <p class="stat-card__value">${dataProf.turnosHoy}</p>
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
                 <div class="stat-card">
                     <span class="material-symbols-outlined stat-card__watermark">event_upcoming</span>
-                    <div class="stat-card__icon" style="background:#e8eaf6; color:#283593;">
+                    <div class="stat-card__icon stat-card__icon--indigo">
                         <span class="material-symbols-outlined">event_upcoming</span>
                     </div>
                     <p class="stat-card__value">${dataProf.proximosTurnos}</p>
@@ -156,16 +156,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
                 <div class="stat-card">
                     <span class="material-symbols-outlined stat-card__watermark">star</span>
-                    <div class="stat-card__icon" style="background:#fff3e0; color:#e65100;">
+                    <div class="stat-card__icon stat-card__icon--orange">
                         <span class="material-symbols-outlined">star</span>
                     </div>
-                    <p class="stat-card__value" style="font-size: 1.2rem;">${dataProf.misServiciosMasSolicitados.nombre}</p>
-                    <p class="stat-card__label" style="font-size: 0.8rem;">Mi servicio más solicitado</p>
-                    <p class="text-muted" style="font-size:0.75rem;">${dataProf.misServiciosMasSolicitados.total} turnos</p>
+                    <p class="stat-card__value stat-card__value--sm">${dataProf.misServiciosMasSolicitados.nombre}</p>
+                    <p class="stat-card__label stat-card__label--sm">Mi servicio más solicitado</p>
+                    <p class="text-muted stat-card__muted--xs">${dataProf.misServiciosMasSolicitados.total} turnos</p>
                 </div>
                 <div class="stat-card">
                     <span class="material-symbols-outlined stat-card__watermark">list_alt</span>
-                    <div class="stat-card__icon" style="background:#e0f7fa; color:#006064;">
+                    <div class="stat-card__icon stat-card__icon--teal">
                         <span class="material-symbols-outlined">list_alt</span>
                     </div>
                     <p class="stat-card__value">${dataProf.serviciosOfrecidos}</p>
@@ -188,3 +188,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 </script>
 
 <?php $this->endSection(); ?>
+
+
+
+
+
