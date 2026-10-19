@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Layout compartido del Panel Administración
  * Her Beauty Center
@@ -15,13 +15,14 @@ $nombre = $usuario['s_nbre'] ?? 'Administradora';
 $avatar = $usuario['u_avatar'] ?? null;
 
 $navItems = [
-    'dashboard' => ['label' => 'Dashboard', 'icon' => 'dashboard', 'href' => base_url('admin'), 'role' => 'all'],
-    'profesionales' => ['label' => 'Profesionales', 'icon' => 'group', 'href' => base_url('admin/profesionales'), 'role' => 'admin'],
-    'clientes' => ['label' => 'Clientes', 'icon' => 'groups', 'href' => base_url('admin/clientes'), 'role' => 'admin'],
-    'servicios' => ['label' => 'Servicios', 'icon' => 'spa', 'href' => base_url('admin/servicios'), 'role' => 'admin'],
-    'turnos' => ['label' => 'Mis Turnos', 'icon' => 'calendar_month', 'href' => base_url('admin/turnos'), 'role' => 'all'],
-    'horarios' => ['label' => 'Mis Horarios', 'icon' => 'schedule', 'href' => base_url('admin/horarios'), 'role' => 'all'],
-    'perfil' => ['label' => 'Mi Perfil', 'icon' => 'manage_accounts', 'href' => base_url('admin/perfil'), 'role' => 'all'],
+    'dashboard'     => ['label' => 'Dashboard',    'icon' => 'dashboard',       'href' => base_url('admin'),              'role' => 'all'],
+    'profesionales' => ['label' => 'Profesionales','icon' => 'group',           'href' => base_url('admin/profesionales'),'role' => 'admin'],
+    'clientes'      => ['label' => 'Clientes',     'icon' => 'groups',          'href' => base_url('admin/clientes'),     'role' => 'admin'],
+    'servicios'     => ['label' => 'Servicios',    'icon' => 'spa',             'href' => base_url('admin/servicios'),    'role' => 'admin'],
+    'calendario'    => ['label' => 'Calendario',   'icon' => 'calendar_month',  'href' => base_url('admin/calendario'),   'role' => 'all'],
+    'turnos'        => ['label' => 'Mis Turnos',   'icon' => 'event_note',      'href' => base_url('admin/turnos'),       'role' => 'all'],
+    'horarios'      => ['label' => 'Mis Horarios', 'icon' => 'schedule',        'href' => base_url('admin/horarios'),     'role' => 'all'],
+    'perfil'        => ['label' => 'Mi Perfil',    'icon' => 'manage_accounts', 'href' => base_url('admin/perfil'),       'role' => 'all'],
 ];
 ?>
 <!DOCTYPE html>
@@ -46,6 +47,13 @@ $navItems = [
     <!-- CSS -->
     <link rel="stylesheet" href="<?= base_url('public/assets/css/styles.css') ?>" />
     <link rel="stylesheet" href="<?= base_url('public/assets/css/admin.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/calendario.css') ?>" />
+
+    <!-- FullCalendar v6 (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet" />
+    
+    <!-- Slot extra para CSS/JS adicional por vista -->
+    <?= $this->renderSection('extra_head') ?>
 </head>
 
 <body class="admin-body">
@@ -128,7 +136,8 @@ $navItems = [
             <div class="admin-topbar__actions">
                 <a href="<?= base_url() ?>" class="btn btn-pink d-flex align-items-center gap-1 admin-topbar__site-btn"
                     title="Ver sitio web">
-                    <span class="material-symbols-outlined">search</span> Ver Sitio
+                    <span class="material-symbols-outlined">search</span>
+                    <span class="d-none d-sm-inline">Ver Sitio</span>
                 </a>
             </div>
         </header>
@@ -166,6 +175,14 @@ $navItems = [
     
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- FullCalendar v6 -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+    <!-- Calendario JS (solo carga si la página lo necesita) -->
+    <?php if (isset($activeNav) && $activeNav === 'calendario'): ?>
+    <script src="<?= base_url('public/assets/js/calendario.js') ?>"></script>
+    <?php endif; ?>
 </body>
 
 </html>

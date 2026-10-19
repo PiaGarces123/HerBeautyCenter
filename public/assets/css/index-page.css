@@ -171,3 +171,45 @@
     bottom: -20px;
     font-size: 0.75rem;
 }
+
+/* ==========================================================================
+   MODALES DE AUTENTICACIÓN (Login y Registro — modalsBase.php)
+   ========================================================================== */
+
+/* Logo de cabecera en modales: ampliado al doble */
+.admin-modal-logo {
+    max-height: 7.3rem;
+    max-width: 293.3px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin: 0.5rem auto 0.25rem auto;
+    display: block;
+}
+
+/* Botón de cierre en la esquina superior derecha del modal */
+.admin-modal-close-btn {
+    top: 1rem !important;
+    right: 1.25rem !important;
+    z-index: 10;
+}
+
+/* Título del modal con espaciado armónico */
+.admin-modal-title {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: var(--color-on-surface, #1e1e1e);
+}
+
+@media (max-width: 576px) {
+    .admin-modal-logo {
+        max-height: 4.4rem;
+        max-width: 180px;
+        margin: 0.25rem auto 0.2rem auto;
+    }
+
+    .admin-modal-close-btn {
+        top: 0.75rem !important;
+        right: 0.85rem !important;
+    }
+}

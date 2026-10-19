@@ -158,7 +158,7 @@ class PerfilApi extends BaseController
         $db->transStart();
         
         // Clean previous networks
-        $db->table('red_social')->where('p_id', $profesional['p_id'])->delete();
+        $db->table('red_social')->where('rs_pId', $profesional['p_id'])->delete();
 
         if (!empty($redesData) && is_array($redesData)) {
             $insertData = [];
@@ -191,7 +191,7 @@ class PerfilApi extends BaseController
                 }
 
                 $insertData[] = [
-                    'p_id' => $profesional['p_id'],
+                    'rs_pId' => $profesional['p_id'],
                     'rs_tipo' => $tipo,
                     'rs_link' => esc($link) // Prevent XSS
                 ];

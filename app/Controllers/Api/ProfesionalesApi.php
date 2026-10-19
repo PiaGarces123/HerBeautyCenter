@@ -84,7 +84,7 @@ class ProfesionalesApi extends BaseController
 
         // 2. Insert into profesional
         $profesionalData = [
-            'c_uId' => $userId,
+            'u_id' => $userId,
             'p_titulo' => trim($request->title),
             'p_anioInicioAct' => isset($request->year) ? intval($request->year) : date('Y')
         ];
@@ -167,13 +167,13 @@ class ProfesionalesApi extends BaseController
         $db->transStart();
 
         // Eliminar administrador si lo fuera
-        $db->table('administrador')->where('p_id', $id)->delete();
+        $db->table('administrador')->where('a_pId', $id)->delete();
         // Eliminar relaciones de servicios primero
         $db->table('profesional_servicio')->where('p_id', $id)->delete();
         // Eliminar turnos asignados
-        $db->table('turno')->where('p_id', $id)->delete();
+        $db->table('turno')->where('t_pId', $id)->delete();
         // Eliminar horarios configurados
-        $db->table('horario')->where('p_id', $id)->delete();
+        $db->table('horario')->where('h_pId', $id)->delete();
         // Eliminar profesional
         $db->table('profesional')->where('p_id', $id)->delete();
         // Eliminar usuario

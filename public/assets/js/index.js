@@ -343,12 +343,56 @@ function initAuthModals() {
         });
     }
 
+    // Toggle de visibilidad de contraseñas (ojito)
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const group = btn.closest('.input-group');
+            if (!group) return;
+            const input = group.querySelector('input');
+            const icon = btn.querySelector('.material-symbols-outlined');
+            if (!input) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                if (icon) icon.textContent = 'visibility';
+            }
+        });
+    });
+
+    // Limpiar alertas de error al escribir
+    ['loginEmail', 'loginPassword'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => {
+                const err = document.getElementById('loginError');
+                if (err) err.classList.add('d-none');
+            });
+        }
+    });
+
+    ['regName', 'regEmail', 'regPhone', 'regPassword', 'regPasswordConfirm'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', () => {
+                const err = document.getElementById('registerError');
+                if (err) err.classList.add('d-none');
+            });
+        }
+    });
+
     // Login Form Submit
     const loginForm = document.getElementById('loginForm');
     // Agrega un event listener para el evento submit
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const errorDiv = document.getElementById('loginError');
+            if (errorDiv) errorDiv.classList.add('d-none');
+
             // Valida el formulario
             if (!loginForm.checkValidity()) {
                 e.stopPropagation();
@@ -377,7 +421,7 @@ function initAuthModals() {
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ email, password, u_pass: password })
                 });
 
                 // Obtiene el tipo de contenido de la respuesta
@@ -424,11 +468,11 @@ function initAuthModals() {
                         }
                     }, 1500);
                 } else {
-                    // Si el inicio de sesión no es exitoso
-                    window.AppModal.error({
-                        title: 'Error de Autenticación',
-                        message: result.message || 'Correo o contraseña incorrectos.'
-                    });
+                    // Si el inicio de sesión no es exitoso, mostrar en el div de error
+                    if (errorDiv) {
+                        errorDiv.innerText = result.message || 'Correo o contraseña incorrectos.';
+                        errorDiv.classList.remove('d-none');
+                    }
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerText = originalBtnText;
@@ -437,10 +481,10 @@ function initAuthModals() {
                 // Captura cualquier error que ocurra durante el proceso
             } catch (error) {
                 console.error('Error login:', error);
-                window.AppModal.error({
-                    title: 'Error de Conexión',
-                    message: error.message || 'Ocurrió un error en la conexión. Por favor intentá nuevamente.'
-                });
+                if (errorDiv) {
+                    errorDiv.innerText = error.message || 'Ocurrió un error en la conexión. Por favor intentá nuevamente.';
+                    errorDiv.classList.remove('d-none');
+                }
                 // Restablece el botón de envío
                 if (submitBtn) {
                     submitBtn.disabled = false;
@@ -510,7 +554,7 @@ function initAuthModals() {
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify({ name, email, phone, password })
+                    body: JSON.stringify({ name, email, phone, password, u_pass: password })
                 });
                 // Obtiene el tipo de contenido de la respuesta
                 const contentType = response.headers.get('content-type') || '';

@@ -62,7 +62,7 @@ class Admin extends BaseController
             $query->where('usuario.u_activo', $val);
         }
         if (!empty($servicioFiltro)) {
-            $query->where("EXISTS (SELECT 1 FROM profesional_servicio ps WHERE ps.id_profesional = profesional.p_id AND ps.id_servicio = " . intval($servicioFiltro) . ")", null, false);
+            $query->where("EXISTS (SELECT 1 FROM profesional_servicio ps WHERE ps.p_id = profesional.p_id AND ps.p_sId = " . intval($servicioFiltro) . ")", null, false);
         }
 
         $total = $query->countAllResults(false);
@@ -75,7 +75,7 @@ class Admin extends BaseController
             ->limit($perPage, ($page - 1) * $perPage)
             ->get()->getResultArray();
 
-        $todos_servicios = $db->table('servicio')->select('id_servicio, nombre')->get()->getResultArray();
+        $todos_servicios = $db->table('servicio')->select('s_id, s_nbre')->get()->getResultArray();
         
         $pager_links = $pager->makeLinks($page, $perPage, $total, 'admin_pagination');
         $start = $total > 0 ? ($page - 1) * $perPage + 1 : 0;
@@ -122,7 +122,7 @@ class Admin extends BaseController
         }
         if (!empty($estado)) {
             $val = $estado === 'u_activo' ? 1 : 0;
-            $query->where('servicio.activo', $val);
+            $query->where('servicio.s_activo', $val);
         }
         if (!empty($sort)) {
             if ($sort === 'a-z') $query->orderBy('servicio.s_nbre', 'ASC');
@@ -160,43 +160,72 @@ class Admin extends BaseController
 
     public function turnos()
     {
-        $redirect = $this->verificarSesionAdmin();
-        if ($redirect) return $redirect;
+        $session = session();
+        if (!$session->get('usuario_id') || !in_array($session->get('rol'), ['admin', 'profesional'])) {
+            return redirect()->to('/?login=1');
+        }
 
         $db = \Config\Database::connect();
-        
-        $pager = \Config\Services::pager();
+
+        $pager   = \Config\Services::pager();
         $page    = (int) ($this->request->getGet('page') ?? 1);
         $perPage = 20;
-        
-        $total = $db->table('turno')->countAllResults();
 
-        $turnos = $db->table('turno')
-            ->select('turno.*, 
-                      profesional.p_id,
-                      u_prof.nombre_completo as nombre_profesional,
-                      u_cli.nombre_completo as nombre_cliente')
-            ->join('profesional', 'profesional.p_id = turno.t_pId')
-            ->join('usuario as u_prof', 'u_prof.u_id = profesional.u_id')
-            ->join('cliente', 'cliente.c_id = turno.t_cId', 'left')
-            ->join('usuario as u_cli', 'u_cli.u_id = cliente.c_uId', 'left')
-            ->orderBy('turno.fecha', 'DESC')
+        // Filtros
+        $filtroEstado  = $this->request->getGet('estado')      ?? '';
+        $filtroProfId  = null;
+        $fechaDesde    = $this->request->getGet('fecha_desde') ?? '';
+        $fechaHasta    = $this->request->getGet('fecha_hasta') ?? '';
+
+        // Obtener p_id del usuario en sesión
+        $profesional = $db->table('profesional')
+            ->where('u_id', $session->get('usuario_id'))
+            ->get()->getRowArray();
+        $pId = $profesional ? (int) $profesional['p_id'] : null;
+
+        $query = $db->table('turno')
+            ->select('turno.t_id, turno.t_pId, turno.t_cId, turno.t_hId,
+                      turno.estado, turno.abonado, turno.monto,
+                      horario.h_fecha AS fecha, horario.h_horaDesde AS t_horaDesde, horario.h_horaHasta AS t_horaHasta,
+                      servicio.s_nbre AS nombre_servicio,
+                      u_prof.u_nbreCompleto AS nombre_profesional,
+                      u_cli.u_nbreCompleto AS nombre_cliente')
+            ->join('horario',   'horario.h_id   = turno.t_hId')
+            ->join('servicio',  'servicio.s_id  = horario.h_sId',  'left')
+            ->join('profesional','profesional.p_id = turno.t_pId')
+            ->join('usuario AS u_prof', 'u_prof.u_id = profesional.u_id')
+            ->join('cliente',   'cliente.c_id   = turno.t_cId',    'left')
+            ->join('usuario AS u_cli', 'u_cli.u_id = cliente.c_uId', 'left');
+
+        // Filtrar por profesional propia (RN14)
+        if ($pId) $query->where('turno.t_pId', $pId);
+
+        if (!empty($filtroEstado)) $query->where('turno.estado', $filtroEstado);
+        if (!empty($fechaDesde))   $query->where('horario.h_fecha >=', $fechaDesde);
+        if (!empty($fechaHasta))   $query->where('horario.h_fecha <=', $fechaHasta);
+
+        $total = $query->countAllResults(false);
+        $turnos = $query->orderBy('horario.h_fecha', 'DESC')
+            ->orderBy('horario.h_horaDesde', 'ASC')
             ->limit($perPage, ($page - 1) * $perPage)
             ->get()->getResultArray();
-            
+
         $pager_links = $pager->makeLinks($page, $perPage, $total, 'admin_pagination');
         $start = $total > 0 ? ($page - 1) * $perPage + 1 : 0;
-        $end = min($page * $perPage, $total);
+        $end   = min($page * $perPage, $total);
 
         return view('profesional/turnos', [
-            'turnos' => $turnos,
-            'usuario' => ['s_nbre' => session()->get('usuario_nombre')],
-            'rol' => session()->get('rol'),
-            'activeNav' => 'turnos',
-            'pager_links' => $pager_links,
-            'pager_start' => $start,
-            'pager_end' => $end,
-            'pager_total' => $total
+            'turnos'       => $turnos,
+            'usuario'      => ['s_nbre' => $session->get('usuario_nombre')],
+            'rol'          => $session->get('rol'),
+            'activeNav'    => 'turnos',
+            'filtroEstado' => $filtroEstado,
+            'fechaDesde'   => $fechaDesde,
+            'fechaHasta'   => $fechaHasta,
+            'pager_links'  => $pager_links,
+            'pager_start'  => $start,
+            'pager_end'    => $end,
+            'pager_total'  => $total,
         ]);
     }
 
@@ -219,7 +248,7 @@ class Admin extends BaseController
         $redes = [];
         if ($profesional) {
             $redes = $db->table('red_social')
-                ->where('p_id', $profesional['p_id'])
+                ->where('rs_pId', $profesional['p_id'])
                 ->get()->getResultArray();
         }
 
@@ -235,38 +264,41 @@ class Admin extends BaseController
 
     public function horarios()
     {
-        $redirect = $this->verificarSesionAdmin();
-        if ($redirect) return $redirect;
-
         $session = session();
+        if (!$session->get('usuario_id') || !in_array($session->get('rol'), ['admin', 'profesional'])) {
+            return redirect()->to('/?login=1');
+        }
+
         $db = \Config\Database::connect();
 
-        $pager = \Config\Services::pager();
+        $pager   = \Config\Services::pager();
         $page    = (int) ($this->request->getGet('page') ?? 1);
         $perPage = 20;
 
-        // Buscar el profesional ligado a este usuario
         $profesional = $db->table('profesional')
             ->where('u_id', $session->get('usuario_id'))
             ->get()->getRowArray();
 
         $horarios = [];
-        $total = 0;
+        $total    = 0;
         if ($profesional) {
-            $total = $db->table('horario')->where('p_id', $profesional['p_id'])->countAllResults();
-            
-            $horarios = $db->table('horario')
-                ->select('horario.*, servicio.s_nbre as nombre_servicio')
+            $query = $db->table('horario')
+                ->select('horario.*, servicio.s_nbre AS nombre_servicio,
+                          (SELECT COUNT(*) FROM turno WHERE turno.t_hId = horario.h_id
+                           AND turno.estado IN ("Solicitado","Confirmado")) AS tiene_turno_activo')
                 ->join('servicio', 'servicio.s_id = horario.h_sId', 'left')
-                ->where('horario.h_pId', $profesional['p_id'])
-                ->orderBy('horario.fecha', 'ASC')
+                ->where('horario.h_pId', $profesional['p_id']);
+
+            $total    = $query->countAllResults(false);
+            $horarios = $query->orderBy('horario.h_fecha', 'ASC')
+                ->orderBy('horario.h_horaDesde', 'ASC')
                 ->limit($perPage, ($page - 1) * $perPage)
                 ->get()->getResultArray();
         }
-        
+
         $pager_links = $pager->makeLinks($page, $perPage, $total, 'admin_pagination');
         $start = $total > 0 ? ($page - 1) * $perPage + 1 : 0;
-        $end = min($page * $perPage, $total);
+        $end   = min($page * $perPage, $total);
 
         return view('profesional/horarios', [
             'horarios'    => $horarios,
@@ -277,7 +309,40 @@ class Admin extends BaseController
             'pager_links' => $pager_links,
             'pager_start' => $start,
             'pager_end'   => $end,
-            'pager_total' => $total
+            'pager_total' => $total,
+        ]);
+    }
+
+    public function calendario()
+    {
+        $session = session();
+        if (!$session->get('usuario_id') || !in_array($session->get('rol'), ['admin', 'profesional'])) {
+            return redirect()->to('/?login=1');
+        }
+
+        $db = \Config\Database::connect();
+        $profesional = $db->table('profesional')
+            ->where('u_id', $session->get('usuario_id'))
+            ->get()->getRowArray();
+
+        // Servicios propios para el formulario de disponibilidad
+        $servicios = [];
+        if ($profesional) {
+            $servicios = $db->table('profesional_servicio')
+                ->select('servicio.s_id, servicio.s_nbre, servicio.s_duracionMinutos, servicio.s_precio')
+                ->join('servicio', 'servicio.s_id = profesional_servicio.p_sId')
+                ->where('profesional_servicio.p_id', $profesional['p_id'])
+                ->where('servicio.s_activo', 1)
+                ->orderBy('servicio.s_nbre', 'ASC')
+                ->get()->getResultArray();
+        }
+
+        return view('profesional/calendario', [
+            'profesional' => $profesional,
+            'servicios'   => $servicios,
+            'usuario'     => ['s_nbre' => $session->get('usuario_nombre')],
+            'rol'         => $session->get('rol'),
+            'activeNav'   => 'calendario',
         ]);
     }
 

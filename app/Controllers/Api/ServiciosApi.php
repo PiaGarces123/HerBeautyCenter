@@ -86,7 +86,7 @@ class ServiciosApi extends BaseController
             's_desc' => trim($descripcion),
             's_duracionMinutos' => intval($duracion),
             's_precio' => floatval($precio ?? 0),
-            'u_activo' => intval($activo),
+            's_activo' => intval($activo),
             's_orden' => 0
         ];
 
@@ -174,7 +174,7 @@ class ServiciosApi extends BaseController
             's_desc' => trim($descripcion),
             's_duracionMinutos' => intval($duracion),
             's_precio' => floatval($precio ?? 0),
-            'u_activo' => intval($activo)
+            's_activo' => intval($activo)
         ];
 
         $db->table('servicio')->where('s_id', $id)->update($servicioData);
@@ -183,7 +183,7 @@ class ServiciosApi extends BaseController
         $file = $this->request->getFile('imagen');
         if ($file && $file->isValid() && !$file->hasMoved()) {
             // Borrar imagen vieja si existe físicamente
-            $oldImage = $db->table('imagen')->where('s_id', $id)->get()->getRow();
+            $oldImage = $db->table('imagen')->where('img_sId', $id)->get()->getRow();
             if ($oldImage && $oldImage->img_ruta) {
                 // Try to find the file locally and delete it
                 $filename = basename($oldImage->img_ruta);
@@ -195,7 +195,7 @@ class ServiciosApi extends BaseController
                 if (file_exists($localPath)) {
                     @unlink($localPath);
                 }
-                $db->table('imagen')->where('s_id', $id)->delete();
+                $db->table('imagen')->where('img_sId', $id)->delete();
             }
 
             $dirPath = FCPATH . 'assets/media/Servicios/';
@@ -245,7 +245,7 @@ class ServiciosApi extends BaseController
         $db->transStart();
 
         // Delete physical image
-        $oldImage = $db->table('imagen')->where('s_id', $id)->get()->getRow();
+        $oldImage = $db->table('imagen')->where('img_sId', $id)->get()->getRow();
         if ($oldImage && $oldImage->img_ruta) {
             $filename = basename($oldImage->img_ruta);
             $localPath = FCPATH . 'assets/media/Servicios/' . $filename;
@@ -255,13 +255,12 @@ class ServiciosApi extends BaseController
             if (file_exists($localPath)) {
                 @unlink($localPath);
             }
-            $db->table('imagen')->where('s_id', $id)->delete();
+            $db->table('imagen')->where('img_sId', $id)->delete();
         }
 
         // Delete dependencies
-        $db->table('profesional_servicio')->where('s_id', $id)->delete();
-        $db->table('horario')->where('s_id', $id)->delete();
-        $db->table('turno')->where('s_id', $id)->delete();
+        $db->table('profesional_servicio')->where('p_sId', $id)->delete();
+        $db->table('horario')->where('h_sId', $id)->delete();
         
         $db->table('servicio')->where('s_id', $id)->delete();
 
@@ -292,14 +291,14 @@ class ServiciosApi extends BaseController
         $db->transStart();
 
         // Borrar relaciones actuales
-        $db->table('profesional_servicio')->where('s_id', $id)->delete();
+        $db->table('profesional_servicio')->where('p_sId', $id)->delete();
 
         if (!empty($profesionales)) {
             $insertData = [];
             foreach ($profesionales as $id_profesional) {
                 $insertData[] = [
-                    's_id' => intval($id),
-                    'p_id' => intval($id_profesional)
+                    'p_sId' => intval($id),
+                    'p_id'  => intval($id_profesional)
                 ];
             }
             $db->table('profesional_servicio')->insertBatch($insertData);

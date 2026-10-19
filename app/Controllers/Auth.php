@@ -8,14 +8,17 @@ class Auth extends BaseController
 {
     public function login()
     {
-        $request = $this->request->getJSON();
-        
-        if (!$request || !isset($request->email) || !isset($request->u_pass)) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos.']);
+        try {
+            $request = $this->request->getJSON();
+        } catch (\Throwable $e) {
+            $request = null;
         }
+        $email = $request->email ?? $this->request->getPost('email');
+        $password = $request->u_pass ?? $request->password ?? $this->request->getPost('u_pass') ?? $this->request->getPost('password');
         
-        $email = $request->email;
-        $password = $request->u_pass;
+        if (empty($email) || empty($password)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos. Por favor ingresá email y contraseña.']);
+        }
         
         $db = \Config\Database::connect();
         $usuario = $db->table('usuario')
@@ -27,55 +30,67 @@ class Auth extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Correo o contraseña incorrectos.']);
         }
         
-        // Verificar si es profesional
-        $profesional = $db->table('profesional')
-            ->where('u_id', $usuario['u_id'])
-            ->get()->getRowArray();
-            
-        $rol = 'cliente';
-        $id_profesional = null;
-        
-        if ($profesional) {
-            $rol = 'profesional';
-            $id_profesional = $profesional['p_id'];
-            
-            // Verificar si además de profesional, es administrador
-            $admin = $db->table('administrador')
-                ->where('p_id', $id_profesional)
+        try {
+            // Verificar si es profesional
+            $profesional = $db->table('profesional')
+                ->where('u_id', $usuario['u_id'])
                 ->get()->getRowArray();
                 
-            if ($admin) {
-                $rol = 'admin';
-            }
-        }
+            $rol = 'cliente';
+            $id_profesional = null;
             
-        session()->set([
-            'usuario_id'     => $usuario['u_id'],
-            'usuario_nombre' => $usuario['u_nbreCompleto'],
-            'usuario_correo' => $usuario['u_correo'],
-            'usuario_avatar' => $usuario['u_avatar'],
-            'rol'            => $rol,
-            'p_id' => $id_profesional,
-        ]);
-        return $this->response->setJSON(['success' => true, 'message' => 'Login exitoso.', 'rol' => $rol]);
+            if ($profesional) {
+                $rol = 'profesional';
+                $id_profesional = $profesional['p_id'];
+                
+                // Verificar si además de profesional, es administrador
+                $admin = $db->table('administrador')
+                    ->where('a_pId', $id_profesional)
+                    ->get()->getRowArray();
+                    
+                if ($admin) {
+                    $rol = 'admin';
+                }
+            }
+                
+            session()->set([
+                'usuario_id'     => $usuario['u_id'],
+                'usuario_nombre' => $usuario['u_nbreCompleto'],
+                'usuario_correo' => $usuario['u_correo'],
+                'usuario_avatar' => $usuario['u_avatar'],
+                'rol'            => $rol,
+                'p_id'           => $id_profesional,
+            ]);
+            return $this->response->setJSON(['success' => true, 'message' => 'Login exitoso.', 'rol' => $rol]);
+        } catch (\Throwable $e) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al iniciar sesión: ' . $e->getMessage()]);
+        }
     }
     
     public function register()
     {
-        $request = $this->request->getJSON();
+        try {
+            $request = $this->request->getJSON();
+        } catch (\Throwable $e) {
+            $request = null;
+        }
+        $name     = $request->name ?? $this->request->getPost('name');
+        $email    = $request->email ?? $this->request->getPost('email');
+        $phone    = $request->phone ?? $this->request->getPost('phone');
+        $password = $request->u_pass ?? $request->password ?? $this->request->getPost('u_pass') ?? $this->request->getPost('password');
         
-        if (!$request || !isset($request->name) || !isset($request->email) || !isset($request->phone) || !isset($request->u_pass)) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos.']);
+        if (empty($name) || empty($email) || empty($phone) || empty($password)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos. Por favor completá todos los campos.']);
         }
         
         $usuarioModel = new UsuarioModel();
         
         $data = [
-            'u_nbreCompleto' => $request->name,
-            'u_correo'          => $request->email,
-            'u_tel'        => $request->phone,
-            'u_pass'        => $request->u_pass,
-            'u_activo'          => 1
+            'u_nbreCompleto' => $name,
+            'u_correo'       => $email,
+            'u_tel'          => $phone,
+            'u_pass'         => $password,
+            'u_activo'       => 1
         ];
         $db = \Config\Database::connect();
         
@@ -90,9 +105,9 @@ class Auth extends BaseController
             
             $userId = $usuarioModel->getInsertID();
             
-            // Crear el registro de cliente asociado
+            // Crear el registro de cliente asociado (la columna es c_uId)
             $db->table('cliente')->insert([
-                'u_id' => $userId
+                'c_uId' => $userId
             ]);
             
             $db->transComplete();
@@ -100,8 +115,8 @@ class Auth extends BaseController
             // Iniciar sesión automáticamente
             session()->set([
                 'usuario_id'     => $userId,
-                'usuario_nombre' => $request->name,
-                'usuario_correo' => $request->email,
+                'usuario_nombre' => $name,
+                'usuario_correo' => $email,
                 'usuario_avatar' => null,
                 'rol'            => 'cliente',
             ]);

@@ -13,7 +13,7 @@ class RedSocialModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'p_id',
+        'rs_pId',
         'rs_tipo',
         'rs_link'
     ];
@@ -23,7 +23,7 @@ class RedSocialModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'p_id' => 'required|numeric',
+        'rs_pId'            => 'required|numeric',
         'rs_tipo'           => 'required|max_length[50]',
         'rs_link'           => 'required|valid_url_strict|max_length[255]'
     ];

@@ -1,0 +1,42 @@
+Auth Filter (Tests\Unit\AuthFilter)
+ [x] Implementa filter interface
+ [x] Peticion api anonima retorna 401
+ [x] Peticion web anonima redirige a login
+ [x] Rol no autorizado api retorna 403
+ [x] Usuario autorizado pasa filtro
+
+Example Database
+ [x] Model find all
+ [x] Soft delete leaves row
+
+Example Session
+ [x] Session simple
+
+Health
+ [x] Is defined app path
+ [x] Base url has been set
+
+Horario (Tests\Unit\Horario)
+ [x] Campos permitidos
+ [x] Reglas de validacion definidas
+ [x] Consistencia cronologica
+ [x] Algoritmo solapamiento horario
+
+Perfil (Tests\Unit\Perfil)
+ [x] Hash seguro de password
+ [x] Validacion email
+ [x] Longitud minima password
+ [x] Campos permitidos y protegidos
+
+Servicio (Tests\Unit\Servicio)
+ [x] Rango duracion servicio
+ [x] Validacion nombre servicio
+ [x] Precio no negativo
+ [x] Unicidad insensible mayusculas
+
+Turno (Tests\Unit\Turno)
+ [x] Transiciones validas
+ [x] Estados terminales no permiten reversion
+ [x] Campos permitidos contienen motivo cancelacion y abono
+ [x] Formato fechas google calendar
+

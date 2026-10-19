@@ -1346,4 +1346,163 @@
     object-fit: cover !important;
     box-shadow: var(--shadow-sm) !important;
 }
+
+/* ==========================================================================
+   SISTEMA DE COMPONENTES REUTILIZABLES Y RESPONSIVE (MÓVIL, TABLET, DESKTOP)
+   ========================================================================== */
+
+/* ---- 1. Componentes Reutilizables de Botones de Acción con Touch Target Cómodo ---- */
+.admin-action-btn,
+.table-btn {
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease-in-out;
+}
+
+/* ---- 2. Badges de Estado Reutilizables ---- */
+.badge--green  { background-color: #d1fae5; color: #065f46; font-weight: 600; }
+.badge--blue   { background-color: #dbeafe; color: #1e40af; font-weight: 600; }
+.badge--rose   { background-color: #ffe4e6; color: #9f1239; font-weight: 600; }
+.badge--orange { background-color: #fef3c7; color: #92400e; font-weight: 600; }
+.badge--gray   { background-color: #f3f4f6; color: #374151; font-weight: 600; }
+
+/* ---- 3. Contenedores de Tablas con Scroll Suave e Indicador ---- */
+.admin-table-wrapper {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.admin-table-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.admin-table-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(125, 86, 45, 0.3);
+    border-radius: 4px;
+}
+
+/* ==========================================================================
+   MEDIA QUERIES RESPONSIVE: MÓVIL (< 768px)
+   ========================================================================== */
+@media (max-width: 767.98px) {
+    /* Topbar en celulares */
+    .admin-topbar {
+        padding: 0 0.85rem;
+        height: 3.5rem;
+    }
+
+    .admin-topbar__title {
+        font-size: 1.15rem;
+        max-width: 170px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .admin-topbar__actions .btn {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    /* Padding de contenido general */
+    .admin-content {
+        padding: 1rem 0.75rem;
+    }
+
+    /* Cabecera de páginas en móvil */
+    .admin-page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .admin-page-header .d-flex {
+        width: 100%;
+    }
+
+    .admin-page-header .btn {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+    }
+
+    /* Tarjetas y filtros */
+    .admin-table-card {
+        border-radius: var(--radius-lg);
+        margin-bottom: 1rem;
+    }
+
+    .admin-table-card__header {
+        padding: 0.85rem 1rem;
+    }
+
+    /* Paginación apilada en móviles */
+    .admin-table-actions-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        text-align: center;
+    }
+
+    /* Botones de acción en tabla táctiles */
+    .table-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .table-btn {
+        min-width: 2.5rem;
+        min-height: 2.5rem;
+    }
+
+    /* Modales en teléfonos: ancho completo y scroll vertical cómodo */
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-content {
+        max-height: 92vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        margin: 0 !important;
+    }
+}
+
+/* ==========================================================================
+   MEDIA QUERIES RESPONSIVE: TABLET (768px - 1024px)
+   ========================================================================== */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .admin-content {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .admin-page-header__title {
+        font-size: 1.4rem;
+    }
+
+    .admin-table-filter-col {
+        min-width: 160px;
+    }
+
+    /* Modales en tablet */
+    .modal-dialog {
+        max-width: 650px;
+    }
+}
 

@@ -17,7 +17,8 @@ class ServicioModel extends Model
         's_desc',
         's_duracionMinutos',
         's_precio',
-        'activo'
+        's_activo',
+        's_orden'
     ];
 
     // Dates
@@ -25,7 +26,7 @@ class ServicioModel extends Model
 
     // Validation
     protected $validationRules      = [
-        's_nbre'           => 'required|min_length[3]|max_length[100]|is_unique[servicio.s_nbre,id_servicio,{s_id}]',
+        's_nbre'           => 'required|min_length[3]|max_length[100]|is_unique[servicio.s_nbre,s_id,{s_id}]',
         's_duracionMinutos' => 'required|is_natural_no_zero',
         's_precio'           => 'required|numeric|greater_than[0]'
     ];

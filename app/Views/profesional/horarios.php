@@ -1,22 +1,39 @@
-﻿<?php
+<?php
+/**
+ * Vista: Gestionar Disponibilidad (CU08) — Incremento N° 2
+ * Her Beauty Center
+ *
+ * Lista tabular de bloques de disponibilidad con acciones de editar/eliminar.
+ * La lógica JS está en: public/assets/js/horarios.js
+ */
 $pageTitle = 'Mis Horarios';
 $activeNav = 'horarios';
 $this->extend('profesional/_layout');
 $this->section('content');
 
-$diasSemana = ['Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
-               'Thursday'=>'Jueves','Friday'=>'Viernes','Saturday'=>'Sábado','Sunday'=>'Domingo'];
+$diasSemana = [
+    'Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
+    'Thursday'=>'Jueves','Friday'=>'Viernes','Saturday'=>'Sábado','Sunday'=>'Domingo'
+];
 ?>
 
 <div class="admin-page-header">
     <div>
         <h2 class="admin-page-header__title">Mis Horarios</h2>
-        <p class="admin-page-header__subtitle">Tu disponibilidad para recibir turnos</p>
+        <p class="admin-page-header__subtitle">Franjas de disponibilidad configuradas para recibir turnos</p>
     </div>
-    <a href="#" class="btn btn--primary admin-action-btn">
-        <span class="material-symbols-outlined admin-action-icon">add</span>
-        Agregar horario
-    </a>
+    <?php if (!empty($profesional)): ?>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="<?= base_url('admin/calendario') ?>" class="btn btn-outline-secondary d-flex align-items-center gap-1">
+            <span class="material-symbols-outlined admin-action-icon">calendar_month</span>
+            Ver Calendario
+        </a>
+        <button id="btnNuevoHorario" class="btn btn--primary admin-action-btn">
+            <span class="material-symbols-outlined admin-action-icon">add</span>
+            Agregar Horario
+        </button>
+    </div>
+    <?php endif; ?>
 </div>
 
 <?php if (empty($profesional)): ?>
@@ -28,44 +45,73 @@ $diasSemana = ['Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
 
 <div class="admin-table-card">
     <div class="admin-table-card__header">
-        <h3 class="admin-table-card__title">Horarios configurados</h3>
+        <h3 class="admin-table-card__title">
+            Disponibilidades configuradas
+            <?php if ($pager_total > 0): ?>
+            <span class="badge badge--blue ms-2"><?= $pager_total ?></span>
+            <?php endif; ?>
+        </h3>
     </div>
 
     <?php if (!empty($horarios)): ?>
     <div class="admin-table-wrapper">
-        <table class="admin-table">
+        <table class="admin-table" id="tablaHorarios">
             <thead>
                 <tr>
                     <th>Fecha</th>
                     <th>Día</th>
                     <th>Horario</th>
                     <th>Servicio</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($horarios as $h): ?>
-                <tr>
-                    <td class="fw-bold"><?= date('d/m/Y', strtotime($h['fecha'])) ?></td>
+                <tr data-hid="<?= esc($h['h_id']) ?>">
+                    <td class="fw-bold"><?= date('d/m/Y', strtotime($h['h_fecha'])) ?></td>
                     <td>
                         <?php
-                            $diaSemana = date('l', strtotime($h['fecha']));
-                            echo esc($diasSemana[$diaSemana] ?? $diaSemana);
+                            $dia = date('l', strtotime($h['h_fecha']));
+                            echo esc($diasSemana[$dia] ?? $dia);
                         ?>
                     </td>
-                    <td>
-                        <?= date('H:i', strtotime($h['t_horaDesde'])) ?> –
-                        <?= date('H:i', strtotime($h['t_horaHasta'])) ?>
+                    <td class="admin-text-sm">
+                        <?= date('H:i', strtotime($h['h_horaDesde'])) ?> –
+                        <?= date('H:i', strtotime($h['h_horaHasta'])) ?>
                     </td>
                     <td><?= esc($h['nombre_servicio'] ?? '—') ?></td>
                     <td>
+                        <?php if (!empty($h['tiene_turno_activo'])): ?>
+                            <span class="badge badge--orange">Con Turno Activo</span>
+                        <?php elseif ($h['h_fecha'] < date('Y-m-d')): ?>
+                            <span class="badge badge--gray">Expirado</span>
+                        <?php else: ?>
+                            <span class="badge badge--blue">Disponible</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
                         <div class="table-actions">
-                            <button class="table-btn table-btn--edit" title="Editar">
+                            <?php if (empty($h['tiene_turno_activo'])): ?>
+                            <button class="table-btn table-btn--edit btn-editar-horario"
+                                    title="Editar"
+                                    data-hid="<?= esc($h['h_id']) ?>"
+                                    data-sid="<?= esc($h['h_sId']) ?>"
+                                    data-fecha="<?= esc($h['h_fecha']) ?>"
+                                    data-desde="<?= esc(substr($h['h_horaDesde'],0,5)) ?>"
+                                    data-hasta="<?= esc(substr($h['h_horaHasta'],0,5)) ?>">
                                 <span class="material-symbols-outlined admin-action-icon">edit</span>
                             </button>
-                            <button class="table-btn table-btn--delete" title="Eliminar">
+                            <button class="table-btn table-btn--delete btn-eliminar-horario"
+                                    title="Eliminar"
+                                    data-hid="<?= esc($h['h_id']) ?>">
                                 <span class="material-symbols-outlined admin-action-icon">delete</span>
                             </button>
+                            <?php else: ?>
+                            <span class="text-muted admin-text-sm" title="No se puede modificar: tiene turno activo">
+                                <span class="material-symbols-outlined admin-action-icon">lock</span>
+                            </span>
+                            <?php endif; ?>
                         </div>
                     </td>
                 </tr>
@@ -73,31 +119,90 @@ $diasSemana = ['Monday'=>'Lunes','Tuesday'=>'Martes','Wednesday'=>'Miércoles',
             </tbody>
         </table>
     </div>
-    
-    <!-- Paginación -->
+
     <?php if (isset($pager_links) && $pager_links): ?>
         <div class="d-flex justify-content-between align-items-center mt-4 px-3 admin-table-actions-row">
             <span class="fw-bold text-muted">
-                Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> Horarios
+                Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> horarios
             </span>
-            <div>
-                <?= $pager_links ?>
-            </div>
+            <div><?= $pager_links ?></div>
         </div>
     <?php endif; ?>
+
     <?php else: ?>
         <div class="admin-empty-state">
             <span class="material-symbols-outlined">schedule</span>
             <p class="admin-empty-state__text">Aún no tenés horarios configurados.</p>
+            <p class="text-muted admin-text-sm">Hacé clic en "Agregar Horario" o usa el <a href="<?= base_url('admin/calendario') ?>">Calendario</a> para crear tu primera disponibilidad.</p>
         </div>
     <?php endif; ?>
 </div>
 
+<!-- ============================================================
+     MODAL — Agregar / Editar Horario
+     ============================================================ -->
+<div class="modal fade" id="modalHorario" tabindex="-1" aria-labelledby="modalHorarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header">
+                <h5 class="modal-title" id="modalHorarioLabel">
+                    <span class="material-symbols-outlined">schedule</span>
+                    <span id="modalHorTitleText">Agregar Disponibilidad</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formHorario" novalidate>
+                    <input type="hidden" id="horHId" value="">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="horServicio">Servicio <span class="text-danger">*</span></label>
+                        <select id="horServicio" name="h_sId" class="form-select" required>
+                            <option value="">— Seleccioná un servicio —</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="horFecha">Fecha <span class="text-danger">*</span></label>
+                        <input type="date" id="horFecha" name="h_fecha" class="form-control"
+                               min="<?= date('Y-m-d') ?>" required>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold" for="horDesde">Hora Inicio <span class="text-danger">*</span></label>
+                            <input type="time" id="horDesde" name="h_horaDesde" class="form-control" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold" for="horHasta">Hora Fin <span class="text-danger">*</span></label>
+                            <input type="time" id="horHasta" name="h_horaHasta" class="form-control" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn--primary" id="btnGuardarHorario">
+                    <span class="material-symbols-outlined">save</span>
+                    <span id="btnGuardarHorarioText">Guardar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Datos de contexto para JS -->
+<script>
+window.HBC_HOR = {
+    apiCrear:    '<?= base_url('api/horarios/crear') ?>',
+    apiEditar:   '<?= base_url('api/horarios/editar') ?>',
+    apiEliminar: '<?= base_url('api/horarios/eliminar') ?>',
+    apiServicios:'<?= base_url('api/horarios/servicios') ?>',
+    hoy:         '<?= date('Y-m-d') ?>',
+};
+</script>
+<script src="<?= base_url('public/assets/js/horarios.js') ?>"></script>
+
 <?php endif; ?>
 
 <?php $this->endSection(); ?>
-
-
-
-
-

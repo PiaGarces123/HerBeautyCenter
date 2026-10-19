@@ -30,11 +30,11 @@ class DashboardApi extends BaseController
         
         // 3. Servicio más solicitado
         $mostRequested = $db->query("
-            SELECT s.nombre, COUNT(t.id_turno) as total
+            SELECT s.s_nbre AS nombre, COUNT(t.t_id) AS total
             FROM turno t
-            JOIN horario h ON t.id_horario = h.id_horario
-            JOIN servicio s ON h.id_servicio = s.id_servicio
-            GROUP BY s.id_servicio
+            JOIN horario h ON t.t_hId = h.h_id
+            JOIN servicio s ON h.h_sId = s.s_id
+            GROUP BY s.s_id, s.s_nbre
             ORDER BY total DESC
             LIMIT 1
         ")->getRowArray();
@@ -44,22 +44,24 @@ class DashboardApi extends BaseController
         if ($mostRequested) {
             $nombreSvc = $mostRequested['nombre'];
             // Turnos en los últimos 30 días
-            $currentPeriodCount = $db->query("
-                SELECT COUNT(t.id_turno) as total
+            $currentPeriodCountRow = $db->query("
+                SELECT COUNT(t.t_id) AS total
                 FROM turno t
-                JOIN horario h ON t.id_horario = h.id_horario
-                JOIN servicio s ON h.id_servicio = s.id_servicio
-                WHERE s.nombre = ? AND t.fecha >= ?
-            ", [$nombreSvc, $date30DaysAgo])->getRow()->total;
+                JOIN horario h ON t.t_hId = h.h_id
+                JOIN servicio s ON h.h_sId = s.s_id
+                WHERE s.s_nbre = ? AND h.h_fecha >= ?
+            ", [$nombreSvc, $date30DaysAgo])->getRow();
+            $currentPeriodCount = $currentPeriodCountRow ? (int)$currentPeriodCountRow->total : 0;
 
             // Turnos en 30 días anteriores
-            $previousPeriodCount = $db->query("
-                SELECT COUNT(t.id_turno) as total
+            $previousPeriodCountRow = $db->query("
+                SELECT COUNT(t.t_id) AS total
                 FROM turno t
-                JOIN horario h ON t.id_horario = h.id_horario
-                JOIN servicio s ON h.id_servicio = s.id_servicio
-                WHERE s.nombre = ? AND t.fecha >= ? AND t.fecha < ?
-            ", [$nombreSvc, $date60DaysAgo, $date30DaysAgo])->getRow()->total;
+                JOIN horario h ON t.t_hId = h.h_id
+                JOIN servicio s ON h.h_sId = s.s_id
+                WHERE s.s_nbre = ? AND h.h_fecha >= ? AND h.h_fecha < ?
+            ", [$nombreSvc, $date60DaysAgo, $date30DaysAgo])->getRow();
+            $previousPeriodCount = $previousPeriodCountRow ? (int)$previousPeriodCountRow->total : 0;
 
             if ($previousPeriodCount > 0) {
                 $percentage = (($currentPeriodCount - $previousPeriodCount) / $previousPeriodCount) * 100;
@@ -72,11 +74,11 @@ class DashboardApi extends BaseController
 
         // 4. Servicio menos solicitado
         $leastRequested = $db->query("
-            SELECT s.nombre, COUNT(t.id_turno) as total
+            SELECT s.s_nbre AS nombre, COUNT(t.t_id) AS total
             FROM turno t
-            JOIN horario h ON t.id_horario = h.id_horario
-            JOIN servicio s ON h.id_servicio = s.id_servicio
-            GROUP BY s.id_servicio
+            JOIN horario h ON t.t_hId = h.h_id
+            JOIN servicio s ON h.h_sId = s.s_id
+            GROUP BY s.s_id, s.s_nbre
             ORDER BY total ASC
             LIMIT 1
         ")->getRowArray();
@@ -86,12 +88,12 @@ class DashboardApi extends BaseController
             'profesionales' => $profesionales,
             'masSolicitado' => [
                 'nombre' => $mostRequested ? $mostRequested['nombre'] : 'N/A',
-                'total' => $mostRequested ? $mostRequested['total'] : 0,
+                'total' => $mostRequested ? (int)$mostRequested['total'] : 0,
                 'tendencia' => $trendStr
             ],
             'menosSolicitado' => [
                 'nombre' => $leastRequested ? $leastRequested['nombre'] : 'N/A',
-                'total' => $leastRequested ? $leastRequested['total'] : 0
+                'total' => $leastRequested ? (int)$leastRequested['total'] : 0
             ]
         ]);
     }
@@ -103,43 +105,50 @@ class DashboardApi extends BaseController
             return $this->failUnauthorized('No autorizado');
         }
 
-        $idProfesional = $session->get('id_profesional');
+        $idProfesional = $session->get('p_id') ?? $session->get('id_profesional');
+        $db = \Config\Database::connect();
+
+        if (!$idProfesional) {
+            $profRow = $db->table('profesional')->where('u_id', $session->get('usuario_id'))->get()->getRowArray();
+            $idProfesional = $profRow ? (int)$profRow['p_id'] : null;
+        }
+
         if (!$idProfesional) {
             return $this->failUnauthorized('No eres profesional');
         }
-
-        $db = \Config\Database::connect();
         
         $hoy = date('Y-m-d');
 
         // 1. Turnos Hoy
         $turnosHoy = $db->table('turno')
-            ->where('id_profesional', $idProfesional)
-            ->where('fecha', $hoy)
+            ->join('horario', 'horario.h_id = turno.t_hId')
+            ->where('turno.t_pId', $idProfesional)
+            ->where('horario.h_fecha', $hoy)
             ->countAllResults();
 
         // 2. Próximos turnos (futuros, a partir de hoy)
         $proximosTurnos = $db->table('turno')
-            ->where('id_profesional', $idProfesional)
-            ->where('fecha >=', $hoy)
-            ->whereIn('estado', ['Solicitado', 'Confirmado'])
+            ->join('horario', 'horario.h_id = turno.t_hId')
+            ->where('turno.t_pId', $idProfesional)
+            ->where('horario.h_fecha >=', $hoy)
+            ->whereIn('turno.estado', ['Solicitado', 'Confirmado'])
             ->countAllResults();
 
         // 3. Mis servicios más solicitados
         $misServicios = $db->query("
-            SELECT s.nombre, COUNT(t.id_turno) as total
+            SELECT s.s_nbre AS nombre, COUNT(t.t_id) AS total
             FROM turno t
-            JOIN horario h ON t.id_horario = h.id_horario
-            JOIN servicio s ON h.id_servicio = s.id_servicio
-            WHERE t.id_profesional = ?
-            GROUP BY s.id_servicio
+            JOIN horario h ON t.t_hId = h.h_id
+            JOIN servicio s ON h.h_sId = s.s_id
+            WHERE t.t_pId = ?
+            GROUP BY s.s_id, s.s_nbre
             ORDER BY total DESC
             LIMIT 1
         ", [$idProfesional])->getRowArray();
 
         // 4. Servicios que ofrezco
         $serviciosOfrecidos = $db->table('profesional_servicio')
-            ->where('id_profesional', $idProfesional)
+            ->where('p_id', $idProfesional)
             ->countAllResults();
 
         return $this->respond([
@@ -147,7 +156,7 @@ class DashboardApi extends BaseController
             'proximosTurnos' => $proximosTurnos,
             'misServiciosMasSolicitados' => [
                 'nombre' => $misServicios ? $misServicios['nombre'] : 'N/A',
-                'total' => $misServicios ? $misServicios['total'] : 0
+                'total' => $misServicios ? (int)$misServicios['total'] : 0
             ],
             'serviciosOfrecidos' => $serviciosOfrecidos
         ]);
