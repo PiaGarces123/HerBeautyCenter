@@ -58,7 +58,7 @@ class Admin extends BaseController
             $query->like('usuario.u_nbreCompleto', $search);
         }
         if (!empty($estado)) {
-            $val = $estado === 'u_activo' ? 1 : 0;
+            $val = $estado === 'activo' ? 1 : 0;
             $query->where('usuario.u_activo', $val);
         }
         if (!empty($servicioFiltro)) {
@@ -72,6 +72,7 @@ class Admin extends BaseController
             ->join('profesional_servicio', 'profesional_servicio.p_id = profesional.p_id', 'left')
             ->join('servicio', 'servicio.s_id = profesional_servicio.p_sId', 'left')
             ->groupBy('profesional.p_id')
+            ->orderBy('profesional.p_orden', 'ASC')
             ->limit($perPage, ($page - 1) * $perPage)
             ->get()->getResultArray();
 
@@ -121,7 +122,7 @@ class Admin extends BaseController
             $query->like('servicio.s_nbre', $search);
         }
         if (!empty($estado)) {
-            $val = $estado === 'u_activo' ? 1 : 0;
+            $val = $estado === 'activo' ? 1 : 0;
             $query->where('servicio.s_activo', $val);
         }
         if (!empty($sort)) {
@@ -172,16 +173,34 @@ class Admin extends BaseController
         $perPage = 20;
 
         // Filtros
-        $filtroEstado  = $this->request->getGet('estado')      ?? '';
-        $filtroProfId  = null;
-        $fechaDesde    = $this->request->getGet('fecha_desde') ?? '';
-        $fechaHasta    = $this->request->getGet('fecha_hasta') ?? '';
+        $filtroEstado   = trim($this->request->getGet('estado') ?? '');
+        $periodo        = trim($this->request->getGet('periodo') ?? '');
+        $servicioFiltro = (int) ($this->request->getGet('servicio') ?? 0);
 
         // Obtener p_id del usuario en sesión
         $profesional = $db->table('profesional')
             ->where('u_id', $session->get('usuario_id'))
             ->get()->getRowArray();
         $pId = $profesional ? (int) $profesional['p_id'] : null;
+
+        // Servicios ofrecidos por la profesional para el dropdown de filtros
+        $servicios_profesional = [];
+        if ($profesional) {
+            $servicios_profesional = $db->table('profesional_servicio')
+                ->select('servicio.s_id, servicio.s_nbre')
+                ->join('servicio', 'servicio.s_id = profesional_servicio.p_sId')
+                ->where('profesional_servicio.p_id', $profesional['p_id'])
+                ->where('servicio.s_activo', 1)
+                ->orderBy('servicio.s_nbre', 'ASC')
+                ->get()->getResultArray();
+        }
+        if (empty($servicios_profesional)) {
+            $servicios_profesional = $db->table('servicio')
+                ->select('s_id, s_nbre')
+                ->where('s_activo', 1)
+                ->orderBy('s_nbre', 'ASC')
+                ->get()->getResultArray();
+        }
 
         $query = $db->table('turno')
             ->select('turno.t_id, turno.t_pId, turno.t_cId, turno.t_hId,
@@ -200,9 +219,25 @@ class Admin extends BaseController
         // Filtrar por profesional propia (RN14)
         if ($pId) $query->where('turno.t_pId', $pId);
 
-        if (!empty($filtroEstado)) $query->where('turno.estado', $filtroEstado);
-        if (!empty($fechaDesde))   $query->where('horario.h_fecha >=', $fechaDesde);
-        if (!empty($fechaHasta))   $query->where('horario.h_fecha <=', $fechaHasta);
+        if (!empty($filtroEstado)) {
+            $query->where('turno.estado', $filtroEstado);
+        }
+        if ($servicioFiltro > 0) {
+            $query->where('horario.h_sId', $servicioFiltro);
+        }
+        if ($periodo === 'hoy') {
+            $query->where('horario.h_fecha', date('Y-m-d'));
+        } elseif ($periodo === 'semana') {
+            $lunesSemana   = date('Y-m-d', strtotime('monday this week'));
+            $domingoSemana = date('Y-m-d', strtotime('sunday this week'));
+            $query->where('horario.h_fecha >=', $lunesSemana)
+                  ->where('horario.h_fecha <=', $domingoSemana);
+        } elseif ($periodo === 'mes') {
+            $inicioMes = date('Y-m-01');
+            $finMes    = date('Y-m-t');
+            $query->where('horario.h_fecha >=', $inicioMes)
+                  ->where('horario.h_fecha <=', $finMes);
+        }
 
         $total = $query->countAllResults(false);
         $turnos = $query->orderBy('horario.h_fecha', 'DESC')
@@ -210,22 +245,52 @@ class Admin extends BaseController
             ->limit($perPage, ($page - 1) * $perPage)
             ->get()->getResultArray();
 
+        // Clientes activos para el modal de nuevo turno
+        $clientes = $db->table('cliente')
+            ->select('cliente.c_id, usuario.u_nbreCompleto, usuario.u_correo, usuario.u_tel')
+            ->join('usuario', 'usuario.u_id = cliente.c_uId')
+            ->where('usuario.u_activo', 1)
+            ->orderBy('usuario.u_nbreCompleto', 'ASC')
+            ->get()->getResultArray();
+
+        // Servicios con detalles (duración y precio) para el modal de nuevo turno
+        $servicios_modal = [];
+        if ($profesional) {
+            $servicios_modal = $db->table('profesional_servicio')
+                ->select('servicio.s_id, servicio.s_nbre, servicio.s_duracionMinutos, servicio.s_precio')
+                ->join('servicio', 'servicio.s_id = profesional_servicio.p_sId')
+                ->where('profesional_servicio.p_id', $profesional['p_id'])
+                ->where('servicio.s_activo', 1)
+                ->orderBy('servicio.s_nbre', 'ASC')
+                ->get()->getResultArray();
+        }
+        if (empty($servicios_modal)) {
+            $servicios_modal = $db->table('servicio')
+                ->select('s_id, s_nbre, s_duracionMinutos, s_precio')
+                ->where('s_activo', 1)
+                ->orderBy('s_nbre', 'ASC')
+                ->get()->getResultArray();
+        }
+
         $pager_links = $pager->makeLinks($page, $perPage, $total, 'admin_pagination');
         $start = $total > 0 ? ($page - 1) * $perPage + 1 : 0;
         $end   = min($page * $perPage, $total);
 
         return view('profesional/turnos', [
-            'turnos'       => $turnos,
-            'usuario'      => ['s_nbre' => $session->get('usuario_nombre')],
-            'rol'          => $session->get('rol'),
-            'activeNav'    => 'turnos',
-            'filtroEstado' => $filtroEstado,
-            'fechaDesde'   => $fechaDesde,
-            'fechaHasta'   => $fechaHasta,
-            'pager_links'  => $pager_links,
-            'pager_start'  => $start,
-            'pager_end'    => $end,
-            'pager_total'  => $total,
+            'turnos'                => $turnos,
+            'usuario'               => ['s_nbre' => $session->get('usuario_nombre')],
+            'rol'                   => $session->get('rol'),
+            'activeNav'             => 'turnos',
+            'filtroEstado'          => $filtroEstado,
+            'periodo'               => $periodo,
+            'servicioFiltro'        => $servicioFiltro,
+            'servicios_profesional' => $servicios_profesional,
+            'servicios_modal'       => $servicios_modal,
+            'clientes'              => $clientes,
+            'pager_links'           => $pager_links,
+            'pager_start'           => $start,
+            'pager_end'             => $end,
+            'pager_total'           => $total,
         ]);
     }
 
@@ -275,19 +340,68 @@ class Admin extends BaseController
         $page    = (int) ($this->request->getGet('page') ?? 1);
         $perPage = 20;
 
+        $search         = trim($this->request->getGet('search') ?? '');
+        $periodo        = trim($this->request->getGet('periodo') ?? '');
+        $servicioFiltro = (int) ($this->request->getGet('servicio') ?? 0);
+
         $profesional = $db->table('profesional')
             ->where('u_id', $session->get('usuario_id'))
             ->get()->getRowArray();
 
         $horarios = [];
+        $servicios_profesional = [];
         $total    = 0;
+
         if ($profesional) {
+            // Servicios ofrecidos por la profesional para el dropdown de filtros
+            $servicios_profesional = $db->table('profesional_servicio')
+                ->select('servicio.s_id, servicio.s_nbre')
+                ->join('servicio', 'servicio.s_id = profesional_servicio.p_sId')
+                ->where('profesional_servicio.p_id', $profesional['p_id'])
+                ->where('servicio.s_activo', 1)
+                ->orderBy('servicio.s_nbre', 'ASC')
+                ->get()->getResultArray();
+
             $query = $db->table('horario')
-                ->select('horario.*, servicio.s_nbre AS nombre_servicio,
-                          (SELECT COUNT(*) FROM turno WHERE turno.t_hId = horario.h_id
-                           AND turno.estado IN ("Solicitado","Confirmado")) AS tiene_turno_activo')
+                ->select('horario.*, servicio.s_nbre AS nombre_servicio')
                 ->join('servicio', 'servicio.s_id = horario.h_sId', 'left')
                 ->where('horario.h_pId', $profesional['p_id']);
+
+            // SÓLO LAS DISPONIBLES: Si alguien la solicitó, confirmó o realizó, aparece en Mis Turnos
+            $query->where("NOT EXISTS (
+                SELECT 1 FROM turno 
+                WHERE turno.t_hId = horario.h_id 
+                  AND turno.estado IN ('Solicitado', 'Confirmado', 'Realizado')
+            )", null, false);
+
+            // Búsqueda por texto (nombre de servicio o fecha)
+            if (!empty($search)) {
+                $query->groupStart()
+                    ->like('servicio.s_nbre', $search)
+                    ->orLike('horario.h_fecha', $search)
+                    ->groupEnd();
+            }
+
+            // Filtro por servicio que ofrece
+            if ($servicioFiltro > 0) {
+                $query->where('horario.h_sId', $servicioFiltro);
+            }
+
+            // Filtro por período temporal: 'hoy', 'semana', 'mes'
+            $hoy = date('Y-m-d');
+            if ($periodo === 'hoy') {
+                $query->where('horario.h_fecha', $hoy);
+            } elseif ($periodo === 'semana') {
+                $lunesSemana   = date('Y-m-d', strtotime('monday this week'));
+                $domingoSemana = date('Y-m-d', strtotime('sunday this week'));
+                $query->where('horario.h_fecha >=', $lunesSemana)
+                      ->where('horario.h_fecha <=', $domingoSemana);
+            } elseif ($periodo === 'mes') {
+                $inicioMes = date('Y-m-01');
+                $finMes    = date('Y-m-t');
+                $query->where('horario.h_fecha >=', $inicioMes)
+                      ->where('horario.h_fecha <=', $finMes);
+            }
 
             $total    = $query->countAllResults(false);
             $horarios = $query->orderBy('horario.h_fecha', 'ASC')
@@ -301,15 +415,19 @@ class Admin extends BaseController
         $end   = min($page * $perPage, $total);
 
         return view('profesional/horarios', [
-            'horarios'    => $horarios,
-            'profesional' => $profesional,
-            'usuario'     => ['s_nbre' => $session->get('usuario_nombre')],
-            'rol'         => $session->get('rol'),
-            'activeNav'   => 'horarios',
-            'pager_links' => $pager_links,
-            'pager_start' => $start,
-            'pager_end'   => $end,
-            'pager_total' => $total,
+            'horarios'              => $horarios,
+            'profesional'           => $profesional,
+            'servicios_profesional' => $servicios_profesional,
+            'usuario'               => ['s_nbre' => $session->get('usuario_nombre')],
+            'rol'                   => $session->get('rol'),
+            'activeNav'             => 'horarios',
+            'search'                => $search,
+            'periodo'               => $periodo,
+            'servicioFiltro'        => $servicioFiltro,
+            'pager_links'           => $pager_links,
+            'pager_start'           => $start,
+            'pager_end'             => $end,
+            'pager_total'           => $total,
         ]);
     }
 
@@ -337,9 +455,18 @@ class Admin extends BaseController
                 ->get()->getResultArray();
         }
 
+        // Clientes activos para el modal de nuevo turno
+        $clientes = $db->table('cliente')
+            ->select('cliente.c_id, usuario.u_nbreCompleto, usuario.u_correo, usuario.u_tel')
+            ->join('usuario', 'usuario.u_id = cliente.c_uId')
+            ->where('usuario.u_activo', 1)
+            ->orderBy('usuario.u_nbreCompleto', 'ASC')
+            ->get()->getResultArray();
+
         return view('profesional/calendario', [
             'profesional' => $profesional,
             'servicios'   => $servicios,
+            'clientes'    => $clientes,
             'usuario'     => ['s_nbre' => $session->get('usuario_nombre')],
             'rol'         => $session->get('rol'),
             'activeNav'   => 'calendario',

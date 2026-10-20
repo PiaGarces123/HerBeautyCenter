@@ -305,4 +305,35 @@ class ProfesionalesApi extends BaseController
 
         return $this->respond(['success' => true, 'message' => 'Contraseña actualizada exitosamente.']);
     }
+
+    public function ordenar()
+    {
+        $session = session();
+        if (!$session->get('usuario_id') || $session->get('rol') !== 'admin') {
+            return $this->failUnauthorized('Acceso denegado');
+        }
+
+        $request = $this->request->getJSON();
+        $orden = $request->p_orden ?? $request->orden ?? null;
+        if (!is_array($orden) || empty($orden)) {
+            return $this->fail('Se requiere un array de IDs en orden.');
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        foreach ($orden as $position => $id_profesional) {
+            $db->table('profesional')
+               ->where('p_id', intval($id_profesional))
+               ->update(['p_orden' => intval($position) + 1]);
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return $this->failServerError('Error al guardar el orden.');
+        }
+
+        return $this->respond(['success' => true, 'message' => 'Orden de profesionales guardado correctamente.']);
+    }
 }

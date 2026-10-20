@@ -1,48 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="C:\wamp64\www\HerBeautyCenter\phpunit.dist.xml" tests="26" assertions="92" errors="0" failures="0" skipped="0" time="0.534876">
-    <testsuite name="App" tests="26" assertions="92" errors="0" failures="0" skipped="0" time="0.534876">
-      <testsuite name="ExampleDatabaseTest" file="C:\wamp64\www\HerBeautyCenter\tests\database\ExampleDatabaseTest.php" tests="2" assertions="3" errors="0" failures="0" skipped="0" time="0.120400">
-        <testcase name="testModelFindAll" file="C:\wamp64\www\HerBeautyCenter\tests\database\ExampleDatabaseTest.php" line="17" class="ExampleDatabaseTest" classname="ExampleDatabaseTest" assertions="1" time="0.099085"/>
-        <testcase name="testSoftDeleteLeavesRow" file="C:\wamp64\www\HerBeautyCenter\tests\database\ExampleDatabaseTest.php" line="28" class="ExampleDatabaseTest" classname="ExampleDatabaseTest" assertions="2" time="0.021315"/>
+  <testsuite name="C:\wamp64\www\HerBeautyCenter\phpunit.dist.xml" tests="27" assertions="96" errors="0" failures="0" skipped="0" time="3.190230">
+    <testsuite name="App" tests="27" assertions="96" errors="0" failures="0" skipped="0" time="3.190230">
+      <testsuite name="ExampleDatabaseTest" file="C:\wamp64\www\HerBeautyCenter\tests\database\ExampleDatabaseTest.php" tests="2" assertions="3" errors="0" failures="0" skipped="0" time="1.820126">
+        <testcase name="testModelFindAll" file="C:\wamp64\www\HerBeautyCenter\tests\database\ExampleDatabaseTest.php" line="17" class="ExampleDatabaseTest" classname="ExampleDatabaseTest" assertions="1" time="1.772153"/>
+        <testcase name="testSoftDeleteLeavesRow" file="C:\wamp64\www\HerBeautyCenter\tests\database\ExampleDatabaseTest.php" line="28" class="ExampleDatabaseTest" classname="ExampleDatabaseTest" assertions="2" time="0.047972"/>
       </testsuite>
-      <testsuite name="ExampleSessionTest" file="C:\wamp64\www\HerBeautyCenter\tests\session\ExampleSessionTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.003326">
-        <testcase name="testSessionSimple" file="C:\wamp64\www\HerBeautyCenter\tests\session\ExampleSessionTest.php" line="10" class="ExampleSessionTest" classname="ExampleSessionTest" assertions="1" time="0.003326"/>
+      <testsuite name="ExampleSessionTest" file="C:\wamp64\www\HerBeautyCenter\tests\session\ExampleSessionTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.022155">
+        <testcase name="testSessionSimple" file="C:\wamp64\www\HerBeautyCenter\tests\session\ExampleSessionTest.php" line="10" class="ExampleSessionTest" classname="ExampleSessionTest" assertions="1" time="0.022155"/>
       </testsuite>
-      <testsuite name="Tests\Unit\AuthFilterTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" tests="5" assertions="11" errors="0" failures="0" skipped="0" time="0.042882">
-        <testcase name="testImplementaFilterInterface" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" line="38" class="Tests\Unit\AuthFilterTest" classname="Tests.Unit.AuthFilterTest" assertions="1" time="0.007829"/>
-        <testcase name="testPeticionApiAnonimaRetorna401" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" line="46" class="Tests\Unit\AuthFilterTest" classname="Tests.Unit.AuthFilterTest" assertions="4" time="0.017838"/>
-        <testcase name="testPeticionWebAnonimaRedirigeALogin" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" line="62" class="Tests\Unit\AuthFilterTest" classname="Tests.Unit.AuthFilterTest" assertions="1" time="0.006148"/>
-        <testcase name="testRolNoAutorizadoApiRetorna403" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" line="73" class="Tests\Unit\AuthFilterTest" classname="Tests.Unit.AuthFilterTest" assertions="4" time="0.006094"/>
-        <testcase name="testUsuarioAutorizadoPasaFiltro" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" line="94" class="Tests\Unit\AuthFilterTest" classname="Tests.Unit.AuthFilterTest" assertions="1" time="0.004974"/>
+      <testsuite name="Tests\Unit\AuthFilterTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" tests="5" assertions="11" errors="0" failures="0" skipped="0" time="0.327840">
+        <testcase name="testImplementaFilterInterface" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" line="38" class="Tests\Unit\AuthFilterTest" classname="Tests.Unit.AuthFilterTest" assertions="1" time="0.071737"/>
+        <testcase name="testPeticionApiAnonimaRetorna401" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" line="46" class="Tests\Unit\AuthFilterTest" classname="Tests.Unit.AuthFilterTest" assertions="4" time="0.223424"/>
+        <testcase name="testPeticionWebAnonimaRedirigeALogin" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" line="62" class="Tests\Unit\AuthFilterTest" classname="Tests.Unit.AuthFilterTest" assertions="1" time="0.026059"/>
+        <testcase name="testRolNoAutorizadoApiRetorna403" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" line="73" class="Tests\Unit\AuthFilterTest" classname="Tests.Unit.AuthFilterTest" assertions="4" time="0.003257"/>
+        <testcase name="testUsuarioAutorizadoPasaFiltro" file="C:\wamp64\www\HerBeautyCenter\tests\unit\AuthFilterTest.php" line="94" class="Tests\Unit\AuthFilterTest" classname="Tests.Unit.AuthFilterTest" assertions="1" time="0.003363"/>
       </testsuite>
-      <testsuite name="HealthTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HealthTest.php" tests="2" assertions="3" errors="0" failures="0" skipped="0" time="0.023219">
-        <testcase name="testIsDefinedAppPath" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HealthTest.php" line="12" class="HealthTest" classname="HealthTest" assertions="1" time="0.003531"/>
-        <testcase name="testBaseUrlHasBeenSet" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HealthTest.php" line="17" class="HealthTest" classname="HealthTest" assertions="2" time="0.019688"/>
+      <testsuite name="HealthTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HealthTest.php" tests="2" assertions="3" errors="0" failures="0" skipped="0" time="0.436534">
+        <testcase name="testIsDefinedAppPath" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HealthTest.php" line="12" class="HealthTest" classname="HealthTest" assertions="1" time="0.021002"/>
+        <testcase name="testBaseUrlHasBeenSet" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HealthTest.php" line="17" class="HealthTest" classname="HealthTest" assertions="2" time="0.415532"/>
       </testsuite>
-      <testsuite name="Tests\Unit\HorarioTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HorarioTest.php" tests="4" assertions="15" errors="0" failures="0" skipped="0" time="0.016483">
-        <testcase name="testCamposPermitidos" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HorarioTest.php" line="25" class="Tests\Unit\HorarioTest" classname="Tests.Unit.HorarioTest" assertions="5" time="0.005565"/>
-        <testcase name="testReglasDeValidacionDefinidas" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HorarioTest.php" line="38" class="Tests\Unit\HorarioTest" classname="Tests.Unit.HorarioTest" assertions="5" time="0.004344"/>
-        <testcase name="testConsistenciaCronologica" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HorarioTest.php" line="51" class="Tests\Unit\HorarioTest" classname="Tests.Unit.HorarioTest" assertions="2" time="0.003779"/>
-        <testcase name="testAlgoritmoSolapamientoHorario" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HorarioTest.php" line="67" class="Tests\Unit\HorarioTest" classname="Tests.Unit.HorarioTest" assertions="3" time="0.002796"/>
+      <testsuite name="Tests\Unit\HorarioTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HorarioTest.php" tests="4" assertions="15" errors="0" failures="0" skipped="0" time="0.158072">
+        <testcase name="testCamposPermitidos" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HorarioTest.php" line="25" class="Tests\Unit\HorarioTest" classname="Tests.Unit.HorarioTest" assertions="5" time="0.073989"/>
+        <testcase name="testReglasDeValidacionDefinidas" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HorarioTest.php" line="38" class="Tests\Unit\HorarioTest" classname="Tests.Unit.HorarioTest" assertions="5" time="0.024975"/>
+        <testcase name="testConsistenciaCronologica" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HorarioTest.php" line="51" class="Tests\Unit\HorarioTest" classname="Tests.Unit.HorarioTest" assertions="2" time="0.055902"/>
+        <testcase name="testAlgoritmoSolapamientoHorario" file="C:\wamp64\www\HerBeautyCenter\tests\unit\HorarioTest.php" line="67" class="Tests\Unit\HorarioTest" classname="Tests.Unit.HorarioTest" assertions="3" time="0.003206"/>
       </testsuite>
-      <testsuite name="Tests\Unit\PerfilTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\PerfilTest.php" tests="4" assertions="19" errors="0" failures="0" skipped="0" time="0.300455">
-        <testcase name="testHashSeguroDePassword" file="C:\wamp64\www\HerBeautyCenter\tests\unit\PerfilTest.php" line="25" class="Tests\Unit\PerfilTest" classname="Tests.Unit.PerfilTest" assertions="3" time="0.285416"/>
-        <testcase name="testValidacionEmail" file="C:\wamp64\www\HerBeautyCenter\tests\unit\PerfilTest.php" line="48" class="Tests\Unit\PerfilTest" classname="Tests.Unit.PerfilTest" assertions="5" time="0.007086"/>
-        <testcase name="testLongitudMinimaPassword" file="C:\wamp64\www\HerBeautyCenter\tests\unit\PerfilTest.php" line="65" class="Tests\Unit\PerfilTest" classname="Tests.Unit.PerfilTest" assertions="3" time="0.003307"/>
-        <testcase name="testCamposPermitidosYProtegidos" file="C:\wamp64\www\HerBeautyCenter\tests\unit\PerfilTest.php" line="77" class="Tests\Unit\PerfilTest" classname="Tests.Unit.PerfilTest" assertions="8" time="0.004646"/>
+      <testsuite name="Tests\Unit\PerfilTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\PerfilTest.php" tests="4" assertions="19" errors="0" failures="0" skipped="0" time="0.335811">
+        <testcase name="testHashSeguroDePassword" file="C:\wamp64\www\HerBeautyCenter\tests\unit\PerfilTest.php" line="25" class="Tests\Unit\PerfilTest" classname="Tests.Unit.PerfilTest" assertions="3" time="0.279479"/>
+        <testcase name="testValidacionEmail" file="C:\wamp64\www\HerBeautyCenter\tests\unit\PerfilTest.php" line="48" class="Tests\Unit\PerfilTest" classname="Tests.Unit.PerfilTest" assertions="5" time="0.051895"/>
+        <testcase name="testLongitudMinimaPassword" file="C:\wamp64\www\HerBeautyCenter\tests\unit\PerfilTest.php" line="65" class="Tests\Unit\PerfilTest" classname="Tests.Unit.PerfilTest" assertions="3" time="0.002121"/>
+        <testcase name="testCamposPermitidosYProtegidos" file="C:\wamp64\www\HerBeautyCenter\tests\unit\PerfilTest.php" line="77" class="Tests\Unit\PerfilTest" classname="Tests.Unit.PerfilTest" assertions="8" time="0.002316"/>
       </testsuite>
-      <testsuite name="Tests\Unit\ServicioTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\ServicioTest.php" tests="4" assertions="19" errors="0" failures="0" skipped="0" time="0.010592">
-        <testcase name="testRangoDuracionServicio" file="C:\wamp64\www\HerBeautyCenter\tests\unit\ServicioTest.php" line="16" class="Tests\Unit\ServicioTest" classname="Tests.Unit.ServicioTest" assertions="7" time="0.003001"/>
-        <testcase name="testValidacionNombreServicio" file="C:\wamp64\www\HerBeautyCenter\tests\unit\ServicioTest.php" line="35" class="Tests\Unit\ServicioTest" classname="Tests.Unit.ServicioTest" assertions="6" time="0.002634"/>
-        <testcase name="testPrecioNoNegativo" file="C:\wamp64\www\HerBeautyCenter\tests\unit\ServicioTest.php" line="58" class="Tests\Unit\ServicioTest" classname="Tests.Unit.ServicioTest" assertions="3" time="0.002411"/>
-        <testcase name="testUnicidadInsensibleMayusculas" file="C:\wamp64\www\HerBeautyCenter\tests\unit\ServicioTest.php" line="70" class="Tests\Unit\ServicioTest" classname="Tests.Unit.ServicioTest" assertions="3" time="0.002545"/>
+      <testsuite name="Tests\Unit\ServicioTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\ServicioTest.php" tests="4" assertions="19" errors="0" failures="0" skipped="0" time="0.006205">
+        <testcase name="testRangoDuracionServicio" file="C:\wamp64\www\HerBeautyCenter\tests\unit\ServicioTest.php" line="16" class="Tests\Unit\ServicioTest" classname="Tests.Unit.ServicioTest" assertions="7" time="0.001623"/>
+        <testcase name="testValidacionNombreServicio" file="C:\wamp64\www\HerBeautyCenter\tests\unit\ServicioTest.php" line="35" class="Tests\Unit\ServicioTest" classname="Tests.Unit.ServicioTest" assertions="6" time="0.001464"/>
+        <testcase name="testPrecioNoNegativo" file="C:\wamp64\www\HerBeautyCenter\tests\unit\ServicioTest.php" line="58" class="Tests\Unit\ServicioTest" classname="Tests.Unit.ServicioTest" assertions="3" time="0.001338"/>
+        <testcase name="testUnicidadInsensibleMayusculas" file="C:\wamp64\www\HerBeautyCenter\tests\unit\ServicioTest.php" line="70" class="Tests\Unit\ServicioTest" classname="Tests.Unit.ServicioTest" assertions="3" time="0.001779"/>
       </testsuite>
-      <testsuite name="Tests\Unit\TurnoTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" tests="4" assertions="21" errors="0" failures="0" skipped="0" time="0.017520">
-        <testcase name="testTransicionesValidas" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" line="25" class="Tests\Unit\TurnoTest" classname="Tests.Unit.TurnoTest" assertions="8" time="0.004701"/>
-        <testcase name="testEstadosTerminalesNoPermitenReversion" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" line="45" class="Tests\Unit\TurnoTest" classname="Tests.Unit.TurnoTest" assertions="5" time="0.003920"/>
-        <testcase name="testCamposPermitidosContienenMotivoCancelacionYAbono" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" line="60" class="Tests\Unit\TurnoTest" classname="Tests.Unit.TurnoTest" assertions="4" time="0.004269"/>
-        <testcase name="testFormatoFechasGoogleCalendar" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" line="72" class="Tests\Unit\TurnoTest" classname="Tests.Unit.TurnoTest" assertions="4" time="0.004629"/>
+      <testsuite name="Tests\Unit\TurnoTest" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" tests="5" assertions="25" errors="0" failures="0" skipped="0" time="0.083488">
+        <testcase name="testTransicionesValidas" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" line="25" class="Tests\Unit\TurnoTest" classname="Tests.Unit.TurnoTest" assertions="8" time="0.021037"/>
+        <testcase name="testEstadosTerminalesNoPermitenReversion" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" line="45" class="Tests\Unit\TurnoTest" classname="Tests.Unit.TurnoTest" assertions="5" time="0.002191"/>
+        <testcase name="testCamposPermitidosContienenMotivoCancelacionYAbono" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" line="60" class="Tests\Unit\TurnoTest" classname="Tests.Unit.TurnoTest" assertions="4" time="0.002425"/>
+        <testcase name="testFormatoFechasGoogleCalendar" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" line="72" class="Tests\Unit\TurnoTest" classname="Tests.Unit.TurnoTest" assertions="4" time="0.036483"/>
+        <testcase name="testCamposObligatoriosParaCrearTurno" file="C:\wamp64\www\HerBeautyCenter\tests\unit\TurnoTest.php" line="98" class="Tests\Unit\TurnoTest" classname="Tests.Unit.TurnoTest" assertions="4" time="0.021353"/>
       </testsuite>
     </testsuite>
   </testsuite>

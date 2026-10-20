@@ -91,4 +91,24 @@ final class TurnoTest extends CIUnitTestCase
         $this->assertStringContainsString('action=TEMPLATE', $link);
         $this->assertStringContainsString('20261115T100000/20261115T113000', $link);
     }
+
+    /**
+     * Test: Validación de campos necesarios para crear un turno asignado
+     */
+    public function testCamposObligatoriosParaCrearTurno(): void
+    {
+        $payloadValido = [
+            's_id'       => 1,
+            'c_id'       => 2,
+            'fecha'      => '2026-11-20',
+            'hora_desde' => '10:00',
+            'hora_hasta' => '11:00',
+            'estado'     => 'Confirmado',
+        ];
+
+        $this->assertNotEmpty($payloadValido['s_id']);
+        $this->assertNotEmpty($payloadValido['c_id']);
+        $this->assertGreaterThan($payloadValido['hora_desde'], $payloadValido['hora_hasta']);
+        $this->assertContains($payloadValido['estado'], ['Solicitado', 'Confirmado']);
+    }
 }

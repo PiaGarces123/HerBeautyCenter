@@ -10,25 +10,30 @@ $this->section('content');
         <h2 class="admin-page-header__title">Profesionales</h2>
         <p class="admin-page-header__subtitle">Equipo de especialistas del centro</p>
     </div>
-    <button class="btn btn--primary admin-action-btn" data-bs-toggle="modal"
-        data-bs-target="#createProfesionalModal">
-        <span class="material-symbols-outlined admin-action-icon">add</span>
-        Nueva profesional
-    </button>
+    <div class="admin-table-actions-row">
+        <button id="btnToggleOrden" class="btn admin-action-btn admin-action-btn--outline">
+            <span class="material-symbols-outlined admin-action-icon">drag_indicator</span>
+            Reordenar
+        </button>
+        <button id="btnGuardarOrden" class="btn btn--primary d-none admin-action-btn">
+            <span class="material-symbols-outlined admin-action-icon">save</span>
+            Guardar Orden
+        </button>
+        <button class="btn btn--primary admin-action-btn" data-bs-toggle="modal"
+            data-bs-target="#createProfesionalModal">
+            <span class="material-symbols-outlined admin-action-icon">add</span>
+            Nueva profesional
+        </button>
+    </div>
 </div>
 
-<div class="admin-table-card">
-    <div class="admin-table-card__header admin-table-header-center">
-        <h3 class="admin-table-card__title"
-            class="admin-table-main-title">Listado de
-            profesionales</h3>
-    </div>
-
-    <form method="GET" action="<?= base_url('admin/profesionales') ?>" class="admin-filter-bar admin-table-filter-bar">
-        <div class="admin-table-filter-col">
-            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" class="admin-form-input">
+<!-- Filtros de Profesionales -->
+<div class="admin-table-card mb-3">
+    <form method="GET" action="<?= base_url('admin/profesionales') ?>" class="admin-filter-bar admin-table-filter-bar p-3 d-flex flex-wrap gap-2 align-items-center">
+        <div class="admin-table-filter-col flex-grow-1" style="min-width: 200px;">
+            <input type="text" name="search" class="form-control admin-form-input" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>">
         </div>
-        <div class="admin-table-filter-col-sm">
+        <div class="admin-table-filter-col-sm flex-grow-1" style="min-width: 170px;">
             <select name="servicio" class="form-control admin-form-input">
                 <option value="">Servicio: Todos</option>
                 <?php foreach ($todos_servicios as $srv): ?>
@@ -36,7 +41,7 @@ $this->section('content');
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="admin-table-filter-col-sm">
+        <div class="admin-table-filter-col-sm flex-grow-1" style="min-width: 160px;">
             <select name="estado" class="form-control admin-form-input">
                 <option value="">Estado: Todos</option>
                 <option value="activo" <?= (isset($_GET['estado']) && $_GET['estado'] === 'activo') ? 'selected' : '' ?>>Activo</option>
@@ -46,16 +51,29 @@ $this->section('content');
         <button type="submit" class="btn btn--primary admin-modal-submit">
             Filtrar
         </button>
-        <?php if (!empty($_GET['search']) || !empty($_GET['servicio']) || !empty($_GET['estado'])): ?>
-            <a href="<?= base_url('admin/profesionales') ?>" class="btn admin-modal-submit admin-action-btn--outline">Limpiar</a>
-        <?php endif; ?>
+        <a href="<?= base_url('admin/profesionales') ?>" class="btn admin-modal-submit admin-action-btn--outline">
+            Limpiar Filtros
+        </a>
     </form>
+</div>
+
+<div class="admin-table-card">
+    <div class="admin-table-card__header">
+        <h3 class="admin-table-card__title">
+            Listado de profesionales
+            <?php if ($pager_total > 0): ?>
+            <span class="badge badge--blue ms-2"><?= $pager_total ?></span>
+            <?php endif; ?>
+        </h3>
+    </div>
 
     <?php if (!empty($profesionales)): ?>
         <div class="admin-table-wrapper">
             <table class="admin-table">
                 <thead>
                     <tr>
+                        <th id="thDragHandle" class="d-none admin-table-text-cell--sm"></th>
+                        <th class="admin-table-text-cell--sm">#</th>
                         <th>Profesional</th>
                         <th>Título</th>
                         <th>Servicios</th>
@@ -66,7 +84,11 @@ $this->section('content');
                 </thead>
                 <tbody>
                     <?php foreach ($profesionales as $prof): ?>
-                        <tr>
+                        <tr data-id="<?= esc($prof['p_id']) ?>">
+                            <td class="drag-handle-cell d-none text-center text-muted">
+                                <span class="material-symbols-outlined admin-drag-icon">drag_indicator</span>
+                            </td>
+                            <td class="orden-cell fw-bold text-muted admin-text-sm"><?= esc($prof['p_orden'] ?? '—') ?></td>
                             <td>
                                 <div class="table-user-cell">
                                     <?php if (!empty($prof['u_avatar'])): ?>
@@ -131,23 +153,46 @@ $this->section('content');
             </table>
         </div>
         
-        <!-- Paginación -->
-        <?php if (isset($pager_links) && $pager_links): ?>
-            <div class="d-flex justify-content-between align-items-center mt-4 px-3 admin-table-actions-row">
-                <span class="fw-bold text-muted">
-                    Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> Profesionales
-                </span>
-                <div>
-                    <?= $pager_links ?>
-                </div>
-            </div>
-        <?php endif; ?>
     <?php else: ?>
         <div class="admin-empty-state">
             <span class="material-symbols-outlined">group_off</span>
             <p class="admin-empty-state__text">Aún no hay profesionales registradas.</p>
         </div>
     <?php endif; ?>
+
+    <!-- Paginación -->
+    <div class="d-flex justify-content-between align-items-center mt-4 px-3 py-2 border-top admin-table-actions-row">
+        <span class="fw-bold text-muted" style="font-size: 0.85rem;">
+            <?php if ($pager_total > 0): ?>
+                Mostrando <?= $pager_start ?>–<?= $pager_end ?> de <?= $pager_total ?> profesionales
+            <?php else: ?>
+                Mostrando 0 de 0 profesionales
+            <?php endif; ?>
+        </span>
+        <div>
+            <?php if (!empty($pager_links)): ?>
+                <?= $pager_links ?>
+            <?php else: ?>
+                <nav aria-label="Navegación de páginas">
+                    <ul class="pagination pagination-sm justify-content-center mb-0 admin-pagination">
+                        <li class="page-item disabled">
+                            <span class="page-link admin-page-link--disabled">
+                                <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_left</span>
+                            </span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link admin-page-link--active">1</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link admin-page-link--disabled">
+                                <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_right</span>
+                            </span>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <!-- Modal: Crear Profesional -->
@@ -864,6 +909,100 @@ $this->section('content');
             });
         });
     });
+</script>
+
+<!-- SortableJS para Reordenar Profesionales Arrastrando -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btnToggle = document.getElementById('btnToggleOrden');
+    const btnGuardar = document.getElementById('btnGuardarOrden');
+    const thDrag = document.getElementById('thDragHandle');
+    const tbody = document.querySelector('.admin-table tbody');
+    let sortable = null;
+    let ordenModoActivo = false;
+
+    if (!btnToggle || !tbody) return;
+
+    btnToggle.addEventListener('click', () => {
+        ordenModoActivo = !ordenModoActivo;
+
+        // Mostrar / ocultar columna de arrastre
+        if (thDrag) thDrag.classList.toggle('d-none', !ordenModoActivo);
+        document.querySelectorAll('.drag-handle-cell').forEach(td => {
+            td.classList.toggle('d-none', !ordenModoActivo);
+        });
+
+        btnGuardar.classList.toggle('d-none', !ordenModoActivo);
+        btnToggle.style.background = ordenModoActivo ? 'var(--color-primary)' : 'transparent';
+        btnToggle.style.color = ordenModoActivo ? '#fff' : 'var(--color-primary)';
+
+        if (ordenModoActivo) {
+            tbody.style.cursor = 'grab';
+            tbody.querySelectorAll('tr').forEach(tr => {
+                tr.style.transition = 'background 0.2s';
+            });
+
+            sortable = new Sortable(tbody, {
+                animation: 180,
+                handle: '.drag-handle-cell',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                onEnd: () => {
+                    let i = 1;
+                    tbody.querySelectorAll('tr').forEach(tr => {
+                        const ordenCell = tr.querySelector('.orden-cell');
+                        if (ordenCell) ordenCell.textContent = i++;
+                    });
+                }
+            });
+        } else {
+            if (sortable) { sortable.destroy(); sortable = null; }
+            tbody.style.cursor = '';
+        }
+    });
+
+    btnGuardar.addEventListener('click', async () => {
+        const ids = Array.from(tbody.querySelectorAll('tr[data-id]')).map(tr => tr.getAttribute('data-id'));
+        btnGuardar.disabled = true;
+        btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">hourglass_top</span> Guardando...';
+
+        try {
+            const res = await fetch('<?= base_url("api/profesionales/ordenar") ?>', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orden: ids })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                ordenModoActivo = false;
+                if (thDrag) thDrag.classList.add('d-none');
+                document.querySelectorAll('.drag-handle-cell').forEach(td => td.classList.add('d-none'));
+                btnGuardar.classList.add('d-none');
+                btnToggle.style.background = 'transparent';
+                btnToggle.style.color = 'var(--color-primary)';
+                if (sortable) { sortable.destroy(); sortable = null; }
+
+                Swal.fire({
+                    title: '¡Orden guardado!',
+                    text: 'Las profesionales ahora se muestran en el orden que definiste.',
+                    icon: 'success',
+                    confirmButtonColor: '#d6858e'
+                });
+            } else {
+                Swal.fire({ title: 'Error', text: data.message || 'Error al guardar el orden.', icon: 'error', confirmButtonColor: '#d6858e' });
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">save</span> Guardar Orden';
+            }
+        } catch (err) {
+            console.error(err);
+            Swal.fire({ title: 'Error de conexión', text: 'No se pudo conectar con el servidor.', icon: 'error', confirmButtonColor: '#d6858e' });
+            btnGuardar.disabled = false;
+            btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">save</span> Guardar Orden';
+        }
+    });
+});
 </script>
 
 <?php $this->endSection(); ?>

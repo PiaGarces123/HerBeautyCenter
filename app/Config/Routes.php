@@ -43,6 +43,7 @@ $routes->group('api', function ($routes) {
         $routes->put('profesionales/editar/(:num)',     'Api\ProfesionalesApi::editar/$1');
         $routes->put('profesionales/password/(:num)',   'Api\ProfesionalesApi::password/$1');
         $routes->delete('profesionales/eliminar/(:num)','Api\ProfesionalesApi::eliminar/$1');
+        $routes->post('profesionales/ordenar',          'Api\ProfesionalesApi::ordenar');
 
         // Clientes APIs
         $routes->post('clientes/crear',                 'Api\ClientesApi::crear');
@@ -74,6 +75,8 @@ $routes->group('api', function ($routes) {
 
         // Turnos (CU07)
         $routes->get('turnos/listar',                   'Api\TurnosApi::listar');
+        $routes->get('turnos/clientes',                 'Api\TurnosApi::clientes');
+        $routes->post('turnos/crear',                   'Api\TurnosApi::crear');
         $routes->get('turnos/detalle/(:num)',          'Api\TurnosApi::detalle/$1');
         $routes->put('turnos/estado/(:num)',           'Api\TurnosApi::actualizarEstado/$1');
         $routes->put('turnos/pago/(:num)',             'Api\TurnosApi::actualizarPago/$1');

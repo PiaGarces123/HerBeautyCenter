@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Clientes';
 $activeNav = 'clientes';
 $this->extend('profesional/_layout');
@@ -16,17 +16,13 @@ $this->section('content');
     </button>
 </div>
 
-<div class="admin-table-card">
-    <div class="admin-table-card__header admin-table-header-center">
-        <h3 class="admin-table-card__title"
-            class="admin-table-main-title">Listado de clientes</h3>
-    </div>
-
-    <form method="GET" action="<?= base_url('admin/clientes') ?>" class="admin-filter-bar admin-table-filter-bar">
-        <div class="admin-table-filter-col">
-            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>" class="admin-form-input">
+<!-- Filtros de Clientes -->
+<div class="admin-table-card mb-3">
+    <form method="GET" action="<?= base_url('admin/clientes') ?>" class="admin-filter-bar admin-table-filter-bar p-3 d-flex flex-wrap gap-2 align-items-center">
+        <div class="admin-table-filter-col flex-grow-1" style="min-width: 220px;">
+            <input type="text" name="search" class="form-control admin-form-input" placeholder="Buscar por nombre..." value="<?= esc($_GET['search'] ?? '') ?>">
         </div>
-        <div class="admin-table-filter-col">
+        <div class="admin-table-filter-col flex-grow-1" style="min-width: 220px;">
             <select name="sort" class="form-control admin-form-input">
                 <option value="">Predeterminado</option>
                 <option value="a-z" <?= (isset($_GET['sort']) && $_GET['sort'] === 'a-z') ? 'selected' : '' ?>>Nombre &uarr; &mdash; A &rarr; Z</option>
@@ -38,10 +34,21 @@ $this->section('content');
         <button type="submit" class="btn btn--primary admin-modal-submit">
             Filtrar
         </button>
-        <?php if (!empty($_GET['search']) || !empty($_GET['sort'])): ?>
-            <a href="<?= base_url('admin/clientes') ?>" class="btn admin-modal-submit admin-action-btn--outline">Limpiar</a>
-        <?php endif; ?>
+        <a href="<?= base_url('admin/clientes') ?>" class="btn admin-modal-submit admin-action-btn--outline">
+            Limpiar Filtros
+        </a>
     </form>
+</div>
+
+<div class="admin-table-card">
+    <div class="admin-table-card__header">
+        <h3 class="admin-table-card__title">
+            Listado de clientes
+            <?php if ($pager_total > 0): ?>
+            <span class="badge badge--blue ms-2"><?= $pager_total ?></span>
+            <?php endif; ?>
+        </h3>
+    </div>
 
     <?php if (!empty($clientes)): ?>
         <div class="admin-table-wrapper">
@@ -115,23 +122,46 @@ $this->section('content');
             </table>
         </div>
         
-        <!-- Paginación -->
-        <?php if (isset($pager_links) && $pager_links): ?>
-            <div class="d-flex justify-content-between align-items-center mt-4 px-3 admin-table-actions-row">
-                <span class="fw-bold text-muted">
-                    Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> Clientes
-                </span>
-                <div>
-                    <?= $pager_links ?>
-                </div>
-            </div>
-        <?php endif; ?>
     <?php else: ?>
         <div class="admin-empty-state">
             <span class="material-symbols-outlined">group_off</span>
             <p class="admin-empty-state__text">Aún no hay clientes registrados o todos son profesionales.</p>
         </div>
     <?php endif; ?>
+
+    <!-- Paginación -->
+    <div class="d-flex justify-content-between align-items-center mt-4 px-3 py-2 border-top admin-table-actions-row">
+        <span class="fw-bold text-muted" style="font-size: 0.85rem;">
+            <?php if ($pager_total > 0): ?>
+                Mostrando <?= $pager_start ?>–<?= $pager_end ?> de <?= $pager_total ?> clientes
+            <?php else: ?>
+                Mostrando 0 de 0 clientes
+            <?php endif; ?>
+        </span>
+        <div>
+            <?php if (!empty($pager_links)): ?>
+                <?= $pager_links ?>
+            <?php else: ?>
+                <nav aria-label="Navegación de páginas">
+                    <ul class="pagination pagination-sm justify-content-center mb-0 admin-pagination">
+                        <li class="page-item disabled">
+                            <span class="page-link admin-page-link--disabled">
+                                <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_left</span>
+                            </span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link admin-page-link--active">1</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link admin-page-link--disabled">
+                                <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_right</span>
+                            </span>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <!-- Modal: Crear Cliente -->

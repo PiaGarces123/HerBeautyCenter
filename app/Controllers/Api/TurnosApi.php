@@ -62,6 +62,198 @@ class TurnosApi extends BaseController
     }
 
     // -------------------------------------------------------
+    // GET /api/turnos/clientes
+    // Retorna clientes activos para asignación de turnos
+    // -------------------------------------------------------
+    public function clientes(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $auth = $this->verificarSesion();
+        if (!$auth) return $this->failUnauthorized('Acceso denegado.');
+
+        $db = \Config\Database::connect();
+        $clientes = $db->table('cliente')
+            ->select('cliente.c_id, usuario.u_nbreCompleto, usuario.u_correo, usuario.u_tel')
+            ->join('usuario', 'usuario.u_id = cliente.c_uId')
+            ->where('usuario.u_activo', 1)
+            ->orderBy('usuario.u_nbreCompleto', 'ASC')
+            ->get()->getResultArray();
+
+        return $this->respond(['clientes' => $clientes]);
+    }
+
+    // -------------------------------------------------------
+    // POST /api/turnos/crear
+    // Permite al profesional / admin crear y asignar un turno a un cliente
+    // -------------------------------------------------------
+    public function crear(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $auth = $this->verificarSesion();
+        if (!$auth) return $this->failUnauthorized('Acceso denegado.');
+
+        $pId = $this->getProfesionalId($auth['uid']);
+        if (!$pId) return $this->failNotFound('No existe un perfil profesional asociado.');
+
+        $db   = \Config\Database::connect();
+        $data = $this->request->getJSON(true) ?: $this->request->getPost();
+
+        $sId            = (int) ($data['s_id'] ?? 0);
+        $fecha          = trim($data['fecha'] ?? '');
+        $horaDesde      = trim($data['hora_desde'] ?? '');
+        $horaHasta      = trim($data['hora_hasta'] ?? '');
+        $nuevoCliente   = !empty($data['nuevo_cliente']);
+        $cId            = (int) ($data['c_id'] ?? 0);
+        $clienteNombre  = trim($data['cliente_nombre'] ?? '');
+        $clienteTel     = trim($data['cliente_tel'] ?? '');
+        $clienteEmail   = trim($data['cliente_email'] ?? '');
+        $monto          = isset($data['monto']) && $data['monto'] !== '' ? floatval($data['monto']) : null;
+        $abonado        = !empty($data['abonado']) ? 1 : 0;
+        $estado         = in_array($data['estado'] ?? '', ['Solicitado', 'Confirmado', 'Realizado'], true)
+                          ? $data['estado']
+                          : 'Confirmado';
+
+        // 1. Validar servicio
+        if (!$sId) {
+            return $this->fail('Debés seleccionar un servicio.');
+        }
+        $servicio = $db->table('servicio')->where('s_id', $sId)->where('s_activo', 1)->get()->getRowArray();
+        if (!$servicio) {
+            return $this->fail('El servicio seleccionado no existe o no está disponible.');
+        }
+
+        // 2. Validar fecha
+        if (!$fecha || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+            return $this->fail('La fecha seleccionada no es válida.');
+        }
+        if ($fecha < date('Y-m-d')) {
+            return $this->fail('No se pueden programar turnos en fechas pasadas.');
+        }
+
+        // 3. Validar horarios
+        if (!$horaDesde || !$horaHasta) {
+            return $this->fail('Las horas de inicio y fin son obligatorias.');
+        }
+        $horaDesdeNorm = substr($horaDesde, 0, 5) . ':00';
+        $horaHastaNorm = substr($horaHasta, 0, 5) . ':00';
+        if ($horaHastaNorm <= $horaDesdeNorm) {
+            return $this->fail('La hora de fin debe ser posterior a la hora de inicio.');
+        }
+
+        // 4. Resolver o crear cliente
+        if ($nuevoCliente) {
+            if (mb_strlen($clienteNombre) < 3) {
+                return $this->fail('El nombre del cliente debe tener al menos 3 caracteres.');
+            }
+            if (mb_strlen($clienteTel) < 6) {
+                return $this->fail('El teléfono del cliente debe tener al menos 6 caracteres.');
+            }
+            if (!empty($clienteEmail)) {
+                if (!filter_var($clienteEmail, FILTER_VALIDATE_EMAIL)) {
+                    return $this->fail('El correo electrónico ingresado no tiene un formato válido.');
+                }
+                $existUser = $db->table('usuario')->where('u_correo', $clienteEmail)->get()->getRowArray();
+                if ($existUser) {
+                    $existCli = $db->table('cliente')->where('c_uId', $existUser['u_id'])->get()->getRowArray();
+                    if ($existCli) {
+                        $cId = (int) $existCli['c_id'];
+                    } else {
+                        return $this->fail('Ya existe un usuario con este correo electrónico.');
+                    }
+                }
+            }
+            if (!$cId) {
+                if (empty($clienteEmail)) {
+                    $clienteEmail = 'cliente_' . time() . '_' . rand(100, 999) . '@herbeauty.local';
+                }
+                $db->table('usuario')->insert([
+                    'u_nbreCompleto' => $clienteNombre,
+                    'u_correo'       => $clienteEmail,
+                    'u_tel'          => $clienteTel,
+                    'u_pass'         => password_hash(bin2hex(random_bytes(6)), PASSWORD_DEFAULT),
+                    'u_activo'       => 1,
+                ]);
+                $newUId = (int) $db->insertID();
+                $db->table('cliente')->insert(['c_uId' => $newUId]);
+                $cId = (int) $db->insertID();
+            }
+        } else {
+            if (!$cId) {
+                return $this->fail('Debés seleccionar un cliente de la lista o marcar la opción para registrar uno nuevo.');
+            }
+            $checkCli = $db->table('cliente')->where('c_id', $cId)->get()->getRowArray();
+            if (!$checkCli) {
+                return $this->fail('El cliente seleccionado no fue encontrado.');
+            }
+        }
+
+        // 5. Verificar solapamiento de turno para la profesional
+        $solapado = $db->table('turno')
+            ->where('t_pId', $pId)
+            ->where('t_fecha', $fecha)
+            ->whereIn('estado', ['Solicitado', 'Confirmado'])
+            ->where('t_horaDesde <', $horaHastaNorm)
+            ->where('t_horaHasta >', $horaDesdeNorm)
+            ->get()->getRowArray();
+
+        if ($solapado) {
+            $desdeSol = substr($solapado['t_horaDesde'], 0, 5);
+            $hastaSol = substr($solapado['t_horaHasta'], 0, 5);
+            return $this->fail("Ya tenés un turno reservado en ese horario ({$desdeSol} a {$hastaSol}).");
+        }
+
+        // 6. Gestionar horario asociado (respetando constraint UNIQUE en turno.t_hId)
+        $horarioExistente = $db->table('horario')
+            ->where('h_pId', $pId)
+            ->where('h_sId', $sId)
+            ->where('h_fecha', $fecha)
+            ->where('h_horaDesde', $horaDesdeNorm)
+            ->where('h_horaHasta', $horaHastaNorm)
+            ->get()->getRowArray();
+
+        $hId = null;
+        if ($horarioExistente) {
+            $turnoAsoc = $db->table('turno')->where('t_hId', $horarioExistente['h_id'])->get()->getRowArray();
+            if (!$turnoAsoc) {
+                $hId = (int) $horarioExistente['h_id'];
+            }
+        }
+
+        if (!$hId) {
+            $db->table('horario')->insert([
+                'h_pId'       => $pId,
+                'h_sId'       => $sId,
+                'h_fecha'     => $fecha,
+                'h_horaDesde' => $horaDesdeNorm,
+                'h_horaHasta' => $horaHastaNorm,
+            ]);
+            $hId = (int) $db->insertID();
+        }
+
+        // 7. Insertar el turno
+        if ($monto === null) {
+            $monto = floatval($servicio['s_precio']);
+        }
+
+        $turnoModel = new TurnoModel();
+        $tId = $turnoModel->insert([
+            't_hId'       => $hId,
+            't_pId'       => $pId,
+            't_cId'       => $cId,
+            't_fecha'     => $fecha,
+            't_horaDesde' => $horaDesdeNorm,
+            't_horaHasta' => $horaHastaNorm,
+            'estado'      => $estado,
+            'abonado'     => $abonado,
+            'monto'       => $monto,
+        ]);
+
+        return $this->respondCreated([
+            'success' => true,
+            'message' => 'Turno creado y asignado exitosamente.',
+            't_id'    => $tId,
+        ]);
+    }
+
+    // -------------------------------------------------------
     // GET /api/turnos/detalle/:id
     // -------------------------------------------------------
     public function detalle(int $tId): \CodeIgniter\HTTP\ResponseInterface

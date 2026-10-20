@@ -16,7 +16,8 @@ class ProfesionalModel extends Model
         'u_id',
         'p_titulo',
         'p_desc',
-        'p_anioInicioAct'
+        'p_anioInicioAct',
+        'p_orden'
     ];
 
     // Dates

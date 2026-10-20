@@ -109,11 +109,7 @@ const CalendarioApp = (() => {
             editable:         false,
             eventDisplay:     'block',
 
-            headerToolbar: isSmallScreen ? {
-                left:   'prev,next',
-                center: 'title',
-                right:  'today dayGridMonth,timeGridDay',
-            } : {
+            headerToolbar: {
                 left:   'prev,next today',
                 center: 'title',
                 right:  'dayGridMonth,timeGridWeek,timeGridDay',
@@ -253,6 +249,152 @@ const CalendarioApp = (() => {
                 cerrarModalDisponibilidad();
                 cerrarModalDetalle();
                 cerrarModalCancelar();
+            }
+        });
+
+        // -------------------------------------------------------
+        // Modal Crear Turno (CU07)
+        // -------------------------------------------------------
+        const modalCrearEl = document.getElementById('modalCrearTurno');
+
+        if (modalCrearEl) {
+            modalCrearEl.addEventListener('show.bs.modal', () => {
+                document.getElementById('formCrearTurno')?.reset();
+                const radExist = document.getElementById('tipoClienteExistente');
+                if (radExist) radExist.checked = true;
+                const grpExist = document.getElementById('grupoClienteExistente');
+                const grpNuevo = document.getElementById('grupoClienteNuevo');
+                if (grpExist) grpExist.style.display = 'block';
+                if (grpNuevo) grpNuevo.style.display = 'none';
+                const fInput = document.getElementById('turnoFecha');
+                if (fInput) fInput.value = new Date().toISOString().slice(0, 10);
+            });
+        }
+
+        document.querySelectorAll('input[name="tipoClienteRadio"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const esNuevo = e.target.value === 'nuevo';
+                const grpExist = document.getElementById('grupoClienteExistente');
+                const grpNuevo = document.getElementById('grupoClienteNuevo');
+                if (grpExist) grpExist.style.display = esNuevo ? 'none' : 'block';
+                if (grpNuevo) grpNuevo.style.display = esNuevo ? 'block' : 'none';
+            });
+        });
+
+        const selSrvCrear = document.getElementById('turnoServicioId');
+        const inputHoraDesdeCrear = document.getElementById('turnoHoraDesde');
+        const inputHoraHastaCrear = document.getElementById('turnoHoraHasta');
+        const inputMontoCrear = document.getElementById('turnoMonto');
+
+        function recalcularTurnoFin() {
+            const opt = selSrvCrear?.selectedOptions[0];
+            const durMin = parseInt(opt?.dataset?.duracion ?? 0, 10);
+            const precio = opt?.dataset?.precio;
+            if (precio !== undefined && inputMontoCrear) {
+                inputMontoCrear.value = precio;
+            }
+            const desde = inputHoraDesdeCrear?.value;
+            if (!durMin || !desde || !inputHoraHastaCrear) return;
+            const [h, m] = desde.split(':').map(Number);
+            const total = h * 60 + m + durMin;
+            const hh = String(Math.floor(total / 60) % 24).padStart(2, '0');
+            const mm = String(total % 60).padStart(2, '0');
+            inputHoraHastaCrear.value = `${hh}:${mm}`;
+        }
+
+        selSrvCrear?.addEventListener('change', recalcularTurnoFin);
+        inputHoraDesdeCrear?.addEventListener('change', recalcularTurnoFin);
+
+        document.getElementById('btnGuardarNuevoTurno')?.addEventListener('click', async () => {
+            const esNuevoCliente = document.getElementById('tipoClienteNuevo')?.checked;
+            const cId = document.getElementById('turnoClienteId')?.value;
+            const cliNombre = document.getElementById('nuevoCliNombre')?.value.trim();
+            const cliTel = document.getElementById('nuevoCliTel')?.value.trim();
+            const cliEmail = document.getElementById('nuevoCliEmail')?.value.trim();
+            const sId = selSrvCrear?.value;
+            const fecha = document.getElementById('turnoFecha')?.value;
+            const horaDesde = inputHoraDesdeCrear?.value;
+            const horaHasta = inputHoraHastaCrear?.value;
+            const monto = inputMontoCrear?.value;
+            const estado = document.getElementById('turnoEstado')?.value || 'Confirmado';
+            const abonado = document.getElementById('turnoAbonado')?.checked ? 1 : 0;
+
+            if (esNuevoCliente) {
+                if (!cliNombre || cliNombre.length < 3) {
+                    Swal.fire({ icon: 'warning', title: 'Nombre requerido', text: 'Ingresá el nombre completo del cliente (mínimo 3 letras).' });
+                    return;
+                }
+                if (!cliTel || cliTel.length < 6) {
+                    Swal.fire({ icon: 'warning', title: 'Teléfono requerido', text: 'Ingresá el teléfono del cliente (mínimo 6 dígitos).' });
+                    return;
+                }
+            } else {
+                if (!cId) {
+                    Swal.fire({ icon: 'warning', title: 'Cliente requerido', text: 'Seleccioná un cliente de la lista o elegí "+ Nuevo cliente".' });
+                    return;
+                }
+            }
+
+            if (!sId) {
+                Swal.fire({ icon: 'warning', title: 'Servicio requerido', text: 'Seleccioná el servicio para el turno.' });
+                return;
+            }
+            if (!fecha) {
+                Swal.fire({ icon: 'warning', title: 'Fecha requerida', text: 'Seleccioná la fecha del turno.' });
+                return;
+            }
+            if (!horaDesde || !horaHasta) {
+                Swal.fire({ icon: 'warning', title: 'Horarios requeridos', text: 'Indicá la hora de inicio y de fin del turno.' });
+                return;
+            }
+            if (horaHasta <= horaDesde) {
+                Swal.fire({ icon: 'warning', title: 'Horario inválido', text: 'La hora de fin debe ser posterior a la de inicio.' });
+                return;
+            }
+
+            const payload = {
+                nuevo_cliente: esNuevoCliente,
+                c_id: cId ? parseInt(cId, 10) : null,
+                cliente_nombre: cliNombre,
+                cliente_tel: cliTel,
+                cliente_email: cliEmail,
+                s_id: parseInt(sId, 10),
+                fecha,
+                hora_desde: horaDesde,
+                hora_hasta: horaHasta,
+                monto: monto ? parseFloat(monto) : null,
+                estado,
+                abonado,
+            };
+
+            const btnGuardar = document.getElementById('btnGuardarNuevoTurno');
+            if (btnGuardar) btnGuardar.disabled = true;
+
+            try {
+                const resp = await fetch(window.HBC_CAL.apiCrearTurno, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(payload),
+                });
+                const data = await resp.json();
+
+                if (resp.ok && data.success) {
+                    Swal.fire({ icon: 'success', title: '¡Turno Creado!', text: data.message, timer: 1800, showConfirmButton: false })
+                        .then(() => {
+                            if (modalCrearEl && typeof bootstrap !== 'undefined') {
+                                bootstrap.Modal.getInstance(modalCrearEl)?.hide();
+                            }
+                            calendar?.refetchEvents();
+                        });
+                } else {
+                    const msg = data.messages?.error ?? data.message ?? 'No se pudo crear el turno.';
+                    Swal.fire({ icon: 'error', title: 'Atención', text: msg });
+                }
+            } catch {
+                Swal.fire({ icon: 'error', title: 'Error de red', text: 'No se pudo conectar con el servidor.' });
+            } finally {
+                if (btnGuardar) btnGuardar.disabled = false;
             }
         });
     }

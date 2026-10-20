@@ -18,11 +18,12 @@ class Home extends BaseController
             ->get();
         $servicios = $serviciosQuery->getResultArray();
 
-        // Obtener profesionales con sus nombres
+        // Obtener profesionales con sus nombres ordenados
         $profesionalesQuery = $db->table('profesional')
             ->select('profesional.*, usuario.u_nbreCompleto, usuario.u_avatar')
             ->join('usuario', 'usuario.u_id = profesional.u_id')
             ->where('usuario.u_activo', 1)
+            ->orderBy('profesional.p_orden', 'ASC')
             ->get();
         $profesionales = $profesionalesQuery->getResultArray();
         

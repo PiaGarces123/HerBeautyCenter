@@ -39,4 +39,5 @@ Turno (Tests\Unit\Turno)
  [x] Estados terminales no permiten reversion
  [x] Campos permitidos contienen motivo cancelacion y abono
  [x] Formato fechas google calendar
+ [x] Campos obligatorios para crear turno
 

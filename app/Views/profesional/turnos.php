@@ -30,48 +30,56 @@ $diasSemana = [
         <h2 class="admin-page-header__title">Mis Turnos</h2>
         <p class="admin-page-header__subtitle">Seguimiento y administración de reservas</p>
     </div>
-    <a href="<?= base_url('admin/calendario') ?>" class="btn btn--primary admin-action-btn">
-        <span class="material-symbols-outlined admin-action-icon">calendar_month</span>
-        Ver Calendario
-    </a>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="<?= base_url('admin/calendario') ?>" class="btn btn-outline-secondary d-flex align-items-center gap-1">
+            <span class="material-symbols-outlined admin-action-icon">calendar_month</span>
+            Ver Calendario
+        </a>
+        <button id="btnNuevoTurno" class="btn btn--primary admin-action-btn" data-bs-toggle="modal" data-bs-target="#modalCrearTurno">
+            <span class="material-symbols-outlined admin-action-icon">add</span>
+            Crear Turno
+        </button>
+    </div>
 </div>
 
-<!-- Filtros de búsqueda -->
+<!-- Filtros de Turnos -->
 <div class="admin-table-card mb-3">
-    <div class="admin-table-card__header">
-        <h3 class="admin-table-card__title">Filtros</h3>
-    </div>
-    <div class="p-3">
-        <form method="get" action="" id="formFiltros" class="row g-2 align-items-end">
-            <div class="col-12 col-md-4">
-                <label class="form-label form-label--sm" for="filtroEstado">Estado</label>
-                <select name="estado" id="filtroEstado" class="form-select form-select-sm">
-                    <option value="">Todos los estados</option>
-                    <?php foreach(['Disponible','Solicitado','Confirmado','Realizado','Cancelado'] as $st): ?>
-                    <option value="<?= $st ?>" <?= ($filtroEstado ?? '') === $st ? 'selected' : '' ?>><?= $st ?></option>
+    <form method="GET" action="<?= base_url('admin/turnos') ?>" id="formFiltros" class="admin-filter-bar admin-table-filter-bar p-3 d-flex flex-wrap gap-2 align-items-center">
+        <div class="admin-table-filter-col-sm flex-grow-1" style="min-width: 170px;">
+            <select name="estado" id="filtroEstado" class="form-control admin-form-input">
+                <option value="">Estado: Todos</option>
+                <?php foreach(['Disponible','Solicitado','Confirmado','Realizado','Cancelado'] as $st): ?>
+                <option value="<?= $st ?>" <?= ($filtroEstado ?? '') === $st ? 'selected' : '' ?>><?= $st ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="admin-table-filter-col-sm flex-grow-1" style="min-width: 170px;">
+            <select name="periodo" id="filtroPeriodo" class="form-control admin-form-input">
+                <option value="">Período: Todos</option>
+                <option value="hoy" <?= ($periodo ?? '') === 'hoy' ? 'selected' : '' ?>>Hoy</option>
+                <option value="semana" <?= ($periodo ?? '') === 'semana' ? 'selected' : '' ?>>Esta semana</option>
+                <option value="mes" <?= ($periodo ?? '') === 'mes' ? 'selected' : '' ?>>Este mes</option>
+            </select>
+        </div>
+        <div class="admin-table-filter-col-sm flex-grow-1" style="min-width: 200px;">
+            <select name="servicio" id="filtroServicio" class="form-control admin-form-input">
+                <option value="">Servicio: Todos</option>
+                <?php if (!empty($servicios_profesional)): ?>
+                    <?php foreach ($servicios_profesional as $srv): ?>
+                        <option value="<?= $srv['s_id'] ?>" <?= ((int)($servicioFiltro ?? 0) === (int)$srv['s_id']) ? 'selected' : '' ?>>
+                            <?= esc($srv['s_nbre']) ?>
+                        </option>
                     <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="form-label form-label--sm" for="filtroDesde">Desde</label>
-                <input type="date" name="fecha_desde" id="filtroDesde" class="form-control form-control-sm"
-                       value="<?= esc($fechaDesde ?? '') ?>">
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="form-label form-label--sm" for="filtroHasta">Hasta</label>
-                <input type="date" name="fecha_hasta" id="filtroHasta" class="form-control form-control-sm"
-                       value="<?= esc($fechaHasta ?? '') ?>">
-            </div>
-            <div class="col-12 col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn--primary flex-fill">
-                    <span class="material-symbols-outlined" style="font-size:1rem;">search</span> Filtrar
-                </button>
-                <a href="<?= base_url('admin/turnos') ?>" class="btn btn-outline-secondary">
-                    <span class="material-symbols-outlined" style="font-size:1rem;">refresh</span>
-                </a>
-            </div>
-        </form>
-    </div>
+                <?php endif; ?>
+            </select>
+        </div>
+        <button type="submit" class="btn btn--primary admin-modal-submit">
+            Filtrar
+        </button>
+        <a href="<?= base_url('admin/turnos') ?>" class="btn admin-modal-submit admin-action-btn--outline">
+            Limpiar Filtros
+        </a>
+    </form>
 </div>
 
 <div class="admin-table-card">
@@ -166,21 +174,46 @@ $diasSemana = [
         </table>
     </div>
 
-    <?php if (isset($pager_links) && $pager_links): ?>
-        <div class="d-flex justify-content-between align-items-center mt-4 px-3 admin-table-actions-row">
-            <span class="fw-bold text-muted">
-                Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> turnos
-            </span>
-            <div><?= $pager_links ?></div>
-        </div>
-    <?php endif; ?>
-
     <?php else: ?>
         <div class="admin-empty-state">
             <span class="material-symbols-outlined">calendar_month</span>
             <p class="admin-empty-state__text">No se encontraron turnos que coincidan con los filtros aplicados.</p>
         </div>
     <?php endif; ?>
+
+    <!-- Paginación -->
+    <div class="d-flex justify-content-between align-items-center mt-4 px-3 py-2 border-top admin-table-actions-row">
+        <span class="fw-bold text-muted" style="font-size: 0.85rem;">
+            <?php if ($pager_total > 0): ?>
+                Mostrando <?= $pager_start ?>–<?= $pager_end ?> de <?= $pager_total ?> turnos
+            <?php else: ?>
+                Mostrando 0 de 0 turnos
+            <?php endif; ?>
+        </span>
+        <div>
+            <?php if (!empty($pager_links)): ?>
+                <?= $pager_links ?>
+            <?php else: ?>
+                <nav aria-label="Navegación de páginas">
+                    <ul class="pagination pagination-sm justify-content-center mb-0 admin-pagination">
+                        <li class="page-item disabled">
+                            <span class="page-link admin-page-link--disabled">
+                                <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_left</span>
+                            </span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link admin-page-link--active">1</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link admin-page-link--disabled">
+                                <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_right</span>
+                            </span>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <!-- Modal Detalle / Gestión de Turno -->
@@ -241,13 +274,16 @@ $diasSemana = [
     </div>
 </div>
 
+<?= $this->include('profesional/_modal_crear_turno') ?>
+
 <!-- Datos de contexto para JS -->
 <script>
 window.HBC_TUR = {
-    apiDetalle:   '<?= base_url('api/turnos/detalle') ?>',
-    apiEstado:    '<?= base_url('api/turnos/estado') ?>',
-    apiPago:      '<?= base_url('api/turnos/pago') ?>',
-    apiGoogleCal: '<?= base_url('api/turnos/google-calendar') ?>',
+    apiDetalle:    '<?= base_url('api/turnos/detalle') ?>',
+    apiEstado:     '<?= base_url('api/turnos/estado') ?>',
+    apiPago:       '<?= base_url('api/turnos/pago') ?>',
+    apiGoogleCal:  '<?= base_url('api/turnos/google-calendar') ?>',
+    apiCrearTurno: '<?= base_url('api/turnos/crear') ?>',
 };
 </script>
 <script src="<?= base_url('public/assets/js/turnos.js') ?>"></script>

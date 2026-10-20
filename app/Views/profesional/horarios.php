@@ -1,12 +1,12 @@
 <?php
 /**
- * Vista: Gestionar Disponibilidad (CU08) — Incremento N° 2
+ * Vista: Mi Disponibilidad (CU08 - Gestionar Disponibilidad) — Incremento N° 2
  * Her Beauty Center
  *
- * Lista tabular de bloques de disponibilidad con acciones de editar/eliminar.
+ * Lista tabular de disponibilidades publicadas con filtros por período, servicio y búsqueda.
  * La lógica JS está en: public/assets/js/horarios.js
  */
-$pageTitle = 'Mis Horarios';
+$pageTitle = 'Mi Disponibilidad';
 $activeNav = 'horarios';
 $this->extend('profesional/_layout');
 $this->section('content');
@@ -19,8 +19,8 @@ $diasSemana = [
 
 <div class="admin-page-header">
     <div>
-        <h2 class="admin-page-header__title">Mis Horarios</h2>
-        <p class="admin-page-header__subtitle">Franjas de disponibilidad configuradas para recibir turnos</p>
+        <h2 class="admin-page-header__title">Mi Disponibilidad</h2>
+        <p class="admin-page-header__subtitle">Franjas horarias disponibles publicadas para reserva de turnos</p>
     </div>
     <?php if (!empty($profesional)): ?>
     <div class="d-flex gap-2 flex-wrap">
@@ -30,7 +30,7 @@ $diasSemana = [
         </a>
         <button id="btnNuevoHorario" class="btn btn--primary admin-action-btn">
             <span class="material-symbols-outlined admin-action-icon">add</span>
-            Agregar Horario
+            Agregar Disponibilidad
         </button>
     </div>
     <?php endif; ?>
@@ -43,10 +43,43 @@ $diasSemana = [
     </div>
 <?php else: ?>
 
+<!-- Filtros de Disponibilidad -->
+<div class="admin-table-card mb-3">
+    <form method="GET" action="<?= base_url('admin/horarios') ?>" class="admin-filter-bar admin-table-filter-bar p-3 d-flex flex-wrap gap-2 align-items-center">
+        <div class="admin-table-filter-col-sm flex-grow-1" style="min-width: 180px;">
+            <select name="periodo" class="form-control admin-form-input">
+                <option value="">Período: Todos</option>
+                <option value="hoy" <?= ($periodo ?? '') === 'hoy' ? 'selected' : '' ?>>Hoy</option>
+                <option value="semana" <?= ($periodo ?? '') === 'semana' ? 'selected' : '' ?>>Esta semana</option>
+                <option value="mes" <?= ($periodo ?? '') === 'mes' ? 'selected' : '' ?>>Este mes</option>
+            </select>
+        </div>
+        <div class="admin-table-filter-col-sm flex-grow-1" style="min-width: 220px;">
+            <select name="servicio" class="form-control admin-form-input">
+                <option value="">Servicio: Todos</option>
+                <?php if (!empty($servicios_profesional)): ?>
+                    <?php foreach ($servicios_profesional as $srv): ?>
+                        <option value="<?= $srv['s_id'] ?>" <?= ((int)($servicioFiltro ?? 0) === (int)$srv['s_id']) ? 'selected' : '' ?>>
+                            <?= esc($srv['s_nbre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+        <button type="submit" class="btn btn--primary admin-modal-submit">
+            Filtrar
+        </button>
+        <a href="<?= base_url('admin/horarios') ?>" class="btn admin-modal-submit admin-action-btn--outline">
+            Limpiar Filtros
+        </a>
+    </form>
+</div>
+
+<!-- Tabla de Disponibilidades -->
 <div class="admin-table-card">
     <div class="admin-table-card__header">
         <h3 class="admin-table-card__title">
-            Disponibilidades configuradas
+            Disponibilidades publicadas
             <?php if ($pager_total > 0): ?>
             <span class="badge badge--blue ms-2"><?= $pager_total ?></span>
             <?php endif; ?>
@@ -82,9 +115,7 @@ $diasSemana = [
                     </td>
                     <td><?= esc($h['nombre_servicio'] ?? '—') ?></td>
                     <td>
-                        <?php if (!empty($h['tiene_turno_activo'])): ?>
-                            <span class="badge badge--orange">Con Turno Activo</span>
-                        <?php elseif ($h['h_fecha'] < date('Y-m-d')): ?>
+                        <?php if ($h['h_fecha'] < date('Y-m-d')): ?>
                             <span class="badge badge--gray">Expirado</span>
                         <?php else: ?>
                             <span class="badge badge--blue">Disponible</span>
@@ -92,9 +123,8 @@ $diasSemana = [
                     </td>
                     <td>
                         <div class="table-actions">
-                            <?php if (empty($h['tiene_turno_activo'])): ?>
                             <button class="table-btn table-btn--edit btn-editar-horario"
-                                    title="Editar"
+                                    title="Editar Disponibilidad"
                                     data-hid="<?= esc($h['h_id']) ?>"
                                     data-sid="<?= esc($h['h_sId']) ?>"
                                     data-fecha="<?= esc($h['h_fecha']) ?>"
@@ -103,15 +133,10 @@ $diasSemana = [
                                 <span class="material-symbols-outlined admin-action-icon">edit</span>
                             </button>
                             <button class="table-btn table-btn--delete btn-eliminar-horario"
-                                    title="Eliminar"
+                                    title="Eliminar Disponibilidad"
                                     data-hid="<?= esc($h['h_id']) ?>">
                                 <span class="material-symbols-outlined admin-action-icon">delete</span>
                             </button>
-                            <?php else: ?>
-                            <span class="text-muted admin-text-sm" title="No se puede modificar: tiene turno activo">
-                                <span class="material-symbols-outlined admin-action-icon">lock</span>
-                            </span>
-                            <?php endif; ?>
                         </div>
                     </td>
                 </tr>
@@ -120,22 +145,47 @@ $diasSemana = [
         </table>
     </div>
 
-    <?php if (isset($pager_links) && $pager_links): ?>
-        <div class="d-flex justify-content-between align-items-center mt-4 px-3 admin-table-actions-row">
-            <span class="fw-bold text-muted">
-                Mostrando <?= $pager_start ?>-<?= $pager_end ?> de <?= $pager_total ?> horarios
-            </span>
-            <div><?= $pager_links ?></div>
+    <?php else: ?>
+        <div class="admin-empty-state">
+            <span class="material-symbols-outlined">event_available</span>
+            <p class="admin-empty-state__text">No hay disponibilidades publicadas con los filtros seleccionados.</p>
+            <p class="text-muted admin-text-sm">Hacé clic en "Agregar Disponibilidad" o usá el <a href="<?= base_url('admin/calendario') ?>">Calendario</a> para publicar nuevas franjas horarias.</p>
         </div>
     <?php endif; ?>
 
-    <?php else: ?>
-        <div class="admin-empty-state">
-            <span class="material-symbols-outlined">schedule</span>
-            <p class="admin-empty-state__text">Aún no tenés horarios configurados.</p>
-            <p class="text-muted admin-text-sm">Hacé clic en "Agregar Horario" o usa el <a href="<?= base_url('admin/calendario') ?>">Calendario</a> para crear tu primera disponibilidad.</p>
+    <!-- Paginación -->
+    <div class="d-flex justify-content-between align-items-center mt-4 px-3 py-2 border-top admin-table-actions-row">
+        <span class="fw-bold text-muted" style="font-size: 0.85rem;">
+            <?php if ($pager_total > 0): ?>
+                Mostrando <?= $pager_start ?>–<?= $pager_end ?> de <?= $pager_total ?> disponibilidades
+            <?php else: ?>
+                Mostrando 0 de 0 disponibilidades
+            <?php endif; ?>
+        </span>
+        <div>
+            <?php if (!empty($pager_links)): ?>
+                <?= $pager_links ?>
+            <?php else: ?>
+                <nav aria-label="Navegación de páginas">
+                    <ul class="pagination pagination-sm justify-content-center mb-0 admin-pagination">
+                        <li class="page-item disabled">
+                            <span class="page-link admin-page-link--disabled">
+                                <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_left</span>
+                            </span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link admin-page-link--active">1</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link admin-page-link--disabled">
+                                <span aria-hidden="true" class="material-symbols-outlined admin-page-icon">chevron_right</span>
+                            </span>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
-    <?php endif; ?>
+    </div>
 </div>
 
 <!-- ============================================================

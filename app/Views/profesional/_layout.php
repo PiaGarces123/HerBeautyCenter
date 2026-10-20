@@ -20,9 +20,9 @@ $navItems = [
     'clientes'      => ['label' => 'Clientes',     'icon' => 'groups',          'href' => base_url('admin/clientes'),     'role' => 'admin'],
     'servicios'     => ['label' => 'Servicios',    'icon' => 'spa',             'href' => base_url('admin/servicios'),    'role' => 'admin'],
     'calendario'    => ['label' => 'Calendario',   'icon' => 'calendar_month',  'href' => base_url('admin/calendario'),   'role' => 'all'],
-    'turnos'        => ['label' => 'Mis Turnos',   'icon' => 'event_note',      'href' => base_url('admin/turnos'),       'role' => 'all'],
-    'horarios'      => ['label' => 'Mis Horarios', 'icon' => 'schedule',        'href' => base_url('admin/horarios'),     'role' => 'all'],
-    'perfil'        => ['label' => 'Mi Perfil',    'icon' => 'manage_accounts', 'href' => base_url('admin/perfil'),       'role' => 'all'],
+    'turnos'        => ['label' => 'Mis Turnos',         'icon' => 'event_note',      'href' => base_url('admin/turnos'),       'role' => 'all'],
+    'horarios'      => ['label' => 'Mi Disponibilidad', 'icon' => 'event_available', 'href' => base_url('admin/horarios'),     'role' => 'all'],
+    'perfil'        => ['label' => 'Mi Perfil',          'icon' => 'manage_accounts', 'href' => base_url('admin/perfil'),       'role' => 'all'],
 ];
 ?>
 <!DOCTYPE html>
@@ -41,12 +41,13 @@ $navItems = [
         href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
         rel="stylesheet" />
 
-    <!-- Bootstrap 5.3 CSS -->
+    <!-- Bootstrap 5.3 CSS & JS -->
     <link rel="stylesheet" href="<?= base_url('public/assets/css/bootstrap.min.css') ?>" />
+    <script src="<?= base_url('public/assets/js/bootstrap.bundle.min.js') ?>"></script>
 
     <!-- CSS -->
     <link rel="stylesheet" href="<?= base_url('public/assets/css/styles.css') ?>" />
-    <link rel="stylesheet" href="<?= base_url('public/assets/css/admin.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/admin.css?v=' . filemtime(FCPATH . 'assets/css/admin.css')) ?>" />
     <link rel="stylesheet" href="<?= base_url('public/assets/css/calendario.css') ?>" />
 
     <!-- FullCalendar v6 (CDN) -->
@@ -170,9 +171,6 @@ $navItems = [
         }
     </script>
 
-    <!-- Bootstrap 5.3 JS Bundle -->
-    <script src="<?= base_url('public/assets/js/bootstrap.bundle.min.js') ?>"></script>
-    
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

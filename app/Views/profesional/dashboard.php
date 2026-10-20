@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Dashboard';
 $activeNav = 'dashboard';
 $this->extend('profesional/_layout');
@@ -60,12 +60,12 @@ $this->section('content');
 
     <a href="<?= base_url('admin/horarios') ?>" class="quick-card">
         <div class="quick-card__icon-wrap quick-card__icon-wrap--blue">
-            <span class="material-symbols-outlined">schedule</span>
+            <span class="material-symbols-outlined">event_available</span>
         </div>
-        <p class="quick-card__title">Mis Horarios</p>
-        <p class="quick-card__desc">Configurá tu disponibilidad horaria para que los clientes puedan reservar turnos.</p>
+        <p class="quick-card__title">Mi Disponibilidad</p>
+        <p class="quick-card__desc">Configurá tus franjas de disponibilidad para que los clientes puedan reservar turnos.</p>
         <span class="quick-card__arrow">
-            Ver horarios <span class="material-symbols-outlined">arrow_forward</span>
+            Ver disponibilidad <span class="material-symbols-outlined">arrow_forward</span>
         </span>
     </a>
 

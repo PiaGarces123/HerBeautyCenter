@@ -22,10 +22,16 @@ $this->section('content');
         <p class="cal-page-header__subtitle">Gestión de disponibilidades y turnos</p>
     </div>
     <?php if (!empty($profesional)): ?>
-    <button id="btnAgregarDisponibilidad" class="btn-cal-primary">
-        <span class="material-symbols-outlined">add_circle</span>
-        Agregar Disponibilidad
-    </button>
+    <div class="d-flex gap-2 flex-wrap">
+        <button id="btnCrearTurnoCal" class="btn-cal-primary" style="background:#5c3d24" data-bs-toggle="modal" data-bs-target="#modalCrearTurno">
+            <span class="material-symbols-outlined">event_available</span>
+            Crear Turno
+        </button>
+        <button id="btnAgregarDisponibilidad" class="btn-cal-primary">
+            <span class="material-symbols-outlined">add_circle</span>
+            Agregar Disponibilidad
+        </button>
+    </div>
     <?php endif; ?>
 </div>
 
@@ -199,6 +205,8 @@ $this->section('content');
     </div>
 </div>
 
+<?= $this->include('profesional/_modal_crear_turno') ?>
+
 <!-- Datos de contexto para el JS -->
 <script>
     window.HBC_CAL = {
@@ -210,6 +218,7 @@ $this->section('content');
         apiTurnoEstado:   '<?= base_url('api/turnos/estado') ?>',
         apiTurnoPago:     '<?= base_url('api/turnos/pago') ?>',
         apiGoogleCal:     '<?= base_url('api/turnos/google-calendar') ?>',
+        apiCrearTurno:    '<?= base_url('api/turnos/crear') ?>',
         rol:              '<?= esc(session()->get('rol')) ?>',
         hoy:              '<?= date('Y-m-d') ?>',
     };
