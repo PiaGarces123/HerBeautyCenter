@@ -321,7 +321,11 @@ class Admin extends BaseController
             'usuario_data' => $usuario,
             'profesional_data' => $profesional,
             'redes_data' => $redes,
-            'usuario' => ['s_nbre' => $session->get('usuario_nombre')],
+            'usuario' => [
+                's_nbre' => $session->get('usuario_nombre'),
+                'u_correo' => $session->get('usuario_correo'),
+                'u_avatar' => $session->get('usuario_avatar') ?? ($usuario['u_avatar'] ?? null),
+            ],
             'rol' => $session->get('rol'),
             'activeNav' => 'perfil'
         ]);

@@ -67,8 +67,13 @@ $this->section('content');
                         <tr>
                             <td>
                                 <div class="table-user-cell">
-                                    <?php if (!empty($cli['u_avatar'])): ?>
-                                        <img src="<?= esc($cli['u_avatar']) ?>" class="table-avatar" alt="Avatar" />
+                                    <?php if (!empty($cli['u_avatar'])): 
+                                        $cAvatar = $cli['u_avatar'];
+                                        if (!str_starts_with($cAvatar, 'http://') && !str_starts_with($cAvatar, 'https://')) {
+                                            $cAvatar = base_url($cAvatar);
+                                        }
+                                    ?>
+                                        <img src="<?= esc($cAvatar) ?>" class="table-avatar" alt="Avatar" />
                                     <?php else: ?>
                                         <img src="<?= base_url('public/assets/media/íconoPerfil.png') ?>" class="table-avatar" alt="Avatar por defecto" class="avatar-default" />
                                     <?php endif; ?>

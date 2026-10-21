@@ -42,4 +42,27 @@ abstract class BaseController extends Controller
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
     }
+
+    /**
+     * Devuelve de forma segura los datos enviados tanto por POST (FormData / x-www-form-urlencoded)
+     * como por JSON, sin arrojar excepciones de parseo cuando la petición es multipart/form-data.
+     */
+    protected function getRequestData(): array
+    {
+        $postData = $this->request->getPost();
+        $data = is_array($postData) ? $postData : [];
+
+        $cType = $this->request->getHeaderLine('Content-Type');
+        if (stripos($cType, 'application/json') !== false) {
+            $body = $this->request->getBody();
+            if (!empty($body)) {
+                $json = json_decode($body, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($json)) {
+                    $data = array_merge($data, $json);
+                }
+            }
+        }
+
+        return $data;
+    }
 }

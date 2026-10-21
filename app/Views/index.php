@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Funciones de compatibilidad por si se accede al archivo fuera de CodeIgniter
 if (!function_exists('base_url')) {
     function base_url($path = '')
@@ -212,28 +212,47 @@ if (!function_exists('esc')) {
                             <p class="pro-card__bio"><?= esc($prof['p_desc']) ?></p>
                             <div class="pro-card__socials">
                                 <?php if (!empty($prof['redes'])): ?>
-                                    <?php foreach ($prof['redes'] as $red): ?>
-                                        <a aria-label="<?= esc($red['tipo']) ?>" class="pro-card__social-link"
-                                            href="<?= esc($red['link']) ?>" target="_blank" rel="noopener noreferrer">
-                                            <?php if (strtolower($red['tipo']) == 'instagram'): ?>
+                                    <?php foreach ($prof['redes'] as $red): 
+                                        $rTipo = strtolower($red['rs_tipo'] ?? $red['tipo'] ?? '');
+                                        $rLink = $red['rs_link'] ?? $red['link'] ?? '#';
+                                    ?>
+                                        <a aria-label="<?= esc($rTipo) ?>" class="pro-card__social-link"
+                                            href="<?= esc($rLink) ?>" target="_blank" rel="noopener noreferrer">
+                                            <?php if ($rTipo === 'instagram'): ?>
                                                 <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
                                                     stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                                                     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                                                     <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                                                 </svg>
-                                            <?php elseif (strtolower($red['tipo']) == 'facebook'): ?>
+                                            <?php elseif ($rTipo === 'facebook'): ?>
                                                 <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
                                                     stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                                                 </svg>
-                                            <?php elseif (strtolower($red['tipo']) == 'tiktok'): ?>
+                                            <?php elseif ($rTipo === 'tiktok'): ?>
                                                 <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
                                                     stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
                                                 </svg>
+                                            <?php elseif ($rTipo === 'whatsapp'): ?>
+                                                <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
+                                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                                                </svg>
+                                            <?php elseif ($rTipo === 'linkedin'): ?>
+                                                <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
+                                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                                    <rect x="2" y="9" width="4" height="12"></rect>
+                                                    <circle cx="4" cy="4" r="2"></circle>
+                                                </svg>
+                                            <?php elseif ($rTipo === 'x'): ?>
+                                                <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor"
+                                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M4 4l16 16M4 20L20 4"></path>
+                                                </svg>
                                             <?php else: ?>
-                                                <!-- Ícono genérico de enlace cuando la red social no es Instagram, Facebook ni TikTok -->
                                                 <span class="material-symbols-outlined pro-card__social-icon-generic">link</span>
                                             <?php endif; ?>
                                         </a>

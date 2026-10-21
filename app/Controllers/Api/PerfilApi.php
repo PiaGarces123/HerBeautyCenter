@@ -19,9 +19,15 @@ class PerfilApi extends BaseController
         $usuario_id = $this->getUserId();
         if (!$usuario_id) return $this->failUnauthorized('No autorizado');
 
-        $nombre = $this->request->getPost('u_nbreCompleto');
-        $telefono = $this->request->getPost('u_tel');
-        $correo = $this->request->getPost('u_correo');
+        $req = $this->getRequestData();
+
+        $nombre = trim($req['u_nbreCompleto'] ?? $req['nombre'] ?? $req['name'] ?? '');
+        $telefono = trim($req['u_tel'] ?? $req['telefono'] ?? $req['tel'] ?? $req['phone'] ?? '');
+        $correo = trim($req['u_correo'] ?? $req['correo'] ?? $req['email'] ?? '');
+
+        if (empty($nombre)) {
+            return $this->fail('El nombre es obligatorio.');
+        }
 
         $db = \Config\Database::connect();
 
@@ -37,11 +43,11 @@ class PerfilApi extends BaseController
         }
 
         $data = [
-            'u_nbreCompleto' => trim($nombre),
-            'u_tel' => trim($telefono)
+            'u_nbreCompleto' => $nombre,
+            'u_tel' => $telefono
         ];
         if (!empty($correo)) {
-            $data['u_correo'] = trim($correo);
+            $data['u_correo'] = $correo;
         }
 
         $db->table('usuario')->where('u_id', $usuario_id)->update($data);
@@ -49,14 +55,13 @@ class PerfilApi extends BaseController
         // Update professional title if applicable
         $profesional = $db->table('profesional')->where('u_id', $usuario_id)->get()->getRowArray();
         if ($profesional) {
-            $titulo = $this->request->getPost('p_titulo');
-            if (empty(trim($titulo))) {
-                return $this->fail('El título profesional es obligatorio.');
+            $titulo = trim($req['p_titulo'] ?? $req['titulo'] ?? $req['title'] ?? '');
+            if (!empty($titulo)) {
+                if (strlen($titulo) < 3) {
+                    return $this->fail('El título profesional debe tener al menos 3 caracteres.');
+                }
+                $db->table('profesional')->where('p_id', $profesional['p_id'])->update(['p_titulo' => $titulo]);
             }
-            if (strlen(trim($titulo)) < 3) {
-                return $this->fail('El título profesional debe tener al menos 3 caracteres.');
-            }
-            $db->table('profesional')->where('p_id', $profesional['p_id'])->update(['p_titulo' => trim($titulo)]);
         }
 
         // Update session if name changed
@@ -103,14 +108,30 @@ class PerfilApi extends BaseController
         $usuario_id = $this->getUserId();
         if (!$usuario_id) return $this->failUnauthorized('No autorizado');
 
-        $file = $this->request->getFile('u_avatar');
+        // Accept any alias: avatar, u_avatar, foto, image, file or the first file in upload
+        $file = $this->request->getFile('avatar')
+             ?? $this->request->getFile('u_avatar')
+             ?? $this->request->getFile('foto')
+             ?? $this->request->getFile('image')
+             ?? $this->request->getFile('file');
 
-        if (!$file || !$file->isValid()) {
+        if (!$file) {
+            $files = $this->request->getFiles();
+            if (!empty($files)) {
+                $file = reset($files);
+            }
+        }
+
+        if (!$file || !$file->isValid() || $file->hasMoved()) {
             return $this->fail('No se ha enviado ningún archivo válido.');
         }
 
         // Validate type and size
-        if (!in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/webp'])) {
+        $allowedMimes = ['image/jpeg', 'image/pjpeg', 'image/jpg', 'image/png', 'image/x-png', 'image/webp'];
+        $allowedExts  = ['jpg', 'jpeg', 'png', 'webp'];
+        $ext = strtolower($file->guessExtension() ?? $file->getClientExtension());
+
+        if (!in_array($file->getMimeType(), $allowedMimes) && !in_array($ext, $allowedExts)) {
             return $this->fail('El formato del archivo debe ser JPG, PNG o WEBP.');
         }
 
@@ -123,18 +144,30 @@ class PerfilApi extends BaseController
             mkdir($uploadPath, 0777, true);
         }
 
+        $db = \Config\Database::connect();
+        
+        // Retrieve previous avatar to optionally remove old file
+        $currentUser = $db->table('usuario')->select('u_avatar')->where('u_id', $usuario_id)->get()->getRowArray();
+        if (!empty($currentUser['u_avatar'])) {
+            $oldRelative = str_replace(base_url(), '', $currentUser['u_avatar']);
+            $oldPath = FCPATH . ltrim($oldRelative, '/\\');
+            if (is_file($oldPath) && str_contains($oldPath, 'Avatares')) {
+                @unlink($oldPath);
+            }
+        }
+
         $newName = $file->getRandomName();
         $file->move($uploadPath, $newName);
 
         $ruta = 'assets/media/Avatares/' . $newName;
 
-        $db = \Config\Database::connect();
         $db->table('usuario')->where('u_id', $usuario_id)->update(['u_avatar' => $ruta]);
 
         // Update session
         session()->set('usuario_avatar', base_url($ruta));
 
         return $this->respondUpdated([
+            'status' => 200,
             'message' => 'Avatar actualizado correctamente.',
             'avatar_url' => base_url($ruta)
         ]);
@@ -153,53 +186,154 @@ class PerfilApi extends BaseController
             return $this->fail('El usuario no es un profesional.');
         }
 
-        $redesData = $this->request->getPost('redes'); // Array of elements: ['rs_tipo' => 'instagram', 'rs_link' => 'https://...']
-        
-        $db->transStart();
-        
-        // Clean previous networks
-        $db->table('red_social')->where('rs_pId', $profesional['p_id'])->delete();
+        $data = $this->getRequestData();
+        $redesData = $data['redes'] ?? $this->request->getPost('redes');
+
+        $plataformas = [
+            'instagram' => [
+                'nombre' => 'Instagram',
+                'hosts'  => ['instagram.com', 'www.instagram.com'],
+                'ejemplo'=> 'https://instagram.com/tu_usuario',
+            ],
+            'facebook' => [
+                'nombre' => 'Facebook',
+                'hosts'  => ['facebook.com', 'www.facebook.com', 'fb.com', 'www.fb.com', 'm.facebook.com'],
+                'ejemplo'=> 'https://facebook.com/tu_pagina',
+            ],
+            'tiktok' => [
+                'nombre' => 'TikTok',
+                'hosts'  => ['tiktok.com', 'www.tiktok.com'],
+                'ejemplo'=> 'https://tiktok.com/@tu_usuario',
+            ],
+            'x' => [
+                'nombre' => 'X (Twitter)',
+                'hosts'  => ['x.com', 'www.x.com', 'twitter.com', 'www.twitter.com'],
+                'ejemplo'=> 'https://x.com/tu_usuario',
+            ],
+            'linkedin' => [
+                'nombre' => 'LinkedIn',
+                'hosts'  => ['linkedin.com', 'www.linkedin.com'],
+                'ejemplo'=> 'https://linkedin.com/in/tu_usuario',
+            ],
+            'whatsapp' => [
+                'nombre' => 'WhatsApp',
+                'hosts'  => ['wa.me', 'api.whatsapp.com', 'chat.whatsapp.com', 'web.whatsapp.com', 'whatsapp.com', 'www.whatsapp.com'],
+                'ejemplo'=> 'https://wa.me/54911xxxxxxxx',
+            ],
+        ];
+
+        $insertData = [];
+        $tiposUsados = [];
 
         if (!empty($redesData) && is_array($redesData)) {
-            $insertData = [];
             foreach ($redesData as $red) {
-                if (empty($red['rs_tipo']) || empty($red['rs_link'])) continue;
+                $tipo = trim(strtolower($red['tipo'] ?? $red['rs_tipo'] ?? ''));
+                $link = trim($red['link'] ?? $red['rs_link'] ?? '');
 
-                $tipo = trim(strtolower($red['rs_tipo']));
-                $link = trim($red['rs_link']);
-
-                // Cybersecurity: Validate scheme and domain
-                if (strpos($link, 'https://') !== 0) {
-                    $db->transRollback();
-                    return $this->fail("El enlace para $tipo debe comenzar con 'https://'");
+                // 1. Control de fila completamente vacía
+                if ($tipo === '' && $link === '') {
+                    return $this->fail('Hay una fila de red social vacía. Completa todos los campos o elimina la fila.');
                 }
 
-                // Verify domain matches the network
-                $valid = false;
-                switch ($tipo) {
-                    case 'instagram': $valid = strpos($link, 'instagram.com') !== false; break;
-                    case 'facebook': $valid = strpos($link, 'facebook.com') !== false; break;
-                    case 'tiktok': $valid = strpos($link, 'tiktok.com') !== false; break;
-                    case 'x': $valid = (strpos($link, 'x.com') !== false || strpos($link, 'twitter.com') !== false); break;
-                    case 'linkedin': $valid = strpos($link, 'linkedin.com') !== false; break;
-                    case 'whatsapp': $valid = (strpos($link, 'wa.me') !== false || strpos($link, 'whatsapp.com') !== false); break;
+                // 2. Control de tipo seleccionado pero link vacío
+                if ($tipo !== '' && $link === '') {
+                    $nombrePlat = $plataformas[$tipo]['nombre'] ?? ucfirst($tipo);
+                    return $this->fail("El enlace para {$nombrePlat} no puede estar vacío.");
                 }
 
-                if (!$valid) {
-                    $db->transRollback();
-                    return $this->fail("El enlace ingresado no corresponde a la plataforma de $tipo.");
+                // 3. Control de link ingresado pero tipo sin seleccionar
+                if ($tipo === '' && $link !== '') {
+                    return $this->fail('Debes seleccionar a qué red social corresponde el enlace ingresado.');
+                }
+
+                // 4. Control de plataforma soportada
+                if (!array_key_exists($tipo, $plataformas)) {
+                    return $this->fail("La red social '{$tipo}' seleccionada no es válida.");
+                }
+
+                $platInfo = $plataformas[$tipo];
+
+                // 5. Control de duplicados
+                if (in_array($tipo, $tiposUsados, true)) {
+                    return $this->fail("No puedes agregar la red social {$platInfo['nombre']} más de una vez.");
+                }
+                $tiposUsados[] = $tipo;
+
+                // 6. Rechazar explícitamente HTTP inseguro
+                if (str_starts_with(strtolower($link), 'http://')) {
+                    return $this->fail("El enlace de {$platInfo['nombre']} debe usar un protocolo seguro HTTPS (https://) en lugar de HTTP.");
+                }
+
+                // 7. Normalización controlada si el usuario colocó solo el @usuario o número
+                if ($tipo === 'instagram' && !str_contains($link, '/')) {
+                    $link = 'https://instagram.com/' . ltrim($link, '@/ ');
+                } elseif ($tipo === 'facebook' && !str_contains($link, '/')) {
+                    $link = 'https://facebook.com/' . ltrim($link, '@/ ');
+                } elseif ($tipo === 'tiktok' && !str_contains($link, '/')) {
+                    $link = 'https://tiktok.com/@' . ltrim($link, '@/ ');
+                } elseif ($tipo === 'x' && !str_contains($link, '/')) {
+                    $link = 'https://x.com/' . ltrim($link, '@/ ');
+                } elseif ($tipo === 'linkedin' && !str_contains($link, '/')) {
+                    $link = 'https://linkedin.com/in/' . ltrim($link, '@/ ');
+                } elseif ($tipo === 'whatsapp' && !str_contains($link, '/')) {
+                    $cleanNum = preg_replace('/[^0-9]/', '', $link);
+                    if (empty($cleanNum)) {
+                        return $this->fail("El número de WhatsApp no es válido. Ejemplo: {$platInfo['ejemplo']}");
+                    }
+                    $link = 'https://wa.me/' . $cleanNum;
+                }
+
+                // Asegurar prefijo https://
+                if (!str_starts_with(strtolower($link), 'https://')) {
+                    $link = 'https://' . ltrim($link, '/');
+                }
+
+                // 8. Control de formato URL válido
+                if (!filter_var($link, FILTER_VALIDATE_URL)) {
+                    return $this->fail("El enlace ingresado para {$platInfo['nombre']} no es una URL válida. Debe ser del formato: {$platInfo['ejemplo']}");
+                }
+
+                // 9. Control de protocolo seguro y dominio oficial
+                $parsed = parse_url($link);
+                $scheme = strtolower($parsed['scheme'] ?? '');
+                $host   = strtolower($parsed['host'] ?? '');
+                $path   = trim($parsed['path'] ?? '', '/');
+
+                if ($scheme !== 'https') {
+                    return $this->fail("El enlace de {$platInfo['nombre']} debe usar estrictamente protocolo seguro HTTPS.");
+                }
+
+                if (!in_array($host, $platInfo['hosts'], true)) {
+                    return $this->fail("El enlace ingresado no corresponde al dominio oficial de {$platInfo['nombre']}. Debe ser del formato: {$platInfo['ejemplo']}");
+                }
+
+                // 10. Control de que sea un perfil/cuenta real y no la página de inicio vacía
+                if ($tipo === 'whatsapp') {
+                    $query = $parsed['query'] ?? '';
+                    if (empty($path) && !str_contains($query, 'phone=')) {
+                        return $this->fail("Debes incluir tu número telefónico con código de país en el enlace de WhatsApp. Ejemplo: {$platInfo['ejemplo']}");
+                    }
+                } else {
+                    if (empty($path) || $path === '') {
+                        return $this->fail("Debes incluir tu usuario o enlace a tu perfil en {$platInfo['nombre']}, no solo la página principal ({$platInfo['ejemplo']}).");
+                    }
                 }
 
                 $insertData[] = [
-                    'rs_pId' => $profesional['p_id'],
+                    'rs_pId'  => (int)$profesional['p_id'],
                     'rs_tipo' => $tipo,
-                    'rs_link' => esc($link) // Prevent XSS
+                    'rs_link' => esc($link),
                 ];
             }
+        }
 
-            if (!empty($insertData)) {
-                $db->table('red_social')->insertBatch($insertData);
-            }
+        $db->transStart();
+        
+        // Limpiar redes anteriores del profesional
+        $db->table('red_social')->where('rs_pId', $profesional['p_id'])->delete();
+
+        if (!empty($insertData)) {
+            $db->table('red_social')->insertBatch($insertData);
         }
 
         $db->transComplete();

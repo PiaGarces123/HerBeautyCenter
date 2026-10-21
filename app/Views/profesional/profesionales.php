@@ -91,8 +91,13 @@ $this->section('content');
                             <td class="orden-cell fw-bold text-muted admin-text-sm"><?= esc($prof['p_orden'] ?? '—') ?></td>
                             <td>
                                 <div class="table-user-cell">
-                                    <?php if (!empty($prof['u_avatar'])): ?>
-                                        <img src="<?= esc($prof['u_avatar']) ?>" class="table-avatar" alt="Avatar" />
+                                    <?php if (!empty($prof['u_avatar'])): 
+                                        $pAvatar = $prof['u_avatar'];
+                                        if (!str_starts_with($pAvatar, 'http://') && !str_starts_with($pAvatar, 'https://')) {
+                                            $pAvatar = base_url($pAvatar);
+                                        }
+                                    ?>
+                                        <img src="<?= esc($pAvatar) ?>" class="table-avatar" alt="Avatar" />
                                     <?php else: ?>
                                         <img src="<?= base_url('public/assets/media/íconoPerfil.png') ?>" class="table-avatar" alt="Avatar por defecto" class="avatar-default" />
                                     <?php endif; ?>

@@ -225,7 +225,8 @@ function initAuthModals() {
                 confirmButtonColor: '#d6858e',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: acceptText,
-                cancelButtonText: cancelText
+                cancelButtonText: cancelText,
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     if (typeof onAccept === 'function') onAccept();

@@ -489,6 +489,16 @@
     color: #6b4fa0;
 }
 
+.quick-card__icon-wrap--teal {
+    background: #daf0ed;
+    color: #247568;
+}
+
+.quick-card__icon-wrap--amber {
+    background: #fdf0dc;
+    color: #9c6c2e;
+}
+
 .quick-card__icon-wrap .material-symbols-outlined {
     font-size: 1.5rem;
     font-variation-settings: 'FILL' 1;

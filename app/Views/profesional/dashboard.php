@@ -35,6 +35,17 @@ $this->section('content');
         </span>
     </a>
 
+    <a href="<?= base_url('admin/clientes') ?>" class="quick-card">
+        <div class="quick-card__icon-wrap quick-card__icon-wrap--teal">
+            <span class="material-symbols-outlined">groups</span>
+        </div>
+        <p class="quick-card__title">Clientes</p>
+        <p class="quick-card__desc">Consultá y administrá el padrón de clientes registrados, su contacto y estado de cuenta.</p>
+        <span class="quick-card__arrow">
+            Ver clientes <span class="material-symbols-outlined">arrow_forward</span>
+        </span>
+    </a>
+
     <a href="<?= base_url('admin/servicios') ?>" class="quick-card">
         <div class="quick-card__icon-wrap quick-card__icon-wrap--rose">
             <span class="material-symbols-outlined">spa</span>
@@ -47,12 +58,23 @@ $this->section('content');
     </a>
     <?php endif; ?>
 
-    <a href="<?= base_url('admin/turnos') ?>" class="quick-card">
-        <div class="quick-card__icon-wrap quick-card__icon-wrap--green">
+    <a href="<?= base_url('admin/calendario') ?>" class="quick-card">
+        <div class="quick-card__icon-wrap quick-card__icon-wrap--amber">
             <span class="material-symbols-outlined">calendar_month</span>
         </div>
+        <p class="quick-card__title">Mi Calendario</p>
+        <p class="quick-card__desc">Visualizá y gestioná tus disponibilidades y citas de forma interactiva en la agenda.</p>
+        <span class="quick-card__arrow">
+            Ver calendario <span class="material-symbols-outlined">arrow_forward</span>
+        </span>
+    </a>
+
+    <a href="<?= base_url('admin/turnos') ?>" class="quick-card">
+        <div class="quick-card__icon-wrap quick-card__icon-wrap--green">
+            <span class="material-symbols-outlined">event_note</span>
+        </div>
         <p class="quick-card__title">Mis Turnos</p>
-        <p class="quick-card__desc">Revisá todos los turnos agendados, su estado y los datos del cliente.</p>
+        <p class="quick-card__desc">Revisá todos los turnos agendados, su estado, cobros y los datos del cliente.</p>
         <span class="quick-card__arrow">
             Ver turnos <span class="material-symbols-outlined">arrow_forward</span>
         </span>

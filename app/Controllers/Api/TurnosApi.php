@@ -90,21 +90,33 @@ class TurnosApi extends BaseController
         $auth = $this->verificarSesion();
         if (!$auth) return $this->failUnauthorized('Acceso denegado.');
 
-        $pId = $this->getProfesionalId($auth['uid']);
+        $db   = \Config\Database::connect();
+        $data = $this->getRequestData();
+
+        $sId = (int) ($data['s_id'] ?? $data['servicio_id'] ?? $data['servicio'] ?? 0);
+
+        $pId = !empty($data['p_id']) ? (int) $data['p_id'] : $this->getProfesionalId($auth['uid']);
+        if (!$pId && $auth['rol'] === 'admin') {
+            // Asignar profesional asociado al servicio, o el primer profesional disponible
+            if ($sId) {
+                $pRow = $db->table('profesional_servicio')->where('p_sId', $sId)->get()->getRowArray();
+                if ($pRow) $pId = (int) $pRow['p_id'];
+            }
+            if (!$pId) {
+                $pRow = $db->table('profesional')->get()->getRowArray();
+                if ($pRow) $pId = (int) $pRow['p_id'];
+            }
+        }
         if (!$pId) return $this->failNotFound('No existe un perfil profesional asociado.');
 
-        $db   = \Config\Database::connect();
-        $data = $this->request->getJSON(true) ?: $this->request->getPost();
-
-        $sId            = (int) ($data['s_id'] ?? 0);
-        $fecha          = trim($data['fecha'] ?? '');
-        $horaDesde      = trim($data['hora_desde'] ?? '');
-        $horaHasta      = trim($data['hora_hasta'] ?? '');
+        $fecha          = trim($data['fecha'] ?? $data['t_fecha'] ?? '');
+        $horaDesde      = trim($data['hora_desde'] ?? $data['t_horaDesde'] ?? $data['desde'] ?? '');
+        $horaHasta      = trim($data['hora_hasta'] ?? $data['t_horaHasta'] ?? $data['hasta'] ?? '');
         $nuevoCliente   = !empty($data['nuevo_cliente']);
-        $cId            = (int) ($data['c_id'] ?? 0);
-        $clienteNombre  = trim($data['cliente_nombre'] ?? '');
-        $clienteTel     = trim($data['cliente_tel'] ?? '');
-        $clienteEmail   = trim($data['cliente_email'] ?? '');
+        $cId            = (int) ($data['c_id'] ?? $data['cliente_id'] ?? $data['cliente'] ?? 0);
+        $clienteNombre  = trim($data['cliente_nombre'] ?? $data['nombre_cliente'] ?? '');
+        $clienteTel     = trim($data['cliente_tel'] ?? $data['tel_cliente'] ?? '');
+        $clienteEmail   = trim($data['cliente_email'] ?? $data['correo_cliente'] ?? '');
         $monto          = isset($data['monto']) && $data['monto'] !== '' ? floatval($data['monto']) : null;
         $abonado        = !empty($data['abonado']) ? 1 : 0;
         $estado         = in_array($data['estado'] ?? '', ['Solicitado', 'Confirmado', 'Realizado'], true)
@@ -293,7 +305,7 @@ class TurnosApi extends BaseController
             return $this->failNotFound('Turno no encontrado o sin permiso.');
         }
 
-        $data        = $this->request->getJSON(true) ?: $this->request->getPost();
+        $data        = $this->getRequestData();
         $estadoNuevo = trim($data['estado'] ?? '');
         $abonado     = isset($data['abonado']) ? (int) (bool) $data['abonado'] : null;
         $monto       = isset($data['monto']) ? floatval($data['monto']) : null;
@@ -348,7 +360,7 @@ class TurnosApi extends BaseController
             return $this->failNotFound('Turno no encontrado o sin permiso.');
         }
 
-        $data    = $this->request->getJSON(true) ?: $this->request->getPost();
+        $data    = $this->getRequestData();
         $abonado = isset($data['abonado']) ? (int) (bool) $data['abonado'] : (int) $turno['abonado'];
         $monto   = isset($data['monto'])   ? floatval($data['monto'])      : floatval($turno['monto']);
 

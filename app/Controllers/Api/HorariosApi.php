@@ -102,15 +102,26 @@ class HorariosApi extends BaseController
         $auth = $this->verificarSesion();
         if (!$auth) return $this->failUnauthorized('Acceso denegado.');
 
-        $pId = $this->getProfesionalId($auth['uid']);
+        $db = \Config\Database::connect();
+        $data = $this->getRequestData();
+
+        $sId   = (int) ($data['h_sId'] ?? $data['s_id'] ?? $data['servicio_id'] ?? 0);
+        $fecha = trim($data['h_fecha'] ?? $data['fecha'] ?? '');
+        $desde = trim($data['h_horaDesde'] ?? $data['hora_desde'] ?? $data['desde'] ?? '');
+        $hasta = trim($data['h_horaHasta'] ?? $data['hora_hasta'] ?? $data['hasta'] ?? '');
+
+        $pId = !empty($data['p_id']) ? (int) $data['p_id'] : $this->getProfesionalId($auth['uid']);
+        if (!$pId && $auth['rol'] === 'admin') {
+            if ($sId) {
+                $pRow = $db->table('profesional_servicio')->where('p_sId', $sId)->get()->getRowArray();
+                if ($pRow) $pId = (int) $pRow['p_id'];
+            }
+            if (!$pId) {
+                $pRow = $db->table('profesional')->get()->getRowArray();
+                if ($pRow) $pId = (int) $pRow['p_id'];
+            }
+        }
         if (!$pId) return $this->failNotFound('No existe un perfil profesional asociado.');
-
-        $data = $this->request->getJSON(true) ?: $this->request->getPost();
-
-        $sId   = isset($data['h_sId'])      ? (int) $data['h_sId']      : 0;
-        $fecha = trim($data['h_fecha']       ?? '');
-        $desde = trim($data['h_horaDesde']   ?? '');
-        $hasta = trim($data['h_horaHasta']   ?? '');
 
         // -- Validaciones de campos obligatorios --
         if (!$sId || !$fecha || !$desde || !$hasta) {
@@ -172,12 +183,16 @@ class HorariosApi extends BaseController
         if (!$auth) return $this->failUnauthorized('Acceso denegado.');
 
         $pId = $this->getProfesionalId($auth['uid']);
+        if (!$pId && $auth['rol'] === 'admin') {
+            $hRow = \Config\Database::connect()->table('horario')->where('h_id', $hId)->get()->getRowArray();
+            if ($hRow) $pId = (int) $hRow['h_pId'];
+        }
         if (!$pId) return $this->failNotFound('No existe un perfil profesional asociado.');
 
         $model   = new HorarioModel();
         $horario = $model->find($hId);
 
-        if (!$horario || (int) $horario['h_pId'] !== $pId) {
+        if (!$horario || ((int) $horario['h_pId'] !== $pId && $auth['rol'] !== 'admin')) {
             return $this->failNotFound('Disponibilidad no encontrada o sin permiso.');
         }
 
@@ -186,11 +201,12 @@ class HorariosApi extends BaseController
             return $this->fail('No se puede modificar este bloque: tiene un turno activo (Solicitado o Confirmado) vinculado.');
         }
 
-        $data  = $this->request->getJSON(true) ?: $this->request->getPost();
-        $sId   = isset($data['h_sId'])      ? (int) $data['h_sId']      : (int) $horario['h_sId'];
-        $fecha = trim($data['h_fecha']       ?? $horario['h_fecha']);
-        $desde = trim($data['h_horaDesde']   ?? $horario['h_horaDesde']);
-        $hasta = trim($data['h_horaHasta']   ?? $horario['h_horaHasta']);
+        $data = $this->getRequestData();
+
+        $sId   = (int) ($data['h_sId'] ?? $data['s_id'] ?? $data['servicio_id'] ?? $horario['h_sId']);
+        $fecha = trim($data['h_fecha'] ?? $data['fecha'] ?? $horario['h_fecha']);
+        $desde = trim($data['h_horaDesde'] ?? $data['hora_desde'] ?? $data['desde'] ?? $horario['h_horaDesde']);
+        $hasta = trim($data['h_horaHasta'] ?? $data['hora_hasta'] ?? $data['hasta'] ?? $horario['h_horaHasta']);
 
         if ($hasta <= $desde) {
             return $this->fail('La hora de fin debe ser posterior a la hora de inicio.');

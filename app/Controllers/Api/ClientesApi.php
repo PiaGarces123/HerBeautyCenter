@@ -17,21 +17,21 @@ class ClientesApi extends BaseController
             return $this->failUnauthorized('Acceso denegado');
         }
 
-        $request = $this->request->getJSON();
+        $data = $this->getRequestData();
+
+        $name = trim($data['name'] ?? $data['u_nbreCompleto'] ?? $data['nombre'] ?? '');
+        $email = trim($data['email'] ?? $data['u_correo'] ?? $data['correo'] ?? '');
+        $phone = trim($data['phone'] ?? $data['u_tel'] ?? $data['tel'] ?? $data['telefono'] ?? '');
+        $password = $data['password'] ?? $data['u_pass'] ?? $data['pass'] ?? '';
 
         if (
-            !isset($request->name) || empty(trim($request->name)) ||
-            !isset($request->email) || empty(trim($request->email)) ||
-            !isset($request->phone) || empty(trim($request->phone)) ||
-            !isset($request->u_pass) || empty(trim($request->u_pass))
+            empty($name) ||
+            empty($email) ||
+            empty($phone) ||
+            empty($password)
         ) {
             return $this->fail('Datos incompletos.');
         }
-
-        $name = trim($request->name);
-        $email = trim($request->email);
-        $phone = trim($request->phone);
-        $password = $request->u_pass;
 
         if (strlen($name) < 7) {
             return $this->fail('El nombre debe tener al menos 7 caracteres.');
@@ -138,19 +138,19 @@ class ClientesApi extends BaseController
             return $this->fail('ID de cliente no proporcionado.');
         }
 
-        $request = $this->request->getJSON();
+        $data = $this->getRequestData();
+
+        $name = trim($data['name'] ?? $data['u_nbreCompleto'] ?? $data['nombre'] ?? '');
+        $email = trim($data['email'] ?? $data['u_correo'] ?? $data['correo'] ?? '');
+        $phone = trim($data['phone'] ?? $data['u_tel'] ?? $data['tel'] ?? $data['telefono'] ?? '');
 
         if (
-            !isset($request->name) || empty(trim($request->name)) ||
-            !isset($request->email) || empty(trim($request->email)) ||
-            !isset($request->phone) || empty(trim($request->phone))
+            empty($name) ||
+            empty($email) ||
+            empty($phone)
         ) {
             return $this->fail('Datos incompletos.');
         }
-
-        $name = trim($request->name);
-        $email = trim($request->email);
-        $phone = trim($request->phone);
 
         if (strlen($name) < 7) {
             return $this->fail('El nombre debe tener al menos 7 caracteres.');
@@ -198,12 +198,12 @@ class ClientesApi extends BaseController
             return $this->fail('ID de usuario no proporcionado.');
         }
 
-        $request = $this->request->getJSON();
-        if (!isset($request->u_pass) || empty(trim($request->u_pass))) {
+        $data = $this->getRequestData();
+
+        $password = trim($data['password'] ?? $data['u_pass'] ?? $data['new_password'] ?? '');
+        if (empty($password)) {
             return $this->fail('Contraseña no proporcionada.');
         }
-
-        $password = trim($request->u_pass);
 
         $upperCount = preg_match_all('/[A-Z]/', $password);
         $lowerCount = preg_match_all('/[a-z]/', $password);
@@ -239,16 +239,14 @@ class ClientesApi extends BaseController
             return $this->fail('ID de cliente no proporcionado.');
         }
 
-        $request = $this->request->getJSON();
+        $data = $this->getRequestData();
         
-        if (
-            !isset($request->title) || empty(trim($request->title))
-        ) {
+        $title = trim($data['title'] ?? $data['p_titulo'] ?? $data['titulo'] ?? '');
+        $year = isset($data['year']) ? intval($data['year']) : (isset($data['p_anioInicioAct']) ? intval($data['p_anioInicioAct']) : date('Y'));
+
+        if (empty($title)) {
             return $this->fail('Datos incompletos.');
         }
-
-        $title = trim($request->title);
-        $year = isset($request->year) ? intval($request->year) : date('Y');
 
         if (preg_match_all('/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/u', $title) < 3) {
             return $this->fail('El título debe contener al menos 3 letras.');

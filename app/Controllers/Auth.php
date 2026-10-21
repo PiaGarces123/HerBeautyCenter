@@ -8,13 +8,9 @@ class Auth extends BaseController
 {
     public function login()
     {
-        try {
-            $request = $this->request->getJSON();
-        } catch (\Throwable $e) {
-            $request = null;
-        }
-        $email = $request->email ?? $this->request->getPost('email');
-        $password = $request->u_pass ?? $request->password ?? $this->request->getPost('u_pass') ?? $this->request->getPost('password');
+        $data = $this->getRequestData();
+        $email = $data['email'] ?? $data['u_correo'] ?? '';
+        $password = $data['u_pass'] ?? $data['password'] ?? $data['pass'] ?? '';
         
         if (empty($email) || empty($password)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos. Por favor ingresá email y contraseña.']);
@@ -69,15 +65,11 @@ class Auth extends BaseController
     
     public function register()
     {
-        try {
-            $request = $this->request->getJSON();
-        } catch (\Throwable $e) {
-            $request = null;
-        }
-        $name     = $request->name ?? $this->request->getPost('name');
-        $email    = $request->email ?? $this->request->getPost('email');
-        $phone    = $request->phone ?? $this->request->getPost('phone');
-        $password = $request->u_pass ?? $request->password ?? $this->request->getPost('u_pass') ?? $this->request->getPost('password');
+        $data = $this->getRequestData();
+        $name     = $data['name'] ?? $data['u_nbreCompleto'] ?? $data['nombre'] ?? '';
+        $email    = $data['email'] ?? $data['u_correo'] ?? $data['correo'] ?? '';
+        $phone    = $data['phone'] ?? $data['u_tel'] ?? $data['tel'] ?? $data['telefono'] ?? '';
+        $password = $data['u_pass'] ?? $data['password'] ?? $data['pass'] ?? '';
         
         if (empty($name) || empty($email) || empty($phone) || empty($password)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos. Por favor completá todos los campos.']);

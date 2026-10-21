@@ -27,12 +27,15 @@ Perfil (Tests\Unit\Perfil)
  [x] Validacion email
  [x] Longitud minima password
  [x] Campos permitidos y protegidos
+ [x] Validacion redes sociales
 
 Servicio (Tests\Unit\Servicio)
  [x] Rango duracion servicio
  [x] Validacion nombre servicio
  [x] Precio no negativo
  [x] Unicidad insensible mayusculas
+ [x] Mapeo parametros servicio
+ [x] Extraccion multipart no falla json parse
 
 Turno (Tests\Unit\Turno)
  [x] Transiciones validas

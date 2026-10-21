@@ -31,9 +31,18 @@ class Home extends BaseController
         $redesSociales = $redesSocialesQuery->getResultArray();
         
         foreach ($profesionales as &$prof) {
-            $prof['redes'] = array_filter($redesSociales, function($red) use ($prof) {
-                return $red['rs_pId'] == $prof['p_id'];
+            $filtered = array_filter($redesSociales, function($red) use ($prof) {
+                return (int)$red['rs_pId'] === (int)$prof['p_id'];
             });
+            $prof['redes'] = array_values(array_map(function($red) {
+                return [
+                    'id'      => $red['rs_id'],
+                    'tipo'    => $red['rs_tipo'],
+                    'link'    => $red['rs_link'],
+                    'rs_tipo' => $red['rs_tipo'],
+                    'rs_link' => $red['rs_link'],
+                ];
+            }, $filtered));
         }
 
         return view('index', [

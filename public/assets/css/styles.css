@@ -1414,6 +1414,19 @@ ol {
     color: var(--color-footer-muted);
 }
 
+.footer__dev-link {
+    color: var(--color-on-background);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.footer__dev-link:hover {
+    color: var(--color-primary);
+    opacity: 0.85;
+}
+
 .footer__bottom-links {
     display: flex;
     gap: 1.5rem;

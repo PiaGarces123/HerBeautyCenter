@@ -12,7 +12,10 @@
 $pageTitle = $pageTitle ?? 'Panel';
 $activeNav = $activeNav ?? 'dashboard';
 $nombre = $usuario['s_nbre'] ?? 'Administradora';
-$avatar = $usuario['u_avatar'] ?? null;
+$avatar = $usuario['u_avatar'] ?? session()->get('usuario_avatar') ?? null;
+if ($avatar && !str_starts_with($avatar, 'http://') && !str_starts_with($avatar, 'https://')) {
+    $avatar = base_url($avatar);
+}
 
 $navItems = [
     'dashboard'     => ['label' => 'Dashboard',    'icon' => 'dashboard',       'href' => base_url('admin'),              'role' => 'all'],
@@ -90,7 +93,7 @@ $navItems = [
             <?php endforeach; ?>
 
             <span class="admin-nav-label admin-nav-label--spaced">Cuenta</span>
-            <a href="<?= base_url('admin/logout') ?>" class="admin-nav-link">
+            <a href="<?= base_url('admin/logout') ?>" class="admin-nav-link" id="btnAdminLogout">
                 <span class="material-symbols-outlined">logout</span>
                 Cerrar sesión
             </a>
@@ -173,6 +176,36 @@ $navItems = [
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Confirmación de cierre de sesión -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnLogout = document.getElementById('btnAdminLogout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const url = btnLogout.getAttribute('href');
+
+                    Swal.fire({
+                        title: '¿Cerrar sesión?',
+                        text: '¿Estás segura de que deseás salir del panel de administración?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#7a4f35',
+                        cancelButtonColor: '#8a7d75',
+                        confirmButtonText: 'Sí, salir',
+                        cancelButtonText: 'Cancelar',
+                        reverseButtons: true,
+                        focusCancel: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = url;
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 
     <!-- FullCalendar v6 -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>

@@ -17,23 +17,24 @@ class ProfesionalesApi extends BaseController
             return $this->failUnauthorized('Acceso denegado');
         }
 
-        $request = $this->request->getJSON();
+        $data = $this->getRequestData();
+
+        $name = trim($data['name'] ?? $data['u_nbreCompleto'] ?? $data['nombre'] ?? '');
+        $email = trim($data['email'] ?? $data['u_correo'] ?? $data['correo'] ?? '');
+        $phone = trim($data['phone'] ?? $data['u_tel'] ?? $data['tel'] ?? $data['telefono'] ?? '');
+        $password = $data['password'] ?? $data['u_pass'] ?? $data['pass'] ?? '';
+        $title = trim($data['title'] ?? $data['p_titulo'] ?? $data['titulo'] ?? '');
+        $year = isset($data['year']) ? intval($data['year']) : (isset($data['p_anioInicioAct']) ? intval($data['p_anioInicioAct']) : date('Y'));
 
         if (
-            !isset($request->name) || empty(trim($request->name)) ||
-            !isset($request->email) || empty(trim($request->email)) ||
-            !isset($request->phone) || empty(trim($request->phone)) ||
-            !isset($request->u_pass) || empty(trim($request->u_pass)) ||
-            !isset($request->title) || empty(trim($request->title))
+            empty($name) ||
+            empty($email) ||
+            empty($phone) ||
+            empty($password) ||
+            empty($title)
         ) {
             return $this->fail('Datos incompletos.');
         }
-
-        $name = trim($request->name);
-        $email = trim($request->email);
-        $phone = trim($request->phone);
-        $password = $request->u_pass;
-        $title = trim($request->title);
 
         if (!preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{7,}$/u', $name)) {
             return $this->fail('El nombre debe tener al menos 7 letras y no contener signos extraños.');
@@ -108,14 +109,14 @@ class ProfesionalesApi extends BaseController
             return $this->failUnauthorized('Acceso denegado');
         }
 
-        $request = $this->request->getJSON();
+        $data = $this->getRequestData();
 
-        if (!isset($request->profesional_id) || empty($request->profesional_id)) {
+        $profesional_id = intval($data['profesional_id'] ?? $data['p_id'] ?? 0);
+        if (!$profesional_id) {
             return $this->fail('ID de profesional no proporcionado.');
         }
 
-        $profesional_id = intval($request->profesional_id);
-        $servicios = isset($request->servicios) && is_array($request->servicios) ? $request->servicios : [];
+        $servicios = isset($data['servicios']) && is_array($data['servicios']) ? $data['servicios'] : [];
 
         $db = \Config\Database::connect();
 
@@ -199,22 +200,22 @@ class ProfesionalesApi extends BaseController
             return $this->fail('ID de profesional no proporcionado.');
         }
 
-        $request = $this->request->getJSON();
+        $data = $this->getRequestData();
+
+        $name = trim($data['name'] ?? $data['u_nbreCompleto'] ?? $data['nombre'] ?? '');
+        $email = trim($data['email'] ?? $data['u_correo'] ?? $data['correo'] ?? '');
+        $phone = trim($data['phone'] ?? $data['u_tel'] ?? $data['tel'] ?? $data['telefono'] ?? '');
+        $title = trim($data['title'] ?? $data['p_titulo'] ?? $data['titulo'] ?? '');
+        $year = isset($data['year']) ? intval($data['year']) : (isset($data['p_anioInicioAct']) ? intval($data['p_anioInicioAct']) : date('Y'));
 
         if (
-            !isset($request->name) || empty(trim($request->name)) ||
-            !isset($request->email) || empty(trim($request->email)) ||
-            !isset($request->phone) || empty(trim($request->phone)) ||
-            !isset($request->title) || empty(trim($request->title))
+            empty($name) ||
+            empty($email) ||
+            empty($phone) ||
+            empty($title)
         ) {
             return $this->fail('Datos incompletos.');
         }
-
-        $name = trim($request->name);
-        $email = trim($request->email);
-        $phone = trim($request->phone);
-        $title = trim($request->title);
-        $year = isset($request->year) ? intval($request->year) : date('Y');
 
         if (strlen($name) < 7) {
             return $this->fail('El nombre debe tener al menos 7 caracteres.');
@@ -276,12 +277,12 @@ class ProfesionalesApi extends BaseController
             return $this->fail('ID de usuario no proporcionado.');
         }
 
-        $request = $this->request->getJSON();
-        if (!isset($request->u_pass) || empty(trim($request->u_pass))) {
+        $data = $this->getRequestData();
+
+        $password = trim($data['password'] ?? $data['u_pass'] ?? $data['new_password'] ?? '');
+        if (empty($password)) {
             return $this->fail('Contraseña no proporcionada.');
         }
-
-        $password = trim($request->u_pass);
 
         $upperCount = preg_match_all('/[A-Z]/', $password);
         $lowerCount = preg_match_all('/[a-z]/', $password);
@@ -313,8 +314,8 @@ class ProfesionalesApi extends BaseController
             return $this->failUnauthorized('Acceso denegado');
         }
 
-        $request = $this->request->getJSON();
-        $orden = $request->p_orden ?? $request->orden ?? null;
+        $data = $this->getRequestData();
+        $orden = $data['p_orden'] ?? $data['orden'] ?? null;
         if (!is_array($orden) || empty($orden)) {
             return $this->fail('Se requiere un array de IDs en orden.');
         }

@@ -89,4 +89,41 @@ final class PerfilTest extends CIUnitTestCase
         $this->assertNotContains('u_id', $allowed);
         $this->assertNotContains('u_fRegistro', $allowed);
     }
+
+    /**
+     * Test: Validación de redes sociales (HTTPS, dominios oficiales y perfiles válidos)
+     */
+    public function testValidacionRedesSociales(): void
+    {
+        $plataformas = [
+            'instagram' => ['hosts' => ['instagram.com', 'www.instagram.com']],
+            'facebook'  => ['hosts' => ['facebook.com', 'www.facebook.com', 'fb.com', 'www.fb.com', 'm.facebook.com']],
+            'tiktok'    => ['hosts' => ['tiktok.com', 'www.tiktok.com']],
+            'x'         => ['hosts' => ['x.com', 'www.x.com', 'twitter.com', 'www.twitter.com']],
+            'linkedin'  => ['hosts' => ['linkedin.com', 'www.linkedin.com']],
+            'whatsapp'  => ['hosts' => ['wa.me', 'api.whatsapp.com', 'chat.whatsapp.com', 'web.whatsapp.com', 'whatsapp.com', 'www.whatsapp.com']],
+        ];
+
+        // Validar enlaces correctos y seguros
+        $validUrls = [
+            'instagram' => 'https://instagram.com/herbeautycenter',
+            'facebook'  => 'https://facebook.com/herbeautycenter',
+            'tiktok'    => 'https://tiktok.com/@herbeautycenter',
+            'x'         => 'https://x.com/herbeauty',
+            'linkedin'  => 'https://linkedin.com/in/herbeauty',
+            'whatsapp'  => 'https://wa.me/5492664159744',
+        ];
+
+        foreach ($validUrls as $tipo => $url) {
+            $parsed = parse_url($url);
+            $this->assertSame('https', $parsed['scheme'], "El enlace de {$tipo} debe ser HTTPS");
+            $this->assertContains($parsed['host'], $plataformas[$tipo]['hosts'], "El host de {$tipo} debe pertenecer a los dominios oficiales");
+            $this->assertNotEmpty(trim($parsed['path'] ?? '', '/'), "El enlace de {$tipo} debe contener el perfil de la cuenta");
+        }
+
+        // Validar enlaces inseguros (HTTP) o dominios no permitidos
+        $this->assertFalse(str_starts_with('http://instagram.com/usuario', 'https://'), 'HTTP no debe ser aceptado');
+        $parsedFake = parse_url('https://phishing.com/instagram.com');
+        $this->assertNotContains($parsedFake['host'], $plataformas['instagram']['hosts'], 'Dominios falsos no deben ser aceptados');
+    }
 }

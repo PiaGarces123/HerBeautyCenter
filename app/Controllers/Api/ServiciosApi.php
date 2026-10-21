@@ -28,7 +28,7 @@ class ServiciosApi extends BaseController
                 break;
             case 'image/webp':
                 // It's already webp, just move it
-                return move_uploaded_file($source, $destination) || rename($source, $destination);
+                return move_uploaded_file($source, $destination) || rename($source, $destination) || copy($source, $destination);
             default:
                 return false;
         }
@@ -48,19 +48,21 @@ class ServiciosApi extends BaseController
             return $this->failUnauthorized('Acceso denegado');
         }
 
-        $nombre = $this->request->getPost('s_nbre');
-        $descripcion = $this->request->getPost('s_desc');
-        $duracion = $this->request->getPost('s_duracionMinutos');
-        $precio = $this->request->getPost('s_precio');
-        $activo = $this->request->getPost('u_activo') !== null ? $this->request->getPost('u_activo') : 1;
+        $data = $this->getRequestData();
 
-        if (empty(trim($nombre)) || empty(trim($duracion))) {
+        $nombre = trim($data['nombre'] ?? $data['s_nbre'] ?? '');
+        $descripcion = trim($data['descripcion'] ?? $data['s_desc'] ?? '');
+        $duracion = $data['duracion_minutos'] ?? $data['s_duracionMinutos'] ?? null;
+        $precio = $data['precio'] ?? $data['s_precio'] ?? 0;
+        $activo = $data['activo'] ?? $data['s_activo'] ?? $data['u_activo'] ?? 1;
+
+        if ($nombre === '' || $duracion === null || $duracion === '') {
             return $this->fail('Faltan datos obligatorios (nombre o duración).');
         }
         if (intval($duracion) < 5 || intval($duracion) > 480) {
             return $this->fail('La duración debe estar entre 5 y 480 minutos.');
         }
-        if (trim($nombre)[0] === '-' || trim($descripcion)[0] === '-') {
+        if ((!empty($nombre) && str_starts_with($nombre, '-')) || (!empty($descripcion) && str_starts_with($descripcion, '-'))) {
             return $this->fail('El nombre o descripción no pueden empezar con guión.');
         }
 
@@ -134,19 +136,21 @@ class ServiciosApi extends BaseController
             return $this->fail('ID de servicio no proporcionado.');
         }
 
-        $nombre = $this->request->getPost('s_nbre');
-        $descripcion = $this->request->getPost('s_desc');
-        $duracion = $this->request->getPost('s_duracionMinutos');
-        $precio = $this->request->getPost('s_precio');
-        $activo = $this->request->getPost('u_activo');
+        $data = $this->getRequestData();
 
-        if (empty(trim($nombre)) || empty(trim($duracion))) {
+        $nombre = trim($data['nombre'] ?? $data['s_nbre'] ?? '');
+        $descripcion = trim($data['descripcion'] ?? $data['s_desc'] ?? '');
+        $duracion = $data['duracion_minutos'] ?? $data['s_duracionMinutos'] ?? null;
+        $precio = $data['precio'] ?? $data['s_precio'] ?? 0;
+        $activo = $data['activo'] ?? $data['s_activo'] ?? $data['u_activo'] ?? 1;
+
+        if ($nombre === '' || $duracion === null || $duracion === '') {
             return $this->fail('Faltan datos obligatorios.');
         }
         if (intval($duracion) < 5 || intval($duracion) > 480) {
             return $this->fail('La duración debe estar entre 5 y 480 minutos.');
         }
-        if (trim($nombre)[0] === '-' || trim($descripcion)[0] === '-') {
+        if ((!empty($nombre) && str_starts_with($nombre, '-')) || (!empty($descripcion) && str_starts_with($descripcion, '-'))) {
             return $this->fail('El nombre o descripción no pueden empezar con guión.');
         }
 
@@ -284,8 +288,8 @@ class ServiciosApi extends BaseController
             return $this->fail('ID de servicio no proporcionado.');
         }
 
-        $request = $this->request->getJSON();
-        $profesionales = isset($request->profesionales) && is_array($request->profesionales) ? $request->profesionales : [];
+        $data = $this->getRequestData();
+        $profesionales = isset($data['profesionales']) && is_array($data['profesionales']) ? $data['profesionales'] : [];
 
         $db = \Config\Database::connect();
         $db->transStart();
@@ -320,15 +324,16 @@ class ServiciosApi extends BaseController
             return $this->failUnauthorized('Acceso denegado');
         }
 
-        $request = $this->request->getJSON();
-        if (!isset($request->s_orden) || !is_array($request->s_orden) || empty($request->s_orden)) {
+        $data = $this->getRequestData();
+        $orden = $data['s_orden'] ?? $data['orden'] ?? null;
+        if (!is_array($orden) || empty($orden)) {
             return $this->fail('Se requiere un array de IDs en orden.');
         }
 
         $db = \Config\Database::connect();
         $db->transStart();
 
-        foreach ($request->s_orden as $position => $id_servicio) {
+        foreach ($orden as $position => $id_servicio) {
             $db->table('servicio')
                ->where('s_id', intval($id_servicio))
                ->update(['s_orden' => intval($position) + 1]);

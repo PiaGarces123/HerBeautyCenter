@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Mi Perfil';
 $activeNav = 'perfil';
 $this->extend('profesional/_layout');
@@ -95,37 +95,41 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
         </p>
 
         <form id="redesForm">
+            <input type="hidden" name="redes_sync" value="1" />
             <div id="redesFeedback" class="alert d-none admin-modal-alert mb-3"></div>
             
             <div id="redesContainer">
                 <?php if (empty($redes)): ?>
-                    <div class="red-social-row admin-social-row">
-                        <select name="redes[0][tipo]" class="form-control admin-social-select">
-                            <option value="">Seleccionar...</option>
-                            <option value="instagram">Instagram</option>
-                            <option value="facebook">Facebook</option>
-                            <option value="tiktok">TikTok</option>
-                            <option value="x">X (Twitter)</option>
-                            <option value="linkedin">LinkedIn</option>
-                            <option value="whatsapp">WhatsApp</option>
-                        </select>
-                        <input type="url" name="redes[0][link]" class="form-control" placeholder="https://..." class="admin-social-input" />
-                        <button type="button" class="btn btn-outline-danger btn-remove-red admin-form-input">&times;</button>
+                    <div id="noRedesMessage" class="text-muted admin-text-sm py-2 mb-3">
+                        No tienes redes sociales configuradas actualmente. Haz clic en <strong>Añadir red</strong> para añadir una.
                     </div>
                 <?php else: ?>
-                    <?php foreach ($redes as $i => $red): ?>
+                    <?php 
+                        $phMap = [
+                            'instagram' => 'https://instagram.com/tu_usuario',
+                            'facebook'  => 'https://facebook.com/tu_pagina',
+                            'tiktok'    => 'https://tiktok.com/@tu_usuario',
+                            'x'         => 'https://x.com/tu_usuario',
+                            'linkedin'  => 'https://linkedin.com/in/tu_usuario',
+                            'whatsapp'  => 'https://wa.me/54911xxxxxxxx',
+                        ];
+                        foreach ($redes as $i => $red): 
+                            $rTipo = $red['rs_tipo'] ?? $red['tipo'] ?? '';
+                            $rLink = $red['rs_link'] ?? $red['link'] ?? '';
+                            $rPlaceholder = $phMap[$rTipo] ?? 'https://...';
+                    ?>
                         <div class="red-social-row admin-social-row">
                             <select name="redes[<?= $i ?>][tipo]" class="form-control admin-social-select">
                                 <option value="">Seleccionar...</option>
-                                <option value="instagram" <?= $red['tipo'] == 'instagram' ? 'selected' : '' ?>>Instagram</option>
-                                <option value="facebook" <?= $red['tipo'] == 'facebook' ? 'selected' : '' ?>>Facebook</option>
-                                <option value="tiktok" <?= $red['tipo'] == 'tiktok' ? 'selected' : '' ?>>TikTok</option>
-                                <option value="x" <?= $red['tipo'] == 'x' ? 'selected' : '' ?>>X (Twitter)</option>
-                                <option value="linkedin" <?= $red['tipo'] == 'linkedin' ? 'selected' : '' ?>>LinkedIn</option>
-                                <option value="whatsapp" <?= $red['tipo'] == 'whatsapp' ? 'selected' : '' ?>>WhatsApp</option>
+                                <option value="instagram" <?= $rTipo === 'instagram' ? 'selected' : '' ?>>Instagram</option>
+                                <option value="facebook" <?= $rTipo === 'facebook' ? 'selected' : '' ?>>Facebook</option>
+                                <option value="tiktok" <?= $rTipo === 'tiktok' ? 'selected' : '' ?>>TikTok</option>
+                                <option value="x" <?= $rTipo === 'x' ? 'selected' : '' ?>>X (Twitter)</option>
+                                <option value="linkedin" <?= $rTipo === 'linkedin' ? 'selected' : '' ?>>LinkedIn</option>
+                                <option value="whatsapp" <?= $rTipo === 'whatsapp' ? 'selected' : '' ?>>WhatsApp</option>
                             </select>
-                            <input type="url" name="redes[<?= $i ?>][link]" class="form-control" value="<?= esc($red['link']) ?>" placeholder="https://..." class="admin-social-input" />
-                            <button type="button" class="btn btn-outline-danger btn-remove-red admin-form-input">&times;</button>
+                            <input type="url" name="redes[<?= $i ?>][link]" class="form-control admin-social-input" value="<?= esc($rLink) ?>" placeholder="<?= $rPlaceholder ?>" />
+                            <button type="button" class="btn btn-outline-danger btn-remove-red admin-form-input" title="Eliminar red social">&times;</button>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -233,21 +237,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fd = new FormData();
         fd.append('avatar', file);
+        fd.append('u_avatar', file);
 
         try {
             const res = await fetch('<?= base_url('api/perfil/avatar') ?>', { method: 'POST', body: fd });
             const data = await res.json();
             
             if (res.ok) {
-                showFeedback(true, data.message);
-                document.getElementById('profileAvatarImg').src = data.avatar_url;
-                document.getElementById('profileAvatarImg').style.objectFit = 'cover';
-                document.getElementById('profileAvatarImg').style.padding = '0';
+                showFeedback(true, data.message || 'Avatar actualizado correctamente.');
+                const avatarImg = document.getElementById('profileAvatarImg');
+                if (avatarImg) {
+                    avatarImg.src = data.avatar_url;
+                    avatarImg.style.objectFit = 'cover';
+                    avatarImg.style.padding = '0';
+                    avatarImg.classList.remove('avatar-default');
+                    avatarImg.classList.add('avatar-custom');
+                }
+                const sidebarAvatar = document.querySelector('.admin-sidebar__avatar');
+                if (sidebarAvatar) {
+                    sidebarAvatar.innerHTML = `<img src="${data.avatar_url}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+                }
             } else {
-                showFeedback(false, data.messages?.error || 'Error al subir la imagen');
+                showFeedback(false, data.messages?.error || data.message || 'Error al subir la imagen');
             }
         } catch (err) {
             showFeedback(false, 'Error de conexión');
+        } finally {
+            e.target.value = '';
         }
     });
 
@@ -275,13 +291,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Añadir/quitar redes sociales dinámicamente
     <?php if ($p): ?>
-    let redIndex = <?= count($redes) > 0 ? count($redes) : 1 ?>;
+    let redIndex = <?= count($redes) > 0 ? count($redes) : 0 ?>;
     
+    const placeholdersMap = {
+        instagram: 'https://instagram.com/tu_usuario',
+        facebook: 'https://facebook.com/tu_pagina',
+        tiktok: 'https://tiktok.com/@tu_usuario',
+        x: 'https://x.com/tu_usuario',
+        linkedin: 'https://linkedin.com/in/tu_usuario',
+        whatsapp: 'https://wa.me/54911xxxxxxxx'
+    };
+
+    const allowedHostsMap = {
+        instagram: ['instagram.com', 'www.instagram.com'],
+        facebook: ['facebook.com', 'www.facebook.com', 'fb.com', 'www.fb.com', 'm.facebook.com'],
+        tiktok: ['tiktok.com', 'www.tiktok.com'],
+        x: ['x.com', 'www.x.com', 'twitter.com', 'www.twitter.com'],
+        linkedin: ['linkedin.com', 'www.linkedin.com'],
+        whatsapp: ['wa.me', 'api.whatsapp.com', 'chat.whatsapp.com', 'web.whatsapp.com', 'whatsapp.com', 'www.whatsapp.com']
+    };
+
+    const checkEmptyRedes = () => {
+        const container = document.getElementById('redesContainer');
+        const rows = container.querySelectorAll('.red-social-row');
+        let emptyMsg = document.getElementById('noRedesMessage');
+        if (rows.length === 0) {
+            if (!emptyMsg) {
+                emptyMsg = document.createElement('div');
+                emptyMsg.id = 'noRedesMessage';
+                emptyMsg.className = 'text-muted admin-text-sm py-2 mb-3';
+                emptyMsg.innerHTML = 'No tienes redes sociales configuradas actualmente. Haz clic en <strong>Añadir red</strong> para añadir una.';
+                container.appendChild(emptyMsg);
+            }
+        } else if (emptyMsg) {
+            emptyMsg.remove();
+        }
+    };
+
+    // Actualizar placeholder automáticamente al cambiar la plataforma
+    document.getElementById('redesContainer').addEventListener('change', (e) => {
+        if (e.target.classList.contains('admin-social-select')) {
+            const row = e.target.closest('.red-social-row');
+            const input = row ? row.querySelector('input') : null;
+            if (input) {
+                input.placeholder = placeholdersMap[e.target.value] || 'https://...';
+            }
+        }
+    });
+
     document.getElementById('btnAddRed').addEventListener('click', () => {
         const container = document.getElementById('redesContainer');
+        const emptyMsg = document.getElementById('noRedesMessage');
+        if (emptyMsg) {
+            emptyMsg.remove();
+        }
         const row = document.createElement('div');
-        row.className = 'red-social-row';
-        row.style = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
+        row.className = 'red-social-row admin-social-row';
         row.innerHTML = `
             <select name="redes[${redIndex}][tipo]" class="form-control admin-social-select">
                 <option value="">Seleccionar...</option>
@@ -292,42 +357,258 @@ document.addEventListener('DOMContentLoaded', () => {
                 <option value="linkedin">LinkedIn</option>
                 <option value="whatsapp">WhatsApp</option>
             </select>
-            <input type="url" name="redes[${redIndex}][link]" class="form-control" placeholder="https://..." class="admin-social-input" />
-            <button type="button" class="btn btn-outline-danger btn-remove-red admin-form-input">&times;</button>
+            <input type="url" name="redes[${redIndex}][link]" class="form-control admin-social-input" placeholder="https://..." />
+            <button type="button" class="btn btn-outline-danger btn-remove-red admin-form-input" title="Eliminar red social">&times;</button>
         `;
         container.appendChild(row);
         redIndex++;
     });
 
     document.getElementById('redesContainer').addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-remove-red')) {
-            Swal.fire({
-                title: '¿Eliminar red social?',
-                text: "Se quitará esta fila. Recuerda guardar los cambios.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, quitar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    e.target.closest('.red-social-row').remove();
+        const btn = e.target.closest('.btn-remove-red');
+        if (!btn) return;
+
+        const row = btn.closest('.red-social-row');
+        if (!row) return;
+
+        const select = row.querySelector('select');
+        const input = row.querySelector('input');
+        const tipoVal = select ? select.value : '';
+        const linkVal = input ? input.value.trim() : '';
+
+        // Si la fila estaba totalmente vacía, quitarla directamente
+        if (!tipoVal && !linkVal) {
+            row.remove();
+            checkEmptyRedes();
+            return;
+        }
+
+        const tipoLabel = tipoVal ? select.options[select.selectedIndex]?.text : 'esta red social';
+
+        Swal.fire({
+            title: '¿Eliminar red social?',
+            text: `¿Estás segura de que deseas eliminar ${tipoLabel}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                row.remove();
+                checkEmptyRedes();
+
+                // Persistir inmediatamente los cambios en la base de datos
+                const form = document.getElementById('redesForm');
+                const fd = new FormData(form);
+
+                try {
+                    const res = await fetch('<?= base_url('api/perfil/redes') ?>', { method: 'POST', body: fd });
+                    const data = await res.json();
+                    if (res.ok) {
+                        Swal.fire({
+                            title: '¡Eliminada!',
+                            text: 'La red social se eliminó y los cambios fueron guardados.',
+                            icon: 'success',
+                            timer: 1800,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.messages?.error || data.message || 'No se pudieron guardar los cambios.',
+                            icon: 'error'
+                        });
+                    }
+                } catch (err) {
                     Swal.fire({
-                        title: '¡Eliminada!',
-                        text: 'Fila removida. No olvides guardar.',
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
+                        title: 'Error de conexión',
+                        text: 'No se pudo comunicar con el servidor.',
+                        icon: 'error'
                     });
                 }
-            });
-        }
+            }
+        });
     });
 
-    // Guardar Redes
+    const validateRedesForm = () => {
+        const rows = document.querySelectorAll('#redesContainer .red-social-row');
+        const seenTipos = new Set();
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const select = row.querySelector('select');
+            const input = row.querySelector('input');
+            const tipo = select ? select.value.trim().toLowerCase() : '';
+            let link = input ? input.value.trim() : '';
+            const tipoLabel = select && select.value ? select.options[select.selectedIndex]?.text : 'esta red social';
+
+            // 1. Control de fila completamente vacía
+            if (!tipo && !link) {
+                Swal.fire({
+                    title: 'Fila incompleta',
+                    text: 'Hay una fila de red social vacía. Completa los datos o elimínala antes de guardar.',
+                    icon: 'warning',
+                    confirmButtonColor: '#d6858e'
+                });
+                select && select.focus();
+                return false;
+            }
+
+            // 2. Control de tipo seleccionado pero link vacío
+            if (tipo && !link) {
+                Swal.fire({
+                    title: 'Enlace requerido',
+                    text: `El enlace para ${tipoLabel} no puede estar vacío.`,
+                    icon: 'warning',
+                    confirmButtonColor: '#d6858e'
+                });
+                input && input.focus();
+                return false;
+            }
+
+            // 3. Control de link ingresado pero tipo sin seleccionar
+            if (!tipo && link) {
+                Swal.fire({
+                    title: 'Red no seleccionada',
+                    text: 'Debes seleccionar a qué red social corresponde el enlace ingresado.',
+                    icon: 'warning',
+                    confirmButtonColor: '#d6858e'
+                });
+                select && select.focus();
+                return false;
+            }
+
+            // 4. Control de duplicados
+            if (seenTipos.has(tipo)) {
+                Swal.fire({
+                    title: 'Red duplicada',
+                    text: `No puedes agregar ${tipoLabel} más de una vez.`,
+                    icon: 'warning',
+                    confirmButtonColor: '#d6858e'
+                });
+                select && select.focus();
+                return false;
+            }
+            seenTipos.add(tipo);
+
+            // 5. Rechazo estricto de HTTP inseguro
+            if (link.toLowerCase().startsWith('http://')) {
+                Swal.fire({
+                    title: 'Protocolo inseguro',
+                    text: `El enlace de ${tipoLabel} debe usar protocolo seguro HTTPS (https://) en lugar de HTTP.`,
+                    icon: 'warning',
+                    confirmButtonColor: '#d6858e'
+                });
+                input && input.focus();
+                return false;
+            }
+
+            // 6. Normalizar y validar estructura de URL
+            if (!link.includes('/')) {
+                if (tipo === 'whatsapp') {
+                    const cleanNum = link.replace(/[^0-9]/g, '');
+                    if (!cleanNum) {
+                        Swal.fire({
+                            title: 'Número requerido',
+                            text: `Debes ingresar un número telefónico con código de país para WhatsApp. Ejemplo: ${placeholdersMap[tipo]}`,
+                            icon: 'warning',
+                            confirmButtonColor: '#d6858e'
+                        });
+                        input && input.focus();
+                        return false;
+                    }
+                    link = 'https://wa.me/' + cleanNum;
+                } else if (tipo === 'linkedin') {
+                    link = 'https://linkedin.com/in/' + link.replace(/^@/, '');
+                } else if (tipo === 'tiktok') {
+                    link = 'https://tiktok.com/@' + link.replace(/^@/, '');
+                } else {
+                    link = `https://${tipo}.com/` + link.replace(/^@/, '');
+                }
+                if (input) input.value = link;
+            } else if (!link.toLowerCase().startsWith('https://')) {
+                link = 'https://' + link.replace(/^\/+/, '');
+                if (input) input.value = link;
+            }
+
+            // 7. Parsear URL y verificar protocolo
+            let parsed;
+            try {
+                parsed = new URL(link);
+            } catch (err) {
+                Swal.fire({
+                    title: 'Enlace inválido',
+                    text: `El enlace ingresado para ${tipoLabel} no es una URL válida. Ejemplo: ${placeholdersMap[tipo]}`,
+                    icon: 'warning',
+                    confirmButtonColor: '#d6858e'
+                });
+                input && input.focus();
+                return false;
+            }
+
+            if (parsed.protocol !== 'https:') {
+                Swal.fire({
+                    title: 'Protocolo inseguro',
+                    text: `El enlace de ${tipoLabel} debe ser estrictamente HTTPS.`,
+                    icon: 'warning',
+                    confirmButtonColor: '#d6858e'
+                });
+                input && input.focus();
+                return false;
+            }
+
+            // 8. Dominio oficial auténtico
+            const allowed = allowedHostsMap[tipo] || [];
+            if (!allowed.includes(parsed.hostname.toLowerCase())) {
+                Swal.fire({
+                    title: 'Dominio incorrecto',
+                    text: `El enlace no corresponde a la plataforma oficial de ${tipoLabel}. Debe ser del formato: ${placeholdersMap[tipo]}`,
+                    icon: 'warning',
+                    confirmButtonColor: '#d6858e'
+                });
+                input && input.focus();
+                return false;
+            }
+
+            // 9. Verificar que incluya usuario/perfil real y no solo la portada
+            const path = parsed.pathname.replace(/^\/+|\/+$/g, '');
+            if (tipo === 'whatsapp') {
+                if (!path && !parsed.searchParams.get('phone')) {
+                    Swal.fire({
+                        title: 'Teléfono requerido',
+                        text: `Debes incluir tu número con código de país en el enlace de WhatsApp. Ejemplo: ${placeholdersMap[tipo]}`,
+                        icon: 'warning',
+                        confirmButtonColor: '#d6858e'
+                    });
+                    input && input.focus();
+                    return false;
+                }
+            } else if (!path) {
+                Swal.fire({
+                    title: 'Perfil requerido',
+                    text: `Debes incluir tu usuario o enlace a tu perfil en ${tipoLabel}, no solo la página de inicio (${placeholdersMap[tipo]}).`,
+                    icon: 'warning',
+                    confirmButtonColor: '#d6858e'
+                });
+                input && input.focus();
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    // Guardar Redes manualmente
     document.getElementById('redesForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Controlar en frontend antes de enviar
+        if (!validateRedesForm()) {
+            return;
+        }
+
         const fd = new FormData(e.target);
         
         try {
@@ -336,7 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 showFeedback(true, data.message);
             } else {
-                showFeedback(false, data.messages?.error || 'Error al guardar');
+                showFeedback(false, data.messages?.error || data.message || 'Error al guardar');
             }
         } catch (err) {
             showFeedback(false, 'Error de conexión');
