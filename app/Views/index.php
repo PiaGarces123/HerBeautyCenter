@@ -45,51 +45,12 @@ if (!function_exists('esc')) {
 
     <!-- 
       |======================================================
-      | INCLUSIÓN DEL HEADER
+      | INCLUSIÓN DEL HEADER Y MENÚ MÓVIL
       | Llama a la vista 'app/Views/modals/header.php' e inserta 
-      | la barra de navegación superior (Navbar).
+      | la barra de navegación superior (Navbar) y el drawer móvil.
       |====================================================== 
     -->
     <?= $this->include('modals/header') ?>
-
-    <!-- Mobile Navigation Drawer -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu__overlay" id="mobileMenuOverlay"></div>
-        <nav class="mobile-menu__content">
-            <button aria-label="Cerrar menú" class="mobile-menu__close-btn" id="mobileMenuClose">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            <a class="mobile-menu__logo" href="#">Her Beauty Center</a>
-            <ul class="mobile-menu__links">
-                <li><a class="mobile-menu__link" href="#servicios">Servicios</a></li>
-                <li><a class="mobile-menu__link" href="#profesionales">Profesionales</a></li>
-                <li><a class="mobile-menu__link" href="#nosotros">Nosotros</a></li>
-                <li><a class="mobile-menu__link" href="#contacto">Contacto</a></li>
-                <li class="mobile-menu__user-section">
-                    <?php if (function_exists('session') && session()->get('usuario_id')): ?>
-                        <?php if (session()->get('rol') === 'admin'): ?>
-                            <a class="mobile-menu__link mobile-menu__admin-link" href="<?= base_url('admin') ?>">
-                                <span class="material-symbols-outlined">dashboard</span> Panel Admin
-                            </a>
-                        <?php else: ?>
-                            <div class="mobile-menu__user-greeting">
-                                <span class="material-symbols-outlined">account_circle</span>
-                                <?= esc(session()->get('usuario_nombre')) ?>
-                            </div>
-                        <?php endif; ?>
-                        <a class="mobile-menu__link mobile-menu__logout-link" href="<?= base_url('logout') ?>">
-                            <span class="material-symbols-outlined">logout</span> Cerrar Sesión
-                        </a>
-                    <?php else: ?>
-                        <button class="btn btn--primary mobile-menu__login-btn" id="mobileLoginBtn" data-bs-toggle="modal"
-                            data-bs-target="#loginModal">
-                            <span class="material-symbols-outlined">login</span> Iniciar Sesión / Registro
-                        </button>
-                    <?php endif; ?>
-                </li>
-            </ul>
-        </nav>
-    </div>
 
     <!-- Main Content Area -->
     <main>
@@ -151,22 +112,26 @@ if (!function_exists('esc')) {
                         $cardIndex++;
                         ?>
                         <article class="srv-card <?= $isWide ?>">
-                            <div class="srv-card__img-wrap">
+                            <a href="<?= base_url('servicio/' . $servicio['s_id']) ?>" class="srv-card__img-wrap d-block text-decoration-none">
                                 <img src="<?= $imagen ?>" alt="<?= esc($servicio['s_nbre']) ?>" class="srv-card__img"
                                     loading="lazy" />
                                 <div class="srv-card__badge">
                                     <span class="material-symbols-outlined">schedule</span>
                                     <?= esc($servicio['s_duracionMinutos']) ?> min
                                 </div>
-                            </div>
+                            </a>
                             <div class="srv-card__body">
-                                <h3 class="srv-card__title"><?= esc($servicio['s_nbre']) ?></h3>
+                                <h3 class="srv-card__title">
+                                    <a href="<?= base_url('servicio/' . $servicio['s_id']) ?>" class="text-decoration-none text-reset">
+                                        <?= esc($servicio['s_nbre']) ?>
+                                    </a>
+                                </h3>
                                 <p class="srv-card__desc"><?= esc(mb_strimwidth($servicio['s_desc'] ?? '', 0, 120, '�?�')) ?>
                                 </p>
                                 <?php if (!empty($servicio['s_precio']) && $servicio['s_precio'] > 0): ?>
                                     <p class="srv-card__price">Desde $<?= number_format($servicio['s_precio'], 0, ',', '.') ?></p>
                                 <?php endif; ?>
-                                <a href="#contacto" class="srv-card__btn">
+                                <a href="<?= base_url('servicio/' . $servicio['s_id']) ?>" class="srv-card__btn">
                                     Reservar Turno
                                     <span class="material-symbols-outlined">arrow_forward</span>
                                 </a>
@@ -259,7 +224,7 @@ if (!function_exists('esc')) {
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
-                            <button class="pro-card__btn">Reservar turno</button>
+                            <a href="#servicios" class="pro-card__btn text-decoration-none text-center">Reservar turno</a>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -276,7 +241,7 @@ if (!function_exists('esc')) {
                     <br> Agendá tu cita hoy y dejate consentir en
                     <strong> Her Beauty Center</strong>
                 </p>
-                <a class="btn btn--dark-solid cta-banner__btn" href="#contacto">Solicitar turno</a>
+                <a class="btn btn--dark-solid cta-banner__btn" href="#servicios">Solicitar turno</a>
             </div>
         </section>
 

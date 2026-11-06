@@ -5,13 +5,6 @@ Auth Filter (Tests\Unit\AuthFilter)
  [x] Rol no autorizado api retorna 403
  [x] Usuario autorizado pasa filtro
 
-Example Database
- [x] Model find all
- [x] Soft delete leaves row
-
-Example Session
- [x] Session simple
-
 Health
  [x] Is defined app path
  [x] Base url has been set
@@ -28,6 +21,15 @@ Perfil (Tests\Unit\Perfil)
  [x] Longitud minima password
  [x] Campos permitidos y protegidos
  [x] Validacion redes sociales
+
+Reserva Cliente (Tests\Unit\ReservaCliente)
+ [x] Invitado anonimo en ruta reserva redirige a login
+ [x] Peticion api reserva sin sesion retorna 401
+ [x] Cliente autenticado accede a rutas de cliente
+ [x] Cliente no puede acceder a panel admin
+ [x] Reserva cliente nace en estado solicitado sin abonar
+ [x] Reglas cancelacion turno por cliente
+ [x] Metodos de modelos incremento 3 existen
 
 Servicio (Tests\Unit\Servicio)
  [x] Rango duracion servicio

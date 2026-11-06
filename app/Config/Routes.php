@@ -5,6 +5,23 @@ use CodeIgniter\Router\RouteCollection;
 /** @var RouteCollection $routes */
 $routes->get('/', 'Home::index');
 
+// =========================================================================
+// VISTAS PÚBLICAS Y DEL CLIENTE (Incremento N° 3)
+// =========================================================================
+// CU01: Vista de detalle de servicio con carrusel de fotos (acceso público)
+$routes->get('servicio/(:num)', 'Cliente::servicio/$1');
+
+// Rutas web autenticadas para Clientes (y usuarios con sesión activa)
+$routes->group('', ['filter' => 'auth:all'], function ($routes) {
+    // CU04: Flujo de solicitud y reserva de turnos
+    $routes->get('reservar/(:num)',           'Cliente::reservar/$1');
+    $routes->get('reservar/confirmar/(:num)', 'Cliente::confirmar/$1');
+
+    // CU05: Panel del Cliente ("Mis Turnos" y "Mi Perfil")
+    $routes->get('mis-turnos',                'Cliente::misTurnos');
+    $routes->get('mi-perfil',                 'Cliente::perfil');
+});
+
 // Auth pública & Logout
 $routes->match(['get', 'post'], '/logout', 'Auth::logout');
 
@@ -54,16 +71,29 @@ $routes->group('api', function ($routes) {
     });
 
     // ---------------------------------------------------------------------
+    // API: Usuarios Autenticados (Cliente, Profesional y Administrador)
+    // ---------------------------------------------------------------------
+    $routes->group('', ['filter' => 'auth:all'], function ($routes) {
+        // Perfil APIs (reutilizadas en panel profesional/admin y panel cliente)
+        $routes->post('perfil/actualizar', 'Api\PerfilApi::actualizar');
+        $routes->post('perfil/password',   'Api\PerfilApi::password');
+        $routes->post('perfil/avatar',     'Api\PerfilApi::avatar');
+
+        // Reservas y Turnos del Cliente (Incremento N° 3 — CU04 y CU05)
+        $routes->get('reservas/disponibilidad',                  'Api\ReservasApi::disponibilidad');
+        $routes->post('reservas/confirmar',                      'Api\ReservasApi::confirmar');
+        $routes->put('cliente/turnos/cancelar/(:num)',           'Api\ReservasApi::cancelarTurno/$1');
+        $routes->post('cliente/turnos/google-calendar/(:num)',   'Api\ReservasApi::exportarGoogleCalendar/$1');
+    });
+
+    // ---------------------------------------------------------------------
     // API: Administrador y Profesional (Incrementos 1 y 2)
     // ---------------------------------------------------------------------
     $routes->group('', ['filter' => 'auth:admin,profesional'], function ($routes) {
         // Dashboard Profesional
         $routes->get('dashboard/profesional', 'Api\DashboardApi::profesionalStats');
 
-        // Perfil APIs
-        $routes->post('perfil/actualizar', 'Api\PerfilApi::actualizar');
-        $routes->post('perfil/password',   'Api\PerfilApi::password');
-        $routes->post('perfil/avatar',     'Api\PerfilApi::avatar');
+        // Redes sociales de profesional
         $routes->post('perfil/redes',      'Api\PerfilApi::redes');
 
         // Horarios / Disponibilidades (CU08)

@@ -98,4 +98,73 @@ class TurnoModel extends Model
     {
         return in_array($estadoNuevo, self::TRANSICIONES_VALIDAS[$estadoActual] ?? [], true);
     }
+
+    // ------------------------------------------------------------
+    // Incremento N° 3 (CU05): Obtener el próximo turno activo de un cliente
+    // ------------------------------------------------------------
+    public function getProximoTurnoCliente(int $cId): ?array
+    {
+        $hoy = date('Y-m-d');
+
+        $row = $this->db->table('turno')
+            ->select('turno.*, horario.h_fecha AS fecha, horario.h_horaDesde, horario.h_horaHasta,
+                      servicio.s_nbre AS nombre_servicio, servicio.s_id AS servicio_id,
+                      servicio.s_duracionMinutos AS duracion_servicio, servicio.s_precio AS precio_servicio,
+                      profesional.p_id AS profesional_id, profesional.p_titulo AS titulo_profesional,
+                      u_prof.u_nbreCompleto AS nombre_profesional, u_prof.u_avatar AS avatar_profesional')
+            ->join('horario', 'horario.h_id = turno.t_hId')
+            ->join('servicio', 'servicio.s_id = horario.h_sId', 'left')
+            ->join('profesional', 'profesional.p_id = turno.t_pId')
+            ->join('usuario AS u_prof', 'u_prof.u_id = profesional.u_id')
+            ->where('turno.t_cId', $cId)
+            ->whereIn('turno.estado', ['Solicitado', 'Confirmado'])
+            ->where('horario.h_fecha >=', $hoy)
+            ->orderBy('horario.h_fecha', 'ASC')
+            ->orderBy('horario.h_horaDesde', 'ASC')
+            ->limit(1)
+            ->get()->getRowArray();
+
+        return $row ?: null;
+    }
+
+    // ------------------------------------------------------------
+    // Incremento N° 3 (CU05): Obtener todos los turnos de un cliente con filtros
+    // ------------------------------------------------------------
+    public function getTurnosCliente(int $cId, array $filtros = []): array
+    {
+        $hoy = date('Y-m-d');
+
+        $builder = $this->db->table('turno')
+            ->select('turno.*, horario.h_fecha AS fecha, horario.h_horaDesde, horario.h_horaHasta,
+                      servicio.s_nbre AS nombre_servicio, servicio.s_id AS servicio_id,
+                      servicio.s_duracionMinutos AS duracion_servicio, servicio.s_precio AS precio_servicio,
+                      profesional.p_id AS profesional_id, profesional.p_titulo AS titulo_profesional,
+                      u_prof.u_nbreCompleto AS nombre_profesional, u_prof.u_avatar AS avatar_profesional')
+            ->join('horario', 'horario.h_id = turno.t_hId')
+            ->join('servicio', 'servicio.s_id = horario.h_sId', 'left')
+            ->join('profesional', 'profesional.p_id = turno.t_pId')
+            ->join('usuario AS u_prof', 'u_prof.u_id = profesional.u_id')
+            ->where('turno.t_cId', $cId)
+            ->where('turno.estado !=', 'Disponible');
+
+        if (!empty($filtros['estado']) && in_array($filtros['estado'], ['Solicitado', 'Confirmado', 'Realizado', 'Cancelado'], true)) {
+            $builder->where('turno.estado', $filtros['estado']);
+        }
+
+        if (!empty($filtros['periodo'])) {
+            if ($filtros['periodo'] === 'proximos') {
+                $builder->whereIn('turno.estado', ['Solicitado', 'Confirmado'])
+                        ->where('horario.h_fecha >=', $hoy);
+            } elseif ($filtros['periodo'] === 'historial') {
+                $builder->groupStart()
+                            ->whereIn('turno.estado', ['Realizado', 'Cancelado'])
+                            ->orWhere('horario.h_fecha <', $hoy)
+                        ->groupEnd();
+            }
+        }
+
+        return $builder->orderBy('horario.h_fecha', 'DESC')
+            ->orderBy('horario.h_horaDesde', 'DESC')
+            ->get()->getResultArray();
+    }
 }

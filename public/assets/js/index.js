@@ -261,6 +261,9 @@ function initAuthModals() {
 
     // Helper para obtener la URL relativa de la API según la ubicación actual
     const getApiUrl = (endpoint) => {
+        if (window.APP_CONFIG && window.APP_CONFIG.apiUrl) {
+            return `${window.APP_CONFIG.apiUrl.replace(/\/+$/, '')}/${endpoint}`;
+        }
         // Obtiene la URL relativa de la API según la ubicación actual
         const path = window.location.pathname;
         let base = '';
@@ -280,6 +283,14 @@ function initAuthModals() {
         // Retorna la URL relativa de la API
         return `${base}/api/${endpoint}`;
     };
+
+    // Guardar destino opcional post-login cuando un botón abre #loginModal
+    let pendingAfterLoginUrl = null;
+    document.querySelectorAll('[data-redirect-after-login]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            pendingAfterLoginUrl = btn.getAttribute('data-redirect-after-login') || null;
+        });
+    });
 
 
 
@@ -442,32 +453,29 @@ function initAuthModals() {
                 // Si el inicio de sesión es exitoso
                 if (result.success) {
                     closeModal(loginModal);
-                    // Define la URL de redirección
-                    const redirectUrl = (result.rol === 'admin' || result.rol === 'profesional')
-                        ? window.APP_CONFIG.baseUrl + '/admin'
-                        : window.location.href;
+                    // Define la URL de redirección (prioriza redirección pendiente de reserva si existe)
+                    const redirectUrl = pendingAfterLoginUrl
+                        ? pendingAfterLoginUrl
+                        : ((result.rol === 'admin' || result.rol === 'profesional')
+                            ? window.APP_CONFIG.baseUrl + '/admin'
+                            : window.location.href);
+
+                    const navigatePostLogin = () => {
+                        if (pendingAfterLoginUrl || result.rol === 'admin' || result.rol === 'profesional') {
+                            window.location.href = redirectUrl;
+                        } else {
+                            window.location.reload();
+                        }
+                    };
 
                     // Muestra un mensaje de éxito
                     window.AppModal.success({
                         title: '¡Bienvenido/a!',
                         message: 'Inicio de sesión exitoso.',
-                        onOk: () => {
-                            // Si el rol es admin o profesional, redirige al admin
-                            if (result.rol === 'admin' || result.rol === 'profesional') {
-                                window.location.href = redirectUrl;
-                            } else {
-                                window.location.reload();
-                            }
-                        }
+                        onOk: navigatePostLogin
                     });
                     // Redirige al usuario después de 1.5 segundos
-                    setTimeout(() => {
-                        if (result.rol === 'admin' || result.rol === 'profesional') {
-                            window.location.href = redirectUrl;
-                        } else {
-                            window.location.reload();
-                        }
-                    }, 1500);
+                    setTimeout(navigatePostLogin, 1500);
                 } else {
                     // Si el inicio de sesión no es exitoso, mostrar en el div de error
                     if (errorDiv) {
@@ -579,7 +587,13 @@ function initAuthModals() {
                     window.AppModal.success({
                         title: '¡Cuenta Creada!',
                         message: 'Tu cuenta ha sido creada exitosamente. Iniciando sesión...',
-                        onOk: () => window.location.reload()
+                        onOk: () => {
+                            if (pendingAfterLoginUrl) {
+                                window.location.href = pendingAfterLoginUrl;
+                            } else {
+                                window.location.reload();
+                            }
+                        }
                     });
 
 

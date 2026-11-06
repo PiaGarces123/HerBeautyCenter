@@ -3,17 +3,17 @@
     <div class="footer__simple-container">
         <!-- Left Logo -->
         <div class="footer__simple-logo">
-            <a href="#">
-                <img src="public/assets/media/logoText.png" alt="Logo Her Beauty Center" class="footer__logo-img" />
+            <a href="<?= base_url('/') ?>">
+                <img src="<?= base_url('public/assets/media/logoText.png') ?>" alt="Logo Her Beauty Center" class="footer__logo-img" />
             </a>
         </div>
 
         <!-- Middle Nav Links (Horizontal Row) -->
         <div class="footer__simple-nav">
-            <a class="footer__simple-link" href="#servicios">Servicios</a>
-            <a class="footer__simple-link" href="#profesionales">Profesionales</a>
-            <a class="footer__simple-link" href="#nosotros">Nosotros</a>
-            <a class="footer__simple-link" href="#contacto">Contacto</a>
+            <a class="footer__simple-link" href="<?= base_url('/#servicios') ?>">Servicios</a>
+            <a class="footer__simple-link" href="<?= base_url('/#profesionales') ?>">Profesionales</a>
+            <a class="footer__simple-link" href="<?= base_url('/#nosotros') ?>">Nosotros</a>
+            <a class="footer__simple-link" href="<?= base_url('/#contacto') ?>">Contacto</a>
         </div>
 
         <!-- Right Social Icons (2 Rows: 3 and 2) -->

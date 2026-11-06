@@ -112,4 +112,85 @@ class HorarioModel extends Model
         if ($excludeHId !== null) $builder->where('horario.h_id !=', $excludeHId);
         return $builder->countAllResults() > 0;
     }
+
+    // ------------------------------------------------------------
+    // Incremento N° 3 (CU04): Obtener disponibilidad de un servicio
+    // para el calendario y el modal de selección de horarios
+    // ------------------------------------------------------------
+    public function getDisponibilidadServicio(int $sId, array $filtros = []): array
+    {
+        $hoy = date('Y-m-d');
+
+        $builder = $this->db->table('horario')
+            ->select('horario.h_id, horario.h_pId, horario.h_sId, horario.h_fecha, horario.h_horaDesde, horario.h_horaHasta,
+                      servicio.s_nbre AS nombre_servicio, servicio.s_duracionMinutos, servicio.s_precio,
+                      profesional.p_id, profesional.p_titulo AS titulo_profesional,
+                      u_prof.u_nbreCompleto AS nombre_profesional, u_prof.u_avatar AS avatar_profesional')
+            ->join('servicio', 'servicio.s_id = horario.h_sId')
+            ->join('profesional', 'profesional.p_id = horario.h_pId')
+            ->join('usuario AS u_prof', 'u_prof.u_id = profesional.u_id')
+            ->where('horario.h_sId', $sId)
+            ->where('servicio.s_activo', 1)
+            ->where('u_prof.u_activo', 1)
+            ->where('horario.h_fecha >=', $hoy)
+            ->where("NOT EXISTS (SELECT 1 FROM turno WHERE turno.t_hId = horario.h_id AND turno.estado IN ('Solicitado', 'Confirmado', 'Realizado'))", null, false);
+
+        if (!empty($filtros['p_id'])) {
+            $builder->where('horario.h_pId', (int) $filtros['p_id']);
+        }
+
+        if (!empty($filtros['fecha'])) {
+            $builder->where('horario.h_fecha', $filtros['fecha']);
+        }
+
+        if (!empty($filtros['start'])) {
+            $builder->where('horario.h_fecha >=', $filtros['start']);
+        }
+
+        if (!empty($filtros['end'])) {
+            $builder->where('horario.h_fecha <=', $filtros['end']);
+        }
+
+        if (!empty($filtros['franja'])) {
+            if ($filtros['franja'] === 'manana') {
+                $builder->where('horario.h_horaDesde <', '13:00:00');
+            } elseif ($filtros['franja'] === 'tarde') {
+                $builder->where('horario.h_horaDesde >=', '13:00:00');
+            }
+        }
+
+        $rows = $builder->orderBy('horario.h_fecha', 'ASC')
+            ->orderBy('horario.h_horaDesde', 'ASC')
+            ->orderBy('u_prof.u_nbreCompleto', 'ASC')
+            ->get()->getResultArray();
+
+        // Filtrado opcional por día de la semana (1 = Lunes .. 7 = Domingo, compatible con MySQL y SQLite)
+        if (!empty($filtros['dia_semana'])) {
+            $diaBuscado = (int) $filtros['dia_semana'];
+            $rows = array_values(array_filter($rows, static function (array $row) use ($diaBuscado): bool {
+                return (int) date('N', strtotime($row['h_fecha'])) === $diaBuscado;
+            }));
+        }
+
+        return $rows;
+    }
+
+    // ------------------------------------------------------------
+    // Incremento N° 3 (CU04): Detalle completo de un horario para pre-confirmación
+    // ------------------------------------------------------------
+    public function getHorarioParaReserva(int $hId): ?array
+    {
+        $row = $this->db->table('horario')
+            ->select('horario.*,
+                      servicio.s_id, servicio.s_nbre, servicio.s_desc, servicio.s_duracionMinutos, servicio.s_precio, servicio.s_activo,
+                      profesional.p_id, profesional.p_titulo,
+                      u_prof.u_nbreCompleto AS nombre_profesional, u_prof.u_avatar AS avatar_profesional, u_prof.u_activo AS prof_activo')
+            ->join('servicio', 'servicio.s_id = horario.h_sId')
+            ->join('profesional', 'profesional.p_id = horario.h_pId')
+            ->join('usuario AS u_prof', 'u_prof.u_id = profesional.u_id')
+            ->where('horario.h_id', $hId)
+            ->get()->getRowArray();
+
+        return $row ?: null;
+    }
 }
