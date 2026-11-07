@@ -21,25 +21,63 @@ class PerfilApi extends BaseController
 
         $req = $this->getRequestData();
 
-        $nombre = trim($req['u_nbreCompleto'] ?? $req['nombre'] ?? $req['name'] ?? '');
-        $telefono = trim($req['u_tel'] ?? $req['telefono'] ?? $req['tel'] ?? $req['phone'] ?? '');
-        $correo = trim($req['u_correo'] ?? $req['correo'] ?? $req['email'] ?? '');
+        $nombre = trim($req['nombre_completo'] ?? $req['u_nbreCompleto'] ?? $req['nombre'] ?? $req['name'] ?? '');
+        $telefono = trim($req['telefono'] ?? $req['u_tel'] ?? $req['tel'] ?? $req['phone'] ?? '');
+        $correo = trim($req['correo'] ?? $req['u_correo'] ?? $req['email'] ?? '');
+        $titulo = trim($req['titulo'] ?? $req['p_titulo'] ?? $req['title'] ?? '');
 
+        $errors = [];
         if (empty($nombre)) {
-            return $this->fail('El nombre es obligatorio.');
+            $errors['nombre_completo'] = 'El nombre completo es obligatorio.';
+        } elseif (mb_strlen($nombre) < 3) {
+            $errors['nombre_completo'] = 'El nombre debe tener al menos 3 caracteres.';
+        }
+
+        if (empty($correo)) {
+            $errors['correo'] = 'El correo electrónico es obligatorio.';
+        } elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            $errors['correo'] = 'Ingresá un correo electrónico válido.';
+        }
+
+        if (!empty($telefono)) {
+            $digits = preg_replace('/[^0-9]/', '', $telefono);
+            if (strlen($digits) < 8) {
+                $errors['telefono'] = 'El teléfono debe contener al menos 8 dígitos.';
+            }
         }
 
         $db = \Config\Database::connect();
 
         // Verificar si el correo ya existe en otro usuario
-        if ($correo) {
+        if ($correo && empty($errors['correo'])) {
             $exist = $db->table('usuario')
                 ->where('u_correo', $correo)
                 ->where('u_id !=', $usuario_id)
                 ->countAllResults();
             if ($exist > 0) {
-                return $this->fail('El correo ya está en uso por otro usuario.');
+                $errors['correo'] = 'El correo ya está en uso por otro usuario.';
             }
+        }
+
+        // Validar título profesional si corresponde
+        $profesional = $db->table('profesional')->where('u_id', $usuario_id)->get()->getRowArray();
+        if ($profesional && (isset($req['titulo']) || isset($req['p_titulo']) || isset($req['title']))) {
+            if (empty($titulo)) {
+                $errors['titulo'] = 'El título profesional es obligatorio.';
+            } elseif (mb_strlen($titulo) < 3) {
+                $errors['titulo'] = 'El título profesional debe tener al menos 3 caracteres.';
+            }
+        }
+
+        if (!empty($errors)) {
+            return $this->respond([
+                'status'   => 400,
+                'error'    => 400,
+                'success'  => false,
+                'errors'   => $errors,
+                'messages' => $errors,
+                'message'  => reset($errors)
+            ], 400);
         }
 
         $data = [
@@ -53,15 +91,8 @@ class PerfilApi extends BaseController
         $db->table('usuario')->where('u_id', $usuario_id)->update($data);
 
         // Update professional title if applicable
-        $profesional = $db->table('profesional')->where('u_id', $usuario_id)->get()->getRowArray();
-        if ($profesional) {
-            $titulo = trim($req['p_titulo'] ?? $req['titulo'] ?? $req['title'] ?? '');
-            if (!empty($titulo)) {
-                if (strlen($titulo) < 3) {
-                    return $this->fail('El título profesional debe tener al menos 3 caracteres.');
-                }
-                $db->table('profesional')->where('p_id', $profesional['p_id'])->update(['p_titulo' => $titulo]);
-            }
+        if ($profesional && !empty($titulo)) {
+            $db->table('profesional')->where('p_id', $profesional['p_id'])->update(['p_titulo' => $titulo]);
         }
 
         // Actualizar consideraciones / alergias si el usuario es cliente
@@ -92,23 +123,49 @@ class PerfilApi extends BaseController
         $usuario_id = $this->getUserId();
         if (!$usuario_id) return $this->failUnauthorized('No autorizado');
 
-        $password_antigua = $this->request->getPost('password_antigua');
-        $password_nueva = $this->request->getPost('password_nueva');
-        $password_confirmar = $this->request->getPost('password_confirmar');
+        $req = $this->getRequestData();
+        $password_antigua = $req['password_antigua'] ?? '';
+        $password_nueva = $req['password_nueva'] ?? '';
+        $password_confirmar = $req['password_confirmar'] ?? '';
 
-        if (empty($password_antigua) || empty($password_nueva) || empty($password_confirmar)) {
-            return $this->fail('Todos los campos son obligatorios.');
+        $errors = [];
+        if (empty($password_antigua)) {
+            $errors['password_antigua'] = 'La contraseña actual es obligatoria.';
+        }
+        if (empty($password_nueva)) {
+            $errors['password_nueva'] = 'La nueva contraseña es obligatoria.';
+        } elseif (strlen($password_nueva) < 8) {
+            $errors['password_nueva'] = 'La nueva contraseña debe tener al menos 8 caracteres.';
+        }
+        if (empty($password_confirmar)) {
+            $errors['password_confirmar'] = 'Debes confirmar la nueva contraseña.';
+        } elseif ($password_nueva !== $password_confirmar) {
+            $errors['password_confirmar'] = 'Las contraseñas no coinciden.';
         }
 
-        if ($password_nueva !== $password_confirmar) {
-            return $this->fail('La nueva contraseña y la confirmación no coinciden.');
+        if (!empty($errors)) {
+            return $this->respond([
+                'status'   => 400,
+                'error'    => 400,
+                'success'  => false,
+                'errors'   => $errors,
+                'messages' => $errors,
+                'message'  => reset($errors)
+            ], 400);
         }
 
         $db = \Config\Database::connect();
         $user = $db->table('usuario')->where('u_id', $usuario_id)->get()->getRowArray();
 
         if (!password_verify($password_antigua, $user['u_pass'])) {
-            return $this->fail('La contraseña actual es incorrecta.');
+            return $this->respond([
+                'status'   => 400,
+                'error'    => 400,
+                'success'  => false,
+                'errors'   => ['password_antigua' => 'La contraseña actual es incorrecta.'],
+                'messages' => ['password_antigua' => 'La contraseña actual es incorrecta.'],
+                'message'  => 'La contraseña actual es incorrecta.'
+            ], 400);
         }
 
         $hash = password_hash($password_nueva, PASSWORD_DEFAULT);

@@ -825,18 +825,6 @@
     border-color: rgba(74, 44, 29, 0.7) !important;
 }
 
-.cl-next::after {
-    content: '';
-    position: absolute;
-    right: -4rem;
-    top: -4rem;
-    width: 12rem;
-    height: 12rem;
-    border-radius: 50%;
-    border: 1px solid var(--color-secondary-container);
-    pointer-events: none;
-}
-
 .cl-next__top {
     display: flex;
     flex-wrap: wrap;

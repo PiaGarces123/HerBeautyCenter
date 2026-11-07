@@ -15,12 +15,26 @@ Horario (Tests\Unit\Horario)
  [x] Consistencia cronologica
  [x] Algoritmo solapamiento horario
 
+Mis Turnos (Tests\Unit\MisTurnos)
+ [x] Acceso mis turnos requiere autenticacion cliente
+ [x] Staff es bloqueado de mis turnos
+ [x] Proximo turno filtra estados y fechas validas
+ [x] Clasificacion periodos turnos cliente
+ [x] Calculo contadores mis turnos
+ [x] Cancelacion de turno libera horario para nuevas reservas
+ [x] Exportacion google calendar solo para confirmados
+ [x] Motivo cancelacion por defecto clienta
+
 Perfil (Tests\Unit\Perfil)
  [x] Hash seguro de password
  [x] Validacion email
  [x] Longitud minima password
  [x] Campos permitidos y protegidos
  [x] Validacion redes sociales
+ [x] Mapeo parametros alias nombre completo
+ [x] Validacion titulo profesional
+ [x] Validacion consideraciones cliente
+ [x] Estructura errores individuales por campo
 
 Reserva Cliente (Tests\Unit\ReservaCliente)
  [x] Invitado anonimo en ruta reserva redirige a login

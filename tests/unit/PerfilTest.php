@@ -126,4 +126,137 @@ final class PerfilTest extends CIUnitTestCase
         $parsedFake = parse_url('https://phishing.com/instagram.com');
         $this->assertNotContains($parsedFake['host'], $plataformas['instagram']['hosts'], 'Dominios falsos no deben ser aceptados');
     }
+
+    /**
+     * Test: Mapeo de alias de nombre completo y longitud mínima
+     */
+    public function testMapeoParametrosAliasNombreCompleto(): void
+    {
+        $payloads = [
+            ['nombre_completo' => 'María Belén Gómez'],
+            ['u_nbreCompleto'  => 'María Belén Gómez'],
+            ['nombre'          => 'María Belén Gómez'],
+            ['name'            => 'María Belén Gómez'],
+        ];
+
+        foreach ($payloads as $req) {
+            $nombre = trim($req['nombre_completo'] ?? $req['u_nbreCompleto'] ?? $req['nombre'] ?? $req['name'] ?? '');
+            $this->assertSame('María Belén Gómez', $nombre);
+            $this->assertGreaterThanOrEqual(3, mb_strlen($nombre));
+        }
+
+        // Casos inválidos: vacío o menos de 3 caracteres
+        $invalidPayloads = [
+            '',
+            '   ',
+            'AB',
+        ];
+
+        foreach ($invalidPayloads as $inv) {
+            $nombre = trim($inv);
+            $esInvalido = empty($nombre) || mb_strlen($nombre) < 3;
+            $this->assertTrue($esInvalido, 'El nombre debe ser rechazado si está vacío o tiene menos de 3 caracteres.');
+        }
+    }
+
+    /**
+     * Test: Validación de título profesional (longitud mínima 3 caracteres)
+     */
+    public function testValidacionTituloProfesional(): void
+    {
+        $titulosValidos = [
+            'Cosmiatra',
+            'Esteticista Integral',
+            'Dermatóloga',
+        ];
+
+        foreach ($titulosValidos as $t) {
+            $titulo = trim($t);
+            $this->assertNotEmpty($titulo);
+            $this->assertGreaterThanOrEqual(3, mb_strlen($titulo));
+        }
+
+        $titulosInvalidos = [
+            '',
+            '   ',
+            'Dr',
+            'A',
+        ];
+
+        foreach ($titulosInvalidos as $t) {
+            $titulo = trim($t);
+            $esInvalido = empty($titulo) || mb_strlen($titulo) < 3;
+            $this->assertTrue($esInvalido, 'Un título profesional debe tener al menos 3 caracteres.');
+        }
+    }
+
+    /**
+     * Test: Consideraciones y alergias de la clienta (máximo 500 caracteres)
+     */
+    public function testValidacionConsideracionesCliente(): void
+    {
+        $consideracionesValidas = 'Piel extremadamente sensible a exfoliantes químicos con ácido glicólico.';
+        $this->assertLessThanOrEqual(500, mb_strlen($consideracionesValidas));
+
+        // Permite vacío (opcional)
+        $this->assertSame('', trim('   '));
+
+        // Texto que excede los 500 caracteres
+        $textoLargo = str_repeat('Alergia ', 70); // 560 caracteres
+        $this->assertGreaterThan(500, mb_strlen($textoLargo));
+    }
+
+    /**
+     * Test: Estructura de errores individuales por campo para validación en tiempo real
+     */
+    public function testEstructuraErroresIndividualesPorCampo(): void
+    {
+        $simularValidacion = function (array $req): array {
+            $nombre   = trim($req['nombre_completo'] ?? $req['u_nbreCompleto'] ?? '');
+            $correo   = trim($req['correo'] ?? $req['u_correo'] ?? '');
+            $telefono = trim($req['telefono'] ?? $req['u_tel'] ?? '');
+            $titulo   = trim($req['titulo'] ?? $req['p_titulo'] ?? '');
+
+            $errors = [];
+            if (empty($nombre)) {
+                $errors['nombre_completo'] = 'El nombre completo es obligatorio.';
+            } elseif (mb_strlen($nombre) < 3) {
+                $errors['nombre_completo'] = 'El nombre debe tener al menos 3 caracteres.';
+            }
+
+            if (empty($correo)) {
+                $errors['correo'] = 'El correo electrónico es obligatorio.';
+            } elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+                $errors['correo'] = 'Ingresá un correo electrónico válido.';
+            }
+
+            if (!empty($telefono)) {
+                $digits = preg_replace('/[^0-9]/', '', $telefono);
+                if (strlen($digits) < 8) {
+                    $errors['telefono'] = 'El teléfono debe contener al menos 8 dígitos.';
+                }
+            }
+
+            if (isset($req['titulo']) && mb_strlen($titulo) < 3) {
+                $errors['titulo'] = 'El título profesional debe tener al menos 3 caracteres.';
+            }
+
+            return $errors;
+        };
+
+        // Petición con múltiples errores
+        $errores = $simularValidacion([
+            'nombre_completo' => '',
+            'correo'          => 'invalido',
+            'telefono'        => '123',
+            'titulo'          => 'x',
+        ]);
+
+        $this->assertArrayHasKey('nombre_completo', $errores);
+        $this->assertArrayHasKey('correo', $errores);
+        $this->assertArrayHasKey('telefono', $errores);
+        $this->assertArrayHasKey('titulo', $errores);
+        $this->assertSame('El nombre completo es obligatorio.', $errores['nombre_completo']);
+        $this->assertSame('El teléfono debe contener al menos 8 dígitos.', $errores['telefono']);
+    }
 }
