@@ -24,7 +24,7 @@ $srcImg = static fn (string $ruta): string => preg_match('#^https?://#', $ruta) 
                 <div class="cl-detail__gallery cl-rise">
                     <div class="cl-gallery">
                         <?php if (count($imgs) > 1): ?>
-                            <div id="servicioCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="2000" data-bs-pause="hover">
+                            <div id="servicioCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000" data-bs-pause="hover">
                                 <div class="carousel-indicators">
                                     <?php foreach ($imgs as $i => $img): ?>
                                         <button type="button" data-bs-target="#servicioCarousel" data-bs-slide-to="<?= $i ?>"

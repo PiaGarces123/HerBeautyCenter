@@ -184,6 +184,10 @@ class Cliente extends BaseController
         $usuarioModel = new UsuarioModel();
         $usuario = $usuarioModel->find($usuarioId) ?? [];
 
+        $db = \Config\Database::connect();
+        $cliente = $db->table('cliente')->where('c_uId', $usuarioId)->get()->getRowArray();
+        $usuario['consideraciones'] = $cliente['c_consideraciones'] ?? '';
+
         return view('cliente/reservar_confirmar', [
             'horario' => $horario,
             'usuario' => $usuario,
@@ -279,6 +283,10 @@ class Cliente extends BaseController
         $turnoModel = new TurnoModel();
         $proximoTurno = $turnoModel->getProximoTurnoCliente($cId);
         $todosLosTurnos = $turnoModel->getTurnosCliente($cId);
+
+        $db = \Config\Database::connect();
+        $cliente = $db->table('cliente')->where('c_id', $cId)->get()->getRowArray();
+        $usuario['consideraciones'] = $cliente['c_consideraciones'] ?? '';
 
         return view('cliente/perfil', [
             'usuario'      => $usuario,

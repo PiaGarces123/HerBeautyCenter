@@ -369,10 +369,17 @@
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.8), 0 0 3px rgba(0, 0, 0, 0.9);
 }
 
-/* Flechas de navegación con fondo translúcido y sombra para fotos blancas */
+/* Transición horizontal dinámica de derecha a izquierda */
+.cl-gallery .carousel-item {
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Flechas de navegación: flechas blancas con sombra negra, sin círculo */
 .cl-gallery .carousel-control-prev,
 .cl-gallery .carousel-control-next {
     width: 14%;
+    background: transparent;
+    border: none;
     opacity: 0.85;
     transition: opacity 0.2s ease;
     z-index: 4;
@@ -385,24 +392,25 @@
 
 .cl-gallery .carousel-control-prev-icon,
 .cl-gallery .carousel-control-next-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background-color: rgba(30, 20, 15, 0.55);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    background-size: 55%;
-    border: 1.5px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.7);
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0;
+    background-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    background-size: 100% 100%;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 2px rgba(0, 0, 0, 0.95));
+    transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .cl-gallery .carousel-control-prev:hover .carousel-control-prev-icon,
 .cl-gallery .carousel-control-next:hover .carousel-control-next-icon {
-    background-color: rgba(30, 20, 15, 0.85);
-    transform: scale(1.1);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
+    background-color: transparent !important;
+    transform: scale(1.18);
+    box-shadow: none !important;
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 1)) drop-shadow(0 0 4px #000000);
 }
 
 .cl-gallery__chip {

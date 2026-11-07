@@ -107,12 +107,12 @@ class ClientesApi extends BaseController
         if (!$cliente) {
             return $this->failNotFound('Cliente no encontrado.');
         }
-        
+
         $db->transStart();
 
         // Eliminar turnos u otras dependencias
         $db->table('turno')->where('t_cId', $id)->delete();
-        
+
         // Eliminar cliente
         $db->table('cliente')->where('c_id', $id)->delete();
         // Eliminar usuario
@@ -163,7 +163,7 @@ class ClientesApi extends BaseController
         }
 
         $db = \Config\Database::connect();
-        
+
         $cliente = $db->table('cliente')->where('c_id', $id)->get()->getRow();
         if (!$cliente) {
             return $this->failNotFound('Cliente no encontrado.');
@@ -179,9 +179,14 @@ class ClientesApi extends BaseController
             'u_correo' => $email,
             'u_tel' => $phone
         ];
-        
+
         if (!$db->table('usuario')->where('u_id', $cliente->c_uId)->update($usuarioData)) {
             return $this->failServerError('Error al actualizar el cliente.');
+        }
+
+        if (array_key_exists('consideraciones', $data) || array_key_exists('c_consideraciones', $data)) {
+            $consideraciones = trim($data['consideraciones'] ?? $data['c_consideraciones'] ?? '');
+            $db->table('cliente')->where('c_id', $id)->update(['c_consideraciones' => $consideraciones]);
         }
 
         return $this->respond(['success' => true, 'message' => 'Cliente actualizado exitosamente.']);
@@ -215,7 +220,7 @@ class ClientesApi extends BaseController
         }
 
         $db = \Config\Database::connect();
-        
+
         $usuario = $db->table('usuario')->where('u_id', $id_usuario)->get()->getRow();
         if (!$usuario) {
             return $this->failNotFound('Usuario no encontrado.');
@@ -240,7 +245,7 @@ class ClientesApi extends BaseController
         }
 
         $data = $this->getRequestData();
-        
+
         $title = trim($data['title'] ?? $data['p_titulo'] ?? $data['titulo'] ?? '');
         $year = isset($data['year']) ? intval($data['year']) : (isset($data['p_anioInicioAct']) ? intval($data['p_anioInicioAct']) : date('Y'));
 
@@ -253,12 +258,12 @@ class ClientesApi extends BaseController
         }
 
         $db = \Config\Database::connect();
-        
+
         $cliente = $db->table('cliente')->where('c_id', $id_cliente)->get()->getRow();
         if (!$cliente) {
             return $this->failNotFound('Cliente no encontrado.');
         }
-        
+
         // Verificar que no sea profesional ya
         $profesional = $db->table('profesional')->where('u_id', $cliente->c_uId)->get()->getRow();
         if ($profesional) {

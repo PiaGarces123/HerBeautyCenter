@@ -97,7 +97,7 @@ $avatar = !empty($h['avatar_profesional']) ? base_url($h['avatar_profesional']) 
                             <div class="form-group cl-span-2">
                                 <label class="form-label" for="consideraciones">Alergias o consideraciones (opcional)</label>
                                 <textarea class="form-textarea" id="consideraciones" rows="3" maxlength="500"
-                                    placeholder="Alergias, sensibilidad en la piel o ideas de diseño…"></textarea>
+                                    placeholder="Alergias, sensibilidad en la piel o ideas de diseño…"><?= esc($u['consideraciones'] ?? '') ?></textarea>
                             </div>
                         </div>
 

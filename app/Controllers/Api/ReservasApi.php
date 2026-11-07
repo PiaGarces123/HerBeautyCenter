@@ -205,6 +205,7 @@ class ReservasApi extends BaseController
             ]);
 
             $cId = $this->obtenerClienteId($usuarioId);
+            $db->table('cliente')->where('c_id', $cId)->update(['c_consideraciones' => $consideraciones]);
 
             // Re-verificar dentro de la transacción si existe fila en `turno` para `t_hId`
             $turnoExistente = $db->table('turno')

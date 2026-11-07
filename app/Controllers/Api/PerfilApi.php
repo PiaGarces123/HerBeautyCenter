@@ -64,6 +64,20 @@ class PerfilApi extends BaseController
             }
         }
 
+        // Actualizar consideraciones / alergias si el usuario es cliente
+        if (array_key_exists('consideraciones', $req) || array_key_exists('c_consideraciones', $req) || array_key_exists('alergias', $req)) {
+            $consideraciones = trim($req['consideraciones'] ?? $req['c_consideraciones'] ?? $req['alergias'] ?? '');
+            $cliente = $db->table('cliente')->where('c_uId', $usuario_id)->get()->getRowArray();
+            if ($cliente) {
+                $db->table('cliente')->where('c_id', $cliente['c_id'])->update(['c_consideraciones' => $consideraciones]);
+            } else {
+                $db->table('cliente')->insert([
+                    'c_uId'             => $usuario_id,
+                    'c_consideraciones' => $consideraciones
+                ]);
+            }
+        }
+
         // Update session if name changed
         session()->set('usuario_nombre', trim($nombre));
         if (!empty($correo)) {

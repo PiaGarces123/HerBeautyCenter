@@ -80,6 +80,12 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : base_url('public/a
                                     value="<?= esc($u['u_correo'] ?? '') ?>" required maxlength="120" />
                                 <div class="invalid-feedback">Ingresá un correo válido.</div>
                             </div>
+                            <div class="form-group cl-span-2">
+                                <label class="form-label" for="consideraciones">Alergias o consideraciones (opcional)</label>
+                                <textarea class="form-textarea" id="consideraciones" name="consideraciones" rows="3" maxlength="500"
+                                    placeholder="Indicá si tenés alergias a productos, piel sensible o alguna consideración especial…"><?= esc($u['consideraciones'] ?? '') ?></textarea>
+                                <small class="text-muted d-block mt-1">Esta información se autocompletará en el formulario al solicitar tus turnos.</small>
+                            </div>
                         </div>
 
                         <div class="cl-actions mt-4">

@@ -172,6 +172,8 @@ CREATE TABLE IF NOT EXISTS cliente (
 
     c_uId INT UNSIGNED NOT NULL UNIQUE,
 
+    c_consideraciones TEXT NULL,
+
     CONSTRAINT fk_cliente_usuario
         FOREIGN KEY (c_uId)
         REFERENCES usuario(u_id)
