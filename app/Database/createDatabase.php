@@ -343,6 +343,8 @@ CREATE TABLE IF NOT EXISTS imagen (
 
     img_sId INT UNSIGNED NOT NULL,
 
+    img_orden INT UNSIGNED NOT NULL DEFAULT 0,
+
     img_ruta VARCHAR(255) NOT NULL,
 
     CONSTRAINT fk_imagen_servicio

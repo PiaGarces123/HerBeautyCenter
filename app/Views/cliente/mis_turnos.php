@@ -1,292 +1,170 @@
 <?php
-$prox = $proximoTurno ?? null;
-$listaTurnos = $turnos ?? [];
-$cnt = $contadores ?? [];
-$fEstado = $filtroEstado ?? '';
-$fPeriodo = $filtroPeriodo ?? 'todos';
-
-$mesesCortos = [
-    1 => 'ENE', 2 => 'FEB', 3 => 'MAR', 4 => 'ABR',
-    5 => 'MAY', 6 => 'JUN', 7 => 'JUL', 8 => 'AGO',
-    9 => 'SEP', 10 => 'OCT', 11 => 'NOV', 12 => 'DIC',
-];
+$prox   = $proximoTurno ?? null;
+$lista  = $turnos ?? [];
+$cnt    = $contadores ?? [];
+$fEst   = $filtroEstado ?? '';
+$fPer   = $filtroPeriodo ?? 'todos';
+$hoy    = date('Y-m-d');
+$meses  = ['', 'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+$defaultAvatar = base_url('public/assets/media/íconoPerfil.png');
+$nombre = explode(' ', (string) session()->get('usuario_nombre'))[0] ?: 'Clienta';
 ?>
-<!DOCTYPE html>
-<html class="scroll-smooth" lang="es">
+<?= view('cliente/_head', ['pageTitle' => 'Mis Turnos']) ?>
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Mis Turnos — Panel del Cliente | Her Beauty Center</title>
+    <main class="cl-main">
+        <div class="cl-wrap">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
-
-    <!-- Bootstrap 5.3 CSS -->
-    <link rel="stylesheet" href="<?= base_url('public/assets/css/bootstrap.min.css') ?>" />
-
-    <!-- Estilos del Sistema -->
-    <link rel="stylesheet" href="<?= base_url('public/assets/css/styles.css?v=' . time()) ?>" />
-    <link rel="stylesheet" href="<?= base_url('public/assets/css/index-page.css?v=' . time()) ?>" />
-    <link rel="stylesheet" href="<?= base_url('public/assets/css/cliente.css?v=' . time()) ?>" />
-</head>
-
-<body class="site-body">
-
-    <?= $this->include('modals/header') ?>
-
-    <main class="client-page-main">
-        <div class="client-container">
-
-            <!-- Pestañas de Navegación del Panel del Cliente -->
-            <nav class="client-panel-tabs" aria-label="Navegación del panel del cliente">
-                <a href="<?= base_url('mis-turnos') ?>" class="client-panel-tab client-panel-tab--active">
-                    <span class="material-symbols-outlined fs-5">calendar_month</span>
-                    <span>Mis Turnos</span>
+            <nav class="cl-tabs" aria-label="Panel del cliente">
+                <a href="<?= base_url('mis-turnos') ?>" class="cl-tab cl-tab--active" aria-current="page">
+                    <span class="material-symbols-outlined">calendar_month</span> Mis Turnos
                 </a>
-                <a href="<?= base_url('mi-perfil') ?>" class="client-panel-tab">
-                    <span class="material-symbols-outlined fs-5">person</span>
-                    <span>Mi Perfil</span>
+                <a href="<?= base_url('mi-perfil') ?>" class="cl-tab">
+                    <span class="material-symbols-outlined">person</span> Mi Perfil
                 </a>
-                <a href="<?= base_url('/#servicios') ?>" class="client-panel-tab ms-md-auto">
-                    <span class="material-symbols-outlined fs-5">add_circle</span>
-                    <span>Reservar Nuevo Turno</span>
+                <a href="<?= base_url('/#servicios') ?>" class="cl-tab cl-tab--end">
+                    <span class="material-symbols-outlined">add</span> Nuevo turno
                 </a>
             </nav>
 
-            <!-- Encabezado de Bienvenida -->
-            <div class="mb-4">
-                <h1 class="mb-1" style="font-size: clamp(1.85rem, 3vw, 2.4rem);">
-                    Hola, <?= esc(explode(' ', session()->get('usuario_nombre') ?? 'Clienta')[0]) ?>
-                </h1>
-                <p class="text-muted mb-0">
-                    Desde tu panel personal podés consultar el estado de tus reservas, agendarlas en tu calendario o gestionar tus citas.
-                </p>
-            </div>
+            <header class="cl-head cl-rise">
+                <span class="cl-eyebrow">Mi panel</span>
+                <h1 class="cl-title">Hola, <em><?= esc($nombre) ?></em></h1>
+                <p class="cl-lead">Consultá el estado de tus reservas, agendalas en tu calendario o gestioná tus citas.</p>
+            </header>
 
-            <!-- ==================================================================
-                 TARJETA DESTACADA: «MI PRÓXIMO TURNO» (Prioridad Visual CU05)
-                 ================================================================== -->
-            <section class="next-appointment-card" aria-label="Mi próximo turno">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <span class="next-appointment-card__eyebrow">
-                        <span class="material-symbols-outlined fs-6">auto_awesome</span>
-                        Mi próximo turno
-                    </span>
+            <!-- «Mi próximo turno» -->
+            <section class="cl-card cl-card--rose cl-next cl-rise cl-rise--2" aria-labelledby="proxTitle">
+                <div class="cl-next__top">
+                    <span class="cl-eyebrow m-0" id="proxTitle">Mi próximo turno</span>
                     <?php if ($prox): ?>
-                        <span class="status-badge status-badge--<?= esc($prox['estado']) ?>">
-                            <span class="material-symbols-outlined fs-6">
-                                <?= $prox['estado'] === 'Confirmado' ? 'verified' : 'schedule' ?>
-                            </span>
-                            <?= esc($prox['estado']) ?>
-                        </span>
+                        <span class="cl-status cl-status--<?= esc($prox['estado']) ?>"><?= esc($prox['estado']) ?></span>
                     <?php endif; ?>
                 </div>
 
-                <?php if ($prox): ?>
-                    <?php
-                    $tsProx = strtotime($prox['fecha']);
-                    $diaNum = date('d', $tsProx);
-                    $mesTxt = $mesesCortos[(int) date('n', $tsProx)] ?? '';
-                    $fechaProxFmt = date('d/m/Y', $tsProx);
-                    $horaDesdeProx = substr($prox['h_horaDesde'], 0, 5);
-                    $horaHastaProx = substr($prox['h_horaHasta'], 0, 5);
-                    $avatarProx = !empty($prox['avatar_profesional'])
-                        ? base_url($prox['avatar_profesional'])
-                        : base_url('public/assets/media/íconoPerfil.png');
-                    ?>
-                    <div class="next-appointment-card__grid mt-1">
-                        <!-- Servicio y Profesional -->
+                <?php if ($prox):
+                    $ts = strtotime($prox['fecha']);
+                    $pDesde = substr($prox['h_horaDesde'], 0, 5);
+                    $pHasta = substr($prox['h_horaHasta'], 0, 5);
+                    $pFecha = date('d/m/Y', $ts);
+                    $pAvatar = !empty($prox['avatar_profesional']) ? base_url($prox['avatar_profesional']) : $defaultAvatar;
+                ?>
+                    <div class="cl-next__grid">
                         <div>
-                            <h2 class="h3 mb-2 text-dark"><?= esc($prox['nombre_servicio'] ?? 'Servicio') ?></h2>
-                            <div class="d-flex align-items-center gap-3">
-                                <img src="<?= esc($avatarProx) ?>" alt="<?= esc($prox['nombre_profesional'] ?? '') ?>"
-                                    class="srv-detail-pro-avatar" />
+                            <h2 class="cl-next__service"><?= esc($prox['nombre_servicio'] ?? 'Servicio') ?></h2>
+                            <div class="cl-person">
+                                <img src="<?= esc($pAvatar) ?>" alt="" class="cl-avatar" />
                                 <div>
-                                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">
-                                        Profesional: <?= esc($prox['nombre_profesional'] ?? '—') ?>
-                                    </div>
-                                    <div class="text-muted small">
-                                        <?= esc($prox['titulo_profesional'] ?? 'Especialista') ?>
-                                        <?php if (!empty($prox['monto']) && $prox['monto'] > 0): ?>
-                                            · Base $<?= number_format((float) $prox['monto'], 0, ',', '.') ?>
-                                        <?php endif; ?>
-                                    </div>
+                                    <p class="cl-person__name"><?= esc($prox['nombre_profesional'] ?? '') ?></p>
+                                    <span class="cl-muted"><?= esc($prox['titulo_profesional'] ?? 'Especialista') ?></span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Fecha y Horario -->
-                        <div class="next-appointment-datebox">
-                            <div class="next-appointment-datebox__day">
-                                <span class="fw-bold fs-5"><?= esc($diaNum) ?></span>
-                                <span style="font-size: 0.68rem; letter-spacing: 0.06em;"><?= esc($mesTxt) ?></span>
+                        <div class="cl-datebox">
+                            <div class="cl-datebox__day">
+                                <span class="cl-datebox__num"><?= date('d', $ts) ?></span>
+                                <span class="cl-datebox__month"><?= $meses[(int) date('n', $ts)] ?></span>
                             </div>
                             <div>
-                                <div class="fw-bold text-dark"><?= esc($fechaProxFmt) ?></div>
-                                <div class="text-muted small d-flex align-items-center gap-1">
-                                    <span class="material-symbols-outlined fs-6" style="color: var(--color-primary);">schedule</span>
-                                    <?= esc($horaDesdeProx) ?> hs a <?= esc($horaHastaProx) ?> hs
-                                </div>
+                                <strong class="d-block"><?= esc($pFecha) ?></strong>
+                                <span class="cl-muted"><?= esc($pDesde) ?> a <?= esc($pHasta) ?> hs</span>
                             </div>
                         </div>
 
-                        <!-- Acciones disponibles -->
-                        <div class="d-flex flex-wrap flex-lg-column gap-2 justify-content-end">
-                            <button type="button" class="btn btn--primary py-2 px-3 btn-gcal-client"
-                                data-tid="<?= (int) $prox['t_id'] ?>" style="font-size: 0.85rem;">
-                                <span class="material-symbols-outlined fs-5">event</span>
-                                Google Calendar
+                        <div class="cl-next__actions">
+                            <button type="button" class="btn btn--primary cl-btn-sm btn-gcal-client" data-tid="<?= (int) $prox['t_id'] ?>">
+                                <span class="material-symbols-outlined">event</span> Google Calendar
                             </button>
-                            <button type="button" class="btn btn--outline py-2 px-3 btn-cancelar-turno"
+                            <button type="button" class="btn cl-btn-danger cl-btn-sm btn-cancelar-turno"
                                 data-tid="<?= (int) $prox['t_id'] ?>"
-                                data-servicio="<?= esc($prox['nombre_servicio'] ?? 'turno') ?>"
-                                data-fecha="<?= esc($fechaProxFmt) ?>"
-                                data-hora="<?= esc($horaDesdeProx) ?>"
-                                style="font-size: 0.85rem; border-color: #dc3545; color: #dc3545;">
-                                <span class="material-symbols-outlined fs-5">cancel</span>
-                                Cancelar Turno
+                                data-servicio="<?= esc($prox['nombre_servicio'] ?? '') ?>"
+                                data-fecha="<?= esc($pFecha) ?>" data-hora="<?= esc($pDesde) ?>">
+                                <span class="material-symbols-outlined">close</span> Cancelar turno
                             </button>
                         </div>
                     </div>
                 <?php else: ?>
-                    <!-- Estado vacío agradable si no tiene próximos turnos -->
-                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 pt-1">
+                    <div class="cl-next__empty">
                         <div>
-                            <h2 class="h4 mb-1 text-dark">No tenés próximos turnos programados</h2>
-                            <p class="text-muted mb-0" style="font-size: 0.92rem;">
-                                ¿Querés regalarte un momento de bienestar? Explorá nuestros servicios y elegí el horario que mejor se adapte a vos.
-                            </p>
+                            <h2 class="cl-subtitle">No tenés próximos turnos</h2>
+                            <p class="cl-lead">¿Te regalás un momento de bienestar? Elegí un servicio y el horario que mejor te quede.</p>
                         </div>
-                        <a href="<?= base_url('/#servicios') ?>" class="btn btn--primary py-2 px-4 flex-shrink-0">
-                            <span class="material-symbols-outlined fs-5">spa</span>
-                            Solicitar un Turno
+                        <a href="<?= base_url('/#servicios') ?>" class="btn btn--primary">
+                            <span class="material-symbols-outlined">spa</span> Solicitar turno
                         </a>
                     </div>
                 <?php endif; ?>
             </section>
 
-            <!-- ==================================================================
-                 FILTROS DE BÚSQUEDA Y LISTADO DE "MIS TURNOS" (CU05)
-                 ================================================================== -->
-            <section aria-label="Listado de mis turnos">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+            <!-- Listado -->
+            <section aria-labelledby="listaTitle">
+                <div class="cl-head cl-head--split">
                     <div>
-                        <h2 class="h4 mb-0">Historial y Seguimiento de Turnos</h2>
-                        <p class="text-muted small mb-0">Filtrá tus reservas por período o estado.</p>
+                        <h2 class="cl-subtitle" id="listaTitle">Mis turnos</h2>
+                        <p class="cl-muted m-0">Filtrá por período o estado.</p>
                     </div>
-
-                    <!-- Controles de Filtro (Período y Estado) -->
-                    <form method="get" action="<?= base_url('mis-turnos') ?>" class="d-flex flex-wrap align-items-center gap-2">
-                        <select name="periodo" class="form-select py-2 px-3" style="width: auto; min-width: 175px; font-size: 0.875rem;" onchange="this.form.submit()">
-                            <option value="todos" <?= $fPeriodo === 'todos' ? 'selected' : '' ?>>
-                                Todos (<?= (int) ($cnt['todos'] ?? 0) ?>)
-                            </option>
-                            <option value="proximos" <?= $fPeriodo === 'proximos' ? 'selected' : '' ?>>
-                                Próximos (<?= (int) ($cnt['proximos'] ?? 0) ?>)
-                            </option>
-                            <option value="historial" <?= $fPeriodo === 'historial' ? 'selected' : '' ?>>
-                                Historial (<?= (int) ($cnt['historial'] ?? 0) ?>)
-                            </option>
+                    <form method="get" action="<?= base_url('mis-turnos') ?>" class="cl-filterbar">
+                        <label class="visually-hidden" for="fPeriodo">Período</label>
+                        <select id="fPeriodo" name="periodo" class="form-select" onchange="this.form.submit()">
+                            <option value="todos" <?= $fPer === 'todos' ? 'selected' : '' ?>>Todos (<?= (int) ($cnt['todos'] ?? 0) ?>)</option>
+                            <option value="proximos" <?= $fPer === 'proximos' ? 'selected' : '' ?>>Próximos (<?= (int) ($cnt['proximos'] ?? 0) ?>)</option>
+                            <option value="historial" <?= $fPer === 'historial' ? 'selected' : '' ?>>Historial (<?= (int) ($cnt['historial'] ?? 0) ?>)</option>
                         </select>
-
-                        <select name="estado" class="form-select py-2 px-3" style="width: auto; min-width: 185px; font-size: 0.875rem;" onchange="this.form.submit()">
-                            <option value="" <?= $fEstado === '' ? 'selected' : '' ?>>Todos los estados</option>
-                            <option value="Solicitado" <?= $fEstado === 'Solicitado' ? 'selected' : '' ?>>
-                                Solicitado (<?= (int) ($cnt['Solicitado'] ?? 0) ?>)
-                            </option>
-                            <option value="Confirmado" <?= $fEstado === 'Confirmado' ? 'selected' : '' ?>>
-                                Confirmado (<?= (int) ($cnt['Confirmado'] ?? 0) ?>)
-                            </option>
-                            <option value="Realizado" <?= $fEstado === 'Realizado' ? 'selected' : '' ?>>
-                                Realizado (<?= (int) ($cnt['Realizado'] ?? 0) ?>)
-                            </option>
-                            <option value="Cancelado" <?= $fEstado === 'Cancelado' ? 'selected' : '' ?>>
-                                Cancelado (<?= (int) ($cnt['Cancelado'] ?? 0) ?>)
-                            </option>
+                        <label class="visually-hidden" for="fEstado">Estado</label>
+                        <select id="fEstado" name="estado" class="form-select" onchange="this.form.submit()">
+                            <option value="">Todos los estados</option>
+                            <?php foreach (['Solicitado', 'Confirmado', 'Realizado', 'Cancelado'] as $e): ?>
+                                <option value="<?= $e ?>" <?= $fEst === $e ? 'selected' : '' ?>><?= $e ?> (<?= (int) ($cnt[$e] ?? 0) ?>)</option>
+                            <?php endforeach; ?>
                         </select>
-
-                        <?php if ($fEstado !== '' || $fPeriodo !== 'todos'): ?>
-                            <a href="<?= base_url('mis-turnos') ?>" class="btn btn--outline py-2 px-3" style="font-size: 0.85rem;">
-                                Limpiar
-                            </a>
-                        <?php endif; ?>
+                        <noscript><button type="submit" class="btn btn--outline cl-btn-sm">Filtrar</button></noscript>
                     </form>
                 </div>
 
-                <?php if (!empty($listaTurnos)): ?>
-                    <div class="client-turnos-grid">
-                        <?php foreach ($listaTurnos as $t): ?>
-                            <?php
-                            $fTurno = date('d/m/Y', strtotime($t['fecha']));
-                            $hDesde = substr($t['h_horaDesde'], 0, 5);
-                            $hHasta = substr($t['h_horaHasta'], 0, 5);
-                            $estado = $t['estado'] ?? 'Solicitado';
-                            $esActivo = in_array($estado, ['Solicitado', 'Confirmado'], true) && $t['fecha'] >= date('Y-m-d');
-                            ?>
-                            <article class="client-turno-card">
-                                <div>
-                                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                                        <div>
-                                            <h3 class="h5 mb-0 fw-bold text-dark">
-                                                <?= esc($t['nombre_servicio'] ?? 'Servicio') ?>
-                                            </h3>
-                                            <span class="text-muted small">
-                                                Con <?= esc($t['nombre_profesional'] ?? '—') ?> (<?= esc($t['titulo_profesional'] ?? 'Especialista') ?>)
-                                            </span>
-                                        </div>
-                                        <span class="status-badge status-badge--<?= esc($estado) ?>">
-                                            <?= esc($estado) ?>
-                                        </span>
+                <?php if (!empty($lista)): ?>
+                    <div class="cl-turnos">
+                        <?php foreach ($lista as $i => $t):
+                            $est = $t['estado'] ?? 'Solicitado';
+                            $tFecha = date('d/m/Y', strtotime($t['fecha']));
+                            $tDesde = substr($t['h_horaDesde'], 0, 5);
+                            $activo = in_array($est, ['Solicitado', 'Confirmado'], true) && $t['fecha'] >= $hoy;
+                        ?>
+                            <article class="cl-turno cl-turno--<?= esc($est) ?> cl-rise" style="animation-delay: <?= min($i, 8) * 0.05 ?>s">
+                                <div class="cl-turno__head">
+                                    <div>
+                                        <h3 class="cl-turno__title"><?= esc($t['nombre_servicio'] ?? 'Servicio') ?></h3>
+                                        <span class="cl-muted">Con <?= esc($t['nombre_profesional'] ?? '—') ?></span>
                                     </div>
+                                    <span class="cl-status cl-status--<?= esc($est) ?>"><?= esc($est) ?></span>
+                                </div>
 
-                                    <div class="d-flex flex-wrap gap-3 mt-3 pt-2 border-top" style="border-color: var(--color-border) !important; font-size: 0.88rem;">
-                                        <span class="d-inline-flex align-items-center gap-1 text-dark fw-semibold">
-                                            <span class="material-symbols-outlined fs-6" style="color: var(--color-primary);">calendar_today</span>
-                                            <?= esc($fTurno) ?>
-                                        </span>
-                                        <span class="d-inline-flex align-items-center gap-1 text-dark fw-semibold">
-                                            <span class="material-symbols-outlined fs-6" style="color: var(--color-primary);">schedule</span>
-                                            <?= esc($hDesde) ?> a <?= esc($hHasta) ?> hs
-                                        </span>
-                                        <?php if (!empty($t['monto']) && $t['monto'] > 0): ?>
-                                            <span class="d-inline-flex align-items-center gap-1 text-muted">
-                                                <span class="material-symbols-outlined fs-6">payments</span>
-                                                $<?= number_format((float) $t['monto'], 0, ',', '.') ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <?php if (!empty($t['motivo_cancelacion'])): ?>
-                                        <p class="text-muted small mt-2 mb-0 p-2 rounded" style="background: var(--color-bg-light);">
-                                            <?= esc($t['motivo_cancelacion']) ?>
-                                        </p>
+                                <div class="cl-turno__meta">
+                                    <span><span class="material-symbols-outlined">calendar_today</span><?= esc($tFecha) ?></span>
+                                    <span><span class="material-symbols-outlined">schedule</span><?= esc($tDesde) ?> a <?= esc(substr($t['h_horaHasta'], 0, 5)) ?> hs</span>
+                                    <?php if (!empty($t['monto']) && $t['monto'] > 0): ?>
+                                        <span><span class="material-symbols-outlined">payments</span>$<?= number_format((float) $t['monto'], 0, ',', '.') ?></span>
                                     <?php endif; ?>
                                 </div>
 
-                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-2 border-top" style="border-color: var(--color-border) !important;">
-                                    <?php if ($esActivo): ?>
-                                        <button type="button" class="btn btn--outline py-1 px-3 btn-gcal-client"
-                                            data-tid="<?= (int) $t['t_id'] ?>" style="font-size: 0.8rem;">
-                                            <span class="material-symbols-outlined fs-6">event</span>
-                                            Google Calendar
+                                <?php if (!empty($t['motivo_cancelacion'])): ?>
+                                    <p class="cl-turno__note"><?= esc($t['motivo_cancelacion']) ?></p>
+                                <?php endif; ?>
+
+                                <div class="cl-turno__foot">
+                                    <?php if ($activo): ?>
+                                        <button type="button" class="btn btn--outline cl-btn-sm btn-gcal-client" data-tid="<?= (int) $t['t_id'] ?>">
+                                            <span class="material-symbols-outlined">event</span> Calendar
                                         </button>
-                                        <button type="button" class="btn btn--outline py-1 px-3 btn-cancelar-turno"
+                                        <button type="button" class="btn cl-btn-danger cl-btn-sm btn-cancelar-turno"
                                             data-tid="<?= (int) $t['t_id'] ?>"
-                                            data-servicio="<?= esc($t['nombre_servicio'] ?? 'turno') ?>"
-                                            data-fecha="<?= esc($fTurno) ?>"
-                                            data-hora="<?= esc($hDesde) ?>"
-                                            style="font-size: 0.8rem; border-color: #dc3545; color: #dc3545;">
-                                            <span class="material-symbols-outlined fs-6">cancel</span>
+                                            data-servicio="<?= esc($t['nombre_servicio'] ?? '') ?>"
+                                            data-fecha="<?= esc($tFecha) ?>" data-hora="<?= esc($tDesde) ?>">
                                             Cancelar
                                         </button>
                                     <?php else: ?>
-                                        <span class="text-muted small">Turno #<?= (int) $t['t_id'] ?></span>
+                                        <span class="cl-muted">Turno #<?= (int) $t['t_id'] ?></span>
                                         <?php if (!empty($t['servicio_id'])): ?>
-                                            <a href="<?= base_url('servicio/' . (int) $t['servicio_id']) ?>" class="btn btn--outline py-1 px-3" style="font-size: 0.8rem;">
-                                                Volver a reservar
-                                            </a>
+                                            <a href="<?= base_url('servicio/' . (int) $t['servicio_id']) ?>" class="btn btn--outline cl-btn-sm">Volver a reservar</a>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
@@ -294,13 +172,11 @@ $mesesCortos = [
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <div class="confirm-summary-card text-center py-5">
-                        <span class="material-symbols-outlined fs-1 mb-2" style="color: var(--color-primary);">event_note</span>
-                        <h3 class="h5 mb-1">No se encontraron turnos para el filtro seleccionado</h3>
-                        <p class="text-muted small mb-3">Podés cambiar los criterios de búsqueda o reservar un nuevo turno.</p>
-                        <a href="<?= base_url('/#servicios') ?>" class="btn btn--primary py-2 px-4">
-                            Ver Servicios Disponibles
-                        </a>
+                    <div class="cl-card cl-empty">
+                        <span class="material-symbols-outlined">event_note</span>
+                        <p class="cl-subtitle">Sin turnos para este filtro</p>
+                        <p class="cl-muted">Cambiá los criterios o reservá un nuevo turno.</p>
+                        <a href="<?= base_url('/#servicios') ?>" class="btn btn--primary cl-btn-sm">Ver servicios</a>
                     </div>
                 <?php endif; ?>
             </section>
@@ -308,125 +184,73 @@ $mesesCortos = [
         </div>
     </main>
 
-    <?= $this->include('modals/footer') ?>
-    <?= $this->include('modals/modalsBase') ?>
-
-    <script src="<?= base_url('public/assets/js/bootstrap.bundle.min.js') ?>"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        window.APP_CONFIG = {
-            baseUrl: '<?= rtrim(base_url(), '/') ?>',
-            apiUrl: '<?= rtrim(base_url('api'), '/') ?>'
-        };
-    </script>
-    <script src="<?= base_url('public/assets/js/index.js?v=' . time()) ?>" defer></script>
-
+<?= view('cliente/_scripts') ?>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Exportar turno a Google Calendar (RFC 5545)
-        document.querySelectorAll('.btn-gcal-client').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const tId = btn.getAttribute('data-tid');
-                if (!tId) return;
+        const BRAND = window.APP_CONFIG.brand;
+        const GCAL_URL = '<?= base_url('api/cliente/turnos/google-calendar') ?>';
+        const CANCEL_URL = '<?= base_url('api/cliente/turnos/cancelar') ?>';
+        const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' };
+        const fail = (msg) => Swal.fire({ title: 'Atención', text: msg, icon: 'error', confirmButtonColor: BRAND });
 
+        // Delegación de eventos: un solo listener para todas las acciones
+        document.addEventListener('click', async (e) => {
+            const gcal = e.target.closest('.btn-gcal-client');
+            const cancel = e.target.closest('.btn-cancelar-turno');
+
+            if (gcal) {
+                // Se abre la pestaña antes del fetch para evitar el bloqueo de pop-ups
+                const win = window.open('', '_blank');
                 try {
-                    const res = await fetch(`<?= base_url('api/cliente/turnos/google-calendar') ?>/${tId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
+                    const res = await fetch(`${GCAL_URL}/${gcal.dataset.tid}`, { method: 'POST', headers });
                     const data = await res.json();
                     if (res.ok && data.google_sync_url) {
-                        window.open(data.google_sync_url, '_blank', 'noopener,noreferrer');
+                        win.opener = null;
+                        win.location.href = data.google_sync_url;
                     } else {
-                        Swal.fire({
-                            title: 'Error',
-                            text: data.messages?.error || data.message || 'No se pudo generar el enlace de Google Calendar.',
-                            icon: 'error',
-                            confirmButtonColor: '#d6858e'
-                        });
+                        win.close();
+                        fail(data.messages?.error || 'No se pudo generar el enlace.');
                     }
                 } catch (err) {
-                    Swal.fire({
-                        title: 'Error de conexión',
-                        text: 'No se pudo comunicar con el servidor.',
-                        icon: 'error',
-                        confirmButtonColor: '#d6858e'
-                    });
+                    win.close();
+                    fail('Error de conexión.');
                 }
-            });
-        });
+            }
 
-        // Cancelar turno propio con confirmación SweetAlert2
-        document.querySelectorAll('.btn-cancelar-turno').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tId      = btn.getAttribute('data-tid');
-                const servicio = btn.getAttribute('data-servicio');
-                const fecha    = btn.getAttribute('data-fecha');
-                const hora     = btn.getAttribute('data-hora');
-
-                Swal.fire({
+            if (cancel) {
+                const { tid, servicio, fecha, hora } = cancel.dataset;
+                const { isConfirmed, value } = await Swal.fire({
                     title: '¿Cancelar tu turno?',
-                    html: `Estás por cancelar tu turno de <strong>${servicio}</strong> del <strong>${fecha} a las ${hora} hs</strong>.`,
+                    text: `${servicio} — ${fecha} a las ${hora} hs.`,
                     input: 'text',
-                    inputPlaceholder: 'Motivo de cancelación (opcional)',
+                    inputPlaceholder: 'Motivo (opcional)',
+                    inputAttributes: { maxlength: 200 },
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Sí, cancelar turno',
-                    cancelButtonText: 'Mantener turno',
+                    confirmButtonColor: BRAND,
+                    cancelButtonColor: '#82756a',
+                    confirmButtonText: 'Sí, cancelar',
+                    cancelButtonText: 'Mantener',
                     reverseButtons: true
-                }).then(async (result) => {
-                    if (!result.isConfirmed) return;
-
-                    try {
-                        const res = await fetch(`<?= base_url('api/cliente/turnos/cancelar') ?>/${tId}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: JSON.stringify({
-                                motivo_cancelacion: (result.value || '').trim()
-                            })
-                        });
-
-                        const data = await res.json();
-                        if (res.ok) {
-                            Swal.fire({
-                                title: 'Turno Cancelado',
-                                text: data.message || 'Tu turno fue cancelado correctamente.',
-                                icon: 'success',
-                                confirmButtonColor: '#d6858e'
-                            }).then(() => {
-                                window.location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'No se pudo cancelar',
-                                text: data.messages?.error || data.message || 'Ocurrió un error al cancelar el turno.',
-                                icon: 'error',
-                                confirmButtonColor: '#d6858e'
-                            });
-                        }
-                    } catch (err) {
-                        Swal.fire({
-                            title: 'Error de conexión',
-                            text: 'No se pudo comunicar con el servidor.',
-                            icon: 'error',
-                            confirmButtonColor: '#d6858e'
-                        });
-                    }
                 });
-            });
+                if (!isConfirmed) return;
+
+                try {
+                    const res = await fetch(`${CANCEL_URL}/${tid}`, { method: 'PUT', headers, body: JSON.stringify({ motivo_cancelacion: (value || '').trim() }) });
+                    const data = await res.json();
+                    if (res.ok) {
+                        await Swal.fire({ title: 'Turno cancelado', text: data.message, icon: 'success', confirmButtonColor: BRAND });
+                        location.reload();
+                    } else {
+                        fail(data.messages?.error || 'No se pudo cancelar el turno.');
+                    }
+                } catch (err) {
+                    fail('Error de conexión.');
+                }
+            }
         });
     });
     </script>
 </body>
 
 </html>
-

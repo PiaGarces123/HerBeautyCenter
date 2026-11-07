@@ -11,8 +11,8 @@ $routes->get('/', 'Home::index');
 // CU01: Vista de detalle de servicio con carrusel de fotos (acceso público)
 $routes->get('servicio/(:num)', 'Cliente::servicio/$1');
 
-// Rutas web autenticadas para Clientes (y usuarios con sesión activa)
-$routes->group('', ['filter' => 'auth:all'], function ($routes) {
+// Rutas web exclusivas para Clientes (CU04 y CU05)
+$routes->group('', ['filter' => 'auth:cliente'], function ($routes) {
     // CU04: Flujo de solicitud y reserva de turnos
     $routes->get('reservar/(:num)',           'Cliente::reservar/$1');
     $routes->get('reservar/confirmar/(:num)', 'Cliente::confirmar/$1');
@@ -48,11 +48,15 @@ $routes->group('api', function ($routes) {
         $routes->get('dashboard/admin', 'Api\DashboardApi::adminStats');
 
         // Servicios APIs
-        $routes->post('servicios/crear',                'Api\ServiciosApi::crear');
-        $routes->post('servicios/editar/(:num)',        'Api\ServiciosApi::editar/$1');
-        $routes->delete('servicios/eliminar/(:num)',    'Api\ServiciosApi::eliminar/$1');
-        $routes->put('servicios/profesionales/(:num)',  'Api\ServiciosApi::profesionales/$1');
-        $routes->post('servicios/ordenar',              'Api\ServiciosApi::ordenar');
+        $routes->post('servicios/crear',                    'Api\ServiciosApi::crear');
+        $routes->post('servicios/editar/(:num)',            'Api\ServiciosApi::editar/$1');
+        $routes->delete('servicios/eliminar/(:num)',        'Api\ServiciosApi::eliminar/$1');
+        $routes->put('servicios/profesionales/(:num)',      'Api\ServiciosApi::profesionales/$1');
+        $routes->post('servicios/ordenar',                  'Api\ServiciosApi::ordenar');
+        $routes->get('servicios/imagenes/(:num)',           'Api\ServiciosApi::imagenes/$1');
+        $routes->post('servicios/imagenes/subir/(:num)',    'Api\ServiciosApi::subirImagenes/$1');
+        $routes->post('servicios/imagenes/ordenar/(:num)',  'Api\ServiciosApi::ordenarImagenes/$1');
+        $routes->delete('servicios/imagenes/eliminar/(:num)','Api\ServiciosApi::eliminarImagen/$1');
 
         // Profesionales APIs
         $routes->post('profesionales/crear',            'Api\ProfesionalesApi::crear');
@@ -71,15 +75,18 @@ $routes->group('api', function ($routes) {
     });
 
     // ---------------------------------------------------------------------
-    // API: Usuarios Autenticados (Cliente, Profesional y Administrador)
+    // API: Perfil compartido (Cliente, Profesional y Administrador)
     // ---------------------------------------------------------------------
-    $routes->group('', ['filter' => 'auth:all'], function ($routes) {
-        // Perfil APIs (reutilizadas en panel profesional/admin y panel cliente)
+    $routes->group('', ['filter' => 'auth:admin,profesional,cliente'], function ($routes) {
         $routes->post('perfil/actualizar', 'Api\PerfilApi::actualizar');
         $routes->post('perfil/password',   'Api\PerfilApi::password');
         $routes->post('perfil/avatar',     'Api\PerfilApi::avatar');
+    });
 
-        // Reservas y Turnos del Cliente (Incremento N° 3 — CU04 y CU05)
+    // ---------------------------------------------------------------------
+    // API: Exclusivo Cliente (Reservas y Turnos — CU04 y CU05)
+    // ---------------------------------------------------------------------
+    $routes->group('', ['filter' => 'auth:cliente'], function ($routes) {
         $routes->get('reservas/disponibilidad',                  'Api\ReservasApi::disponibilidad');
         $routes->post('reservas/confirmar',                      'Api\ReservasApi::confirmar');
         $routes->put('cliente/turnos/cancelar/(:num)',           'Api\ReservasApi::cancelarTurno/$1');

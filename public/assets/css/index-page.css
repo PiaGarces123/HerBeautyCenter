@@ -15,19 +15,46 @@
     gap: 0.5rem;
 }
 
-/* Enlace al panel admin en el header */
+/* Enlace al panel admin / mis turnos en el header (solo icono en pantallas chicas) */
 .header-admin-link {
     text-decoration: none;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
-    padding: 0.45rem 0.9rem;
+    padding: 0.45rem;
+    min-width: 2.25rem;
+    height: 2.25rem;
     font-size: 0.85rem;
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
 }
 
-/* Ícono dentro del enlace al panel admin */
+.header-admin-link span:not(.material-symbols-outlined),
+.header-admin-text {
+    display: none;
+}
+
+/* Icono dentro del enlace al panel admin */
 .header-admin-link .material-symbols-outlined {
     font-size: 1.15rem;
+}
+
+@media (min-width: 48rem) {
+    .header-admin-link span:not(.material-symbols-outlined),
+    .header-admin-text {
+        display: inline;
+    }
+
+    .header-admin-link {
+        padding: 0.5rem 1rem !important;
+        min-width: auto !important;
+        width: auto !important;
+        height: auto !important;
+        font-size: 0.875rem !important;
+        white-space: nowrap !important;
+        gap: 0.5rem !important;
+    }
 }
 
 /* Badge/pastilla que muestra el nombre del usuario logueado */
@@ -51,18 +78,46 @@
 /* Botón de cerrar sesión en el header */
 .header-logout-link {
     text-decoration: none;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
-    padding: 0.45rem 0.85rem;
+    padding: 0.45rem;
+    min-width: 2.25rem;
+    height: 2.25rem;
     font-size: 0.85rem;
-    border-color: var(--color-outline-variant);
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
 }
 
-/* Ícono de logout */
+/* En pantallas chicas solo se muestra el icono */
+.header-logout-link span:not(.material-symbols-outlined),
+.header-logout-text {
+    display: none;
+}
+
+/* Icono de logout */
 .header-logout-link .material-symbols-outlined {
     font-size: 1.15rem;
     color: var(--color-on-surface-variant);
+}
+
+/* En pantallas medianas y de escritorio (>= 48rem / 768px), mostrar texto e icono */
+@media (min-width: 48rem) {
+    .header-logout-link span:not(.material-symbols-outlined),
+    .header-logout-text {
+        display: inline;
+    }
+
+    .header-logout-link {
+        padding: 0.5rem 1rem !important;
+        min-width: auto !important;
+        width: auto !important;
+        height: auto !important;
+        font-size: 0.875rem !important;
+        white-space: nowrap !important;
+        gap: 0.5rem !important;
+    }
 }
 
 
@@ -72,44 +127,73 @@
 
 /* Separador superior en el menú móvil para la sección de usuario */
 .mobile-menu__user-section {
-    margin-top: 1rem;
+    margin-top: 2rem;
     border-top: 1px solid var(--color-outline-variant);
-    padding-top: 1rem;
+    padding-top: 2rem;
 }
 
-/* Link al panel admin dentro del menú móvil */
-.mobile-menu__admin-link {
+/* Contenedor de botones de usuario en el menú móvil */
+.mobile-menu__user-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+/* Botón genérico dentro del menú móvil */
+.mobile-menu__btn {
+    width: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    color: var(--color-primary);
-    font-weight: 600;
-}
-
-/* Nombre del usuario en el menú móvil (cuando no es admin) */
-.mobile-menu__user-greeting {
-    padding: 0.4rem 0;
+    padding: 0.85rem 1.25rem;
     font-size: 0.95rem;
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--color-on-surface);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: var(--transition-fast);
 }
 
-/* Ícono de perfil en el saludo del menú móvil */
-.mobile-menu__user-greeting .material-symbols-outlined {
-    color: var(--color-primary);
+/* Botón panel admin / turnos en el menú móvil */
+.mobile-menu__btn--admin {
+    background: var(--color-primary);
+    color: #ffffff !important;
+    border: 1.5px solid var(--color-primary);
+    box-shadow: 0 4px 12px rgba(125, 86, 45, 0.2);
 }
 
-/* Link de cerrar sesión en el menú móvil */
-.mobile-menu__logout-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--color-error);
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
+.mobile-menu__btn--admin:hover {
+    background: var(--color-primary-hover, #623f18);
+    border-color: var(--color-primary-hover, #623f18);
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(125, 86, 45, 0.3);
+}
+
+.mobile-menu__btn--admin .material-symbols-outlined {
+    font-size: 1.4rem;
+    color: #ffffff;
+}
+
+/* Botón cerrar sesión con estilo botón en el menú móvil */
+.mobile-menu__btn--logout {
+    background: #fff0f0;
+    color: #b71c1c !important;
+    border: 1.5px solid rgba(183, 28, 28, 0.35);
+}
+
+.mobile-menu__btn--logout:hover {
+    background: #b71c1c;
+    color: #ffffff !important;
+    border-color: #b71c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(183, 28, 28, 0.25);
+}
+
+.mobile-menu__btn--logout .material-symbols-outlined {
+    font-size: 1.4rem;
+    color: inherit;
 }
 
 /* Botón de iniciar sesión en el menú móvil (ancho completo) */
@@ -170,6 +254,171 @@
     position: absolute;
     bottom: -20px;
     font-size: 0.75rem;
+}
+
+/* --------------------------------------------------------------------------
+   SECCIÓN DE CONTACTO RESPONSIVE (MÓVIL / CELULARES)
+   Todo centrado armoniosamente: tarjeta, info, mapa, redes y formulario
+   -------------------------------------------------------------------------- */
+@media (max-width: 48rem) {
+    .contact {
+        text-align: center;
+        padding: 2rem 1rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .contact__container {
+        margin: 0 auto;
+        width: 100%;
+        text-align: center;
+    }
+
+    .contact__layout {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+        gap: 2rem;
+    }
+
+    /* Columna de información centrada */
+    .contact__info {
+        width: 100%;
+        align-items: center;
+        text-align: center;
+    }
+
+    .contact__subtitle {
+        text-align: center;
+        width: 100%;
+    }
+
+    .contact__item {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+        gap: 0.35rem;
+    }
+
+    .contact__item-content {
+        align-items: center;
+        text-align: center;
+        width: 100%;
+    }
+
+    .contact__label,
+    .contact__value {
+        text-align: center;
+        width: 100%;
+    }
+
+    .contact__map-container {
+        width: 100%;
+        max-width: 24rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .contact__socials-section {
+        width: 100%;
+        align-items: center;
+        text-align: center;
+    }
+
+    .contact__socials-title {
+        text-align: center;
+        width: 100%;
+    }
+
+    .contact__socials {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        gap: 0.75rem;
+    }
+
+    .footer__simple-socials-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        gap: 0.75rem;
+    }
+
+    /* Columna del formulario centrada */
+    .contact__form-container {
+        width: 100%;
+        max-width: 26rem;
+        margin-left: auto;
+        margin-right: auto;
+        align-self: center;
+        text-align: center;
+        padding: 1.5rem 1.25rem;
+    }
+
+    .contact__form {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .contact__form .form-row {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .contact__form .form-group {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .contact__form .form-label {
+        text-align: center;
+        width: 100%;
+    }
+
+    .contact__form .form-input,
+    .contact__form .form-select,
+    .contact__form .form-textarea {
+        width: 100%;
+        text-align: center;
+        text-align-last: center;
+    }
+
+    .contact__form .form-input::placeholder,
+    .contact__form .form-textarea::placeholder {
+        text-align: center;
+    }
+
+    .contact__invalid-feedback {
+        left: 0;
+        right: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    .contact__submit-btn {
+        width: 100%;
+        max-width: 18rem;
+        align-self: center;
+        margin: 1.25rem auto 0;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+    }
 }
 
 /* ==========================================================================

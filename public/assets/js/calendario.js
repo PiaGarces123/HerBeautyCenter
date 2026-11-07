@@ -25,6 +25,9 @@ const CalendarioApp = (() => {
     let hIdActivo      = null;    // h_id del horario seleccionado (modal detalle)
     let tIdActivo      = null;    // t_id del turno seleccionado
     let tIdParaCancelar = null;   // t_id del turno a cancelar
+    let bsModalDisp    = null;    // Instancia Bootstrap Modal Disponibilidad
+    let bsModalDet     = null;    // Instancia Bootstrap Modal Detalle
+    let bsModalCancel  = null;    // Instancia Bootstrap Modal Cancelar
 
     /* ----------------------------------------------------------
        Selectores DOM (cacheados al init)
@@ -46,10 +49,36 @@ const CalendarioApp = (() => {
        1. INICIALIZACIÓN
        ========================================================== */
     function init() {
+        const modalDispEl   = document.getElementById('modalDisponibilidad');
+        const modalDetEl    = document.getElementById('modalDetalle');
+        const modalCancelEl = document.getElementById('modalCancel');
+
+        if (modalDispEl && typeof bootstrap !== 'undefined') {
+            bsModalDisp = new bootstrap.Modal(modalDispEl);
+            modalDispEl.addEventListener('hidden.bs.modal', () => {
+                modoEdicion = false;
+            });
+        }
+        if (modalDetEl && typeof bootstrap !== 'undefined') {
+            bsModalDet = new bootstrap.Modal(modalDetEl);
+            modalDetEl.addEventListener('hidden.bs.modal', () => {
+                hIdActivo = null;
+                tIdActivo = null;
+            });
+        }
+        if (modalCancelEl && typeof bootstrap !== 'undefined') {
+            bsModalCancel = new bootstrap.Modal(modalCancelEl);
+            modalCancelEl.addEventListener('hidden.bs.modal', () => {
+                tIdParaCancelar = null;
+            });
+        }
+
         dom = {
             calEl:              document.getElementById('herCalendar'),
+            modalDispEl,
+            modalDetEl,
+            modalCancelEl,
             // Modal disponibilidad
-            overlayDisp:        document.getElementById('modalDisponibilidadOverlay'),
             formDisp:           document.getElementById('formDisponibilidad'),
             inputHId:           document.getElementById('dispHId'),
             selServicio:        document.getElementById('dispServicio'),
@@ -63,7 +92,6 @@ const CalendarioApp = (() => {
             btnCancelarDisp:    document.getElementById('btnCancelarDisp'),
             titleDispText:      document.getElementById('modalDispTitleText'),
             // Modal detalle
-            overlayDet:         document.getElementById('modalDetalleOverlay'),
             detBody:            document.getElementById('modalDetBody'),
             detFooter:          document.getElementById('modalDetFooter'),
             detTitleText:       document.getElementById('modalDetTitleText'),
@@ -71,10 +99,8 @@ const CalendarioApp = (() => {
             detIcon:            document.getElementById('modalDetIcon'),
             btnCerrarDet:       document.getElementById('btnCerrarModalDet'),
             // Modal cancelación
-            overlayCancel:      document.getElementById('modalCancelOverlay'),
             motivoInput:        document.getElementById('motivoCancelacion'),
-            btnCerrarCancel:    document.getElementById('btnCerrarModalCancel'),
-            btnCerrarCancelX:   document.getElementById('btnCerrarModalCancel'),
+            btnCerrarCancel:    document.getElementById('btnCerrarCancelModal'),
             btnConfirmarCancel: document.getElementById('btnConfirmarCancel'),
         };
 
@@ -212,14 +238,6 @@ const CalendarioApp = (() => {
             dom.btnAgregar.addEventListener('click', () => abrirModalDisponibilidad());
         }
 
-        // Cerrar modal disponibilidad
-        [dom.btnCerrarDisp, dom.btnCancelarDisp].forEach(btn => {
-            if (btn) btn.addEventListener('click', cerrarModalDisponibilidad);
-        });
-        dom.overlayDisp?.addEventListener('click', (e) => {
-            if (e.target === dom.overlayDisp) cerrarModalDisponibilidad();
-        });
-
         // Guardar disponibilidad
         dom.btnGuardar?.addEventListener('click', guardarDisponibilidad);
 
@@ -227,30 +245,8 @@ const CalendarioApp = (() => {
         dom.selServicio?.addEventListener('change', recalcularHoraFin);
         dom.inputDesde?.addEventListener('change', recalcularHoraFin);
 
-        // Cerrar modal detalle
-        dom.btnCerrarDet?.addEventListener('click', cerrarModalDetalle);
-        dom.overlayDet?.addEventListener('click', (e) => {
-            if (e.target === dom.overlayDet) cerrarModalDetalle();
-        });
-
-        // Cerrar modal cancelación
-        dom.btnCerrarCancelX?.addEventListener('click', cerrarModalCancelar);
-        document.getElementById('btnCerrarModalCancel')?.addEventListener('click', cerrarModalCancelar);
-        dom.overlayCancel?.addEventListener('click', (e) => {
-            if (e.target === dom.overlayCancel) cerrarModalCancelar();
-        });
-
         // Confirmar cancelación
         dom.btnConfirmarCancel?.addEventListener('click', confirmarCancelacion);
-
-        // ESC para cerrar modales
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                cerrarModalDisponibilidad();
-                cerrarModalDetalle();
-                cerrarModalCancelar();
-            }
-        });
 
         // -------------------------------------------------------
         // Modal Crear Turno (CU07)
@@ -422,14 +418,12 @@ const CalendarioApp = (() => {
             if (fecha) dom.inputFecha.value = fecha;
         }
 
-        dom.overlayDisp?.classList.add('is-active');
-        dom.overlayDisp?.setAttribute('aria-hidden', 'false');
-        setTimeout(() => dom.selServicio?.focus(), 100);
+        bsModalDisp?.show();
+        setTimeout(() => dom.selServicio?.focus(), 200);
     }
 
     function cerrarModalDisponibilidad() {
-        dom.overlayDisp?.classList.remove('is-active');
-        dom.overlayDisp?.setAttribute('aria-hidden', 'true');
+        bsModalDisp?.hide();
         modoEdicion = false;
     }
 
@@ -532,13 +526,11 @@ const CalendarioApp = (() => {
         // Bindear botones del footer
         bindDetalleFooterEvents(tipo, estado, props);
 
-        dom.overlayDet?.classList.add('is-active');
-        dom.overlayDet?.setAttribute('aria-hidden', 'false');
+        bsModalDet?.show();
     }
 
     function cerrarModalDetalle() {
-        dom.overlayDet?.classList.remove('is-active');
-        dom.overlayDet?.setAttribute('aria-hidden', 'true');
+        bsModalDet?.hide();
         hIdActivo = null;
         tIdActivo = null;
     }
@@ -593,43 +585,43 @@ const CalendarioApp = (() => {
     }
 
     function renderDetalleFooter(tipo, estado, props) {
-        let btns = `<button class="btn-cal-secondary" id="detBtnCerrar">Cerrar</button>`;
+        let btns = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="detBtnCerrar">Cerrar</button>`;
 
         if (tipo === 'disponibilidad') {
             // Acciones para disponibilidad libre
             btns += `
-                <button class="btn-cal-primary" id="detBtnEditar">
+                <button type="button" class="btn btn--primary" id="detBtnEditar">
                     <span class="material-symbols-outlined">edit</span> Editar
                 </button>
-                <button class="btn-cal-danger" id="detBtnEliminar">
+                <button type="button" class="btn btn-danger" id="detBtnEliminar">
                     <span class="material-symbols-outlined">delete</span> Eliminar
                 </button>`;
         } else {
             // Acciones para turno según estado
             if (estado === 'Solicitado') {
                 btns += `
-                    <button class="btn-cal-success" id="detBtnConfirmar">
+                    <button type="button" class="btn btn-success" id="detBtnConfirmar">
                         <span class="material-symbols-outlined">check_circle</span> Confirmar Turno
                     </button>
-                    <button class="btn-cal-danger" id="detBtnCancelar">
+                    <button type="button" class="btn btn-danger" id="detBtnCancelar">
                         <span class="material-symbols-outlined">cancel</span> Cancelar
                     </button>`;
             }
             if (estado === 'Confirmado') {
                 btns += `
-                    <button class="btn-cal-success" id="detBtnRealizado">
+                    <button type="button" class="btn btn-success" id="detBtnRealizado">
                         <span class="material-symbols-outlined">task_alt</span> Marcar Realizado
                     </button>
-                    <button class="btn-cal-gcal" id="detBtnGCal">
+                    <button type="button" class="btn btn-primary" id="detBtnGCal">
                         <span class="material-symbols-outlined">event_available</span> Google Calendar
                     </button>
-                    <button class="btn-cal-danger" id="detBtnCancelar">
+                    <button type="button" class="btn btn-danger" id="detBtnCancelar">
                         <span class="material-symbols-outlined">cancel</span> Cancelar
                     </button>`;
             }
             if (estado === 'Solicitado' || estado === 'Confirmado') {
                 btns += `
-                    <button class="btn-cal-primary" id="detBtnGuardarPago">
+                    <button type="button" class="btn btn--primary" id="detBtnGuardarPago">
                         <span class="material-symbols-outlined">payments</span> Guardar Pago
                     </button>`;
             }
@@ -639,18 +631,23 @@ const CalendarioApp = (() => {
     }
 
     function bindDetalleFooterEvents(tipo, estado, props) {
-        document.getElementById('detBtnCerrar')?.addEventListener('click', cerrarModalDetalle);
-
         if (tipo === 'disponibilidad') {
             document.getElementById('detBtnEditar')?.addEventListener('click', () => {
-                cerrarModalDetalle();
-                abrirModalDisponibilidad(null, {
+                const editProps = {
                     h_id:       hIdActivo,
                     servicio_id:props.servicio_id,
                     fecha:      props.fecha,
                     horaDesde:  props.horaDesde,
                     horaHasta:  props.horaHasta,
-                });
+                };
+                if (dom.modalDetEl) {
+                    const onHidden = () => {
+                        dom.modalDetEl.removeEventListener('hidden.bs.modal', onHidden);
+                        abrirModalDisponibilidad(null, editProps);
+                    };
+                    dom.modalDetEl.addEventListener('hidden.bs.modal', onHidden);
+                }
+                cerrarModalDetalle();
             });
             document.getElementById('detBtnEliminar')?.addEventListener('click', () => {
                 confirmarEliminarDisponibilidad(hIdActivo);
@@ -665,8 +662,14 @@ const CalendarioApp = (() => {
             });
             document.getElementById('detBtnCancelar')?.addEventListener('click', () => {
                 tIdParaCancelar = tIdActivo;
+                if (dom.modalDetEl) {
+                    const onHidden = () => {
+                        dom.modalDetEl.removeEventListener('hidden.bs.modal', onHidden);
+                        abrirModalCancelar();
+                    };
+                    dom.modalDetEl.addEventListener('hidden.bs.modal', onHidden);
+                }
                 cerrarModalDetalle();
-                abrirModalCancelar();
             });
             document.getElementById('detBtnGCal')?.addEventListener('click', () => {
                 exportarGoogleCalendar(tIdActivo);
@@ -814,14 +817,12 @@ const CalendarioApp = (() => {
        ========================================================== */
     function abrirModalCancelar() {
         if (dom.motivoInput) dom.motivoInput.value = '';
-        dom.overlayCancel?.classList.add('is-active');
-        dom.overlayCancel?.setAttribute('aria-hidden', 'false');
-        setTimeout(() => dom.motivoInput?.focus(), 100);
+        bsModalCancel?.show();
+        setTimeout(() => dom.motivoInput?.focus(), 200);
     }
 
     function cerrarModalCancelar() {
-        dom.overlayCancel?.classList.remove('is-active');
-        dom.overlayCancel?.setAttribute('aria-hidden', 'true');
+        bsModalCancel?.hide();
         tIdParaCancelar = null;
     }
 

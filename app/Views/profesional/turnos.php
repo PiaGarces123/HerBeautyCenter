@@ -227,7 +227,7 @@ $diasSemana = [
                 </h5>
                 <div class="d-flex align-items-center gap-2">
                     <span id="modalTurnoBadge" class="badge"></span>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
             </div>
             <div class="modal-body" id="modalTurnoBody">
@@ -250,7 +250,7 @@ $diasSemana = [
                     <span class="material-symbols-outlined">cancel</span>
                     Cancelar Turno
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <div class="cal-cancel-warning">

@@ -8,12 +8,10 @@ class Home extends BaseController
     {
         $db = \Config\Database::connect();
         
-        // Obtener servicios con sus imágenes
+        // Obtener servicios con su primera imagen según orden establecido
         $serviciosQuery = $db->table('servicio')
-            ->select('servicio.*, imagen.img_ruta as imagen_ruta')
-            ->join('imagen', 'imagen.img_sId = servicio.s_id', 'left')
+            ->select('servicio.*, (SELECT img_ruta FROM imagen WHERE imagen.img_sId = servicio.s_id ORDER BY imagen.img_orden ASC, imagen.img_id ASC LIMIT 1) AS imagen_ruta')
             ->where('servicio.s_activo', 1)
-            ->groupBy('servicio.s_id')
             ->orderBy('servicio.s_orden', 'ASC')
             ->get();
         $servicios = $serviciosQuery->getResultArray();

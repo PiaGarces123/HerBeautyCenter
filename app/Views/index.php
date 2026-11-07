@@ -24,21 +24,22 @@ if (!function_exists('esc')) {
     <title>Her Beauty Center | Centro de Estética & Bienestar</title>
 
     <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <link
-        href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
         rel="stylesheet" />
 
     <!-- Bootstrap 5.3 CSS -->
-    <link rel="stylesheet" href="public/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/bootstrap.min.css') ?>" />
 
     <!-- Custom CSS (overrides Bootstrap) -->
-    <link rel="stylesheet" href="public/assets/css/styles.css?v=<?= time() ?>" />
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/styles.css?v=' . time()) ?>" />
 
     <!-- Estilos específicos de la página principal pública -->
-    <link rel="stylesheet" href="public/assets/css/index-page.css?v=<?= time() ?>" />
+    <link rel="stylesheet" href="<?= base_url('public/assets/css/index-page.css?v=' . time()) ?>" />
 </head>
 
 <body class="site-body">
@@ -111,32 +112,29 @@ if (!function_exists('esc')) {
                         $isWide = ($cardIndex % 5 === 0) ? 'srv-card--wide' : '';
                         $cardIndex++;
                         ?>
-                        <article class="srv-card <?= $isWide ?>">
-                            <a href="<?= base_url('servicio/' . $servicio['s_id']) ?>" class="srv-card__img-wrap d-block text-decoration-none">
+                        <a href="<?= base_url('servicio/' . (int) $servicio['s_id']) ?>" class="srv-card <?= $isWide ?> text-decoration-none">
+                            <div class="srv-card__img-wrap">
                                 <img src="<?= $imagen ?>" alt="<?= esc($servicio['s_nbre']) ?>" class="srv-card__img"
                                     loading="lazy" />
-                                <div class="srv-card__badge">
-                                    <span class="material-symbols-outlined">schedule</span>
-                                    <?= esc($servicio['s_duracionMinutos']) ?> min
-                                </div>
-                            </a>
+                            </div>
+                            <div class="srv-card__badge">
+                                <span class="material-symbols-outlined">schedule</span>
+                                <?= esc($servicio['s_duracionMinutos']) ?> min
+                            </div>
                             <div class="srv-card__body">
                                 <h3 class="srv-card__title">
-                                    <a href="<?= base_url('servicio/' . $servicio['s_id']) ?>" class="text-decoration-none text-reset">
-                                        <?= esc($servicio['s_nbre']) ?>
-                                    </a>
+                                    <?= esc($servicio['s_nbre']) ?>
                                 </h3>
-                                <p class="srv-card__desc"><?= esc(mb_strimwidth($servicio['s_desc'] ?? '', 0, 120, '�?�')) ?>
-                                </p>
+                                <p class="srv-card__desc"><?= esc(mb_strimwidth($servicio['s_desc'] ?? '', 0, 120, '...')) ?></p>
                                 <?php if (!empty($servicio['s_precio']) && $servicio['s_precio'] > 0): ?>
                                     <p class="srv-card__price">Desde $<?= number_format($servicio['s_precio'], 0, ',', '.') ?></p>
                                 <?php endif; ?>
-                                <a href="<?= base_url('servicio/' . $servicio['s_id']) ?>" class="srv-card__btn">
+                                <span class="srv-card__btn">
                                     Reservar Turno
                                     <span class="material-symbols-outlined">arrow_forward</span>
-                                </a>
+                                </span>
                             </div>
-                        </article>
+                        </a>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
@@ -241,7 +239,10 @@ if (!function_exists('esc')) {
                     <br> Agendá tu cita hoy y dejate consentir en
                     <strong> Her Beauty Center</strong>
                 </p>
-                <a class="btn btn--dark-solid cta-banner__btn" href="#servicios">Solicitar turno</a>
+                <a class="btn btn-shimmer cta-banner__btn" href="#servicios">
+                    <span>Solicitar turno</span>
+                    <span class="material-symbols-outlined cta-banner__btn-icon">arrow_forward</span>
+                </a>
             </div>
         </section>
 
@@ -263,7 +264,7 @@ if (!function_exists('esc')) {
                 </p>
                 <div class="philosophy__action">
                     <a class="philosophy__link" href="#contacto">
-                        Conocé más sobre nosotros <span class="material-symbols-outlined">arrow_forward</span>
+                        Conocé más sobre nosotras <span class="material-symbols-outlined">arrow_forward</span>
                     </a>
                 </div>
             </div>

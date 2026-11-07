@@ -13,6 +13,8 @@ class ImagenModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
+        'img_sId',
+        'img_orden',
         's_id',
         'img_ruta'
     ];
@@ -22,10 +24,22 @@ class ImagenModel extends Model
 
     // Validation
     protected $validationRules      = [
-        's_id' => 'required|numeric',
-        'img_ruta'        => 'required|max_length[255]'
+        'img_sId'  => 'required|numeric',
+        'img_ruta' => 'required|max_length[255]'
     ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
+
+    /**
+     * Obtiene todas las imágenes asociadas a un servicio ordenadas por img_orden.
+     * La primera foto es la portada del servicio.
+     */
+    public function getImagenesByServicio(int $sId): array
+    {
+        return $this->where('img_sId', $sId)
+            ->orderBy('img_orden', 'ASC')
+            ->orderBy('img_id', 'ASC')
+            ->findAll();
+    }
 }

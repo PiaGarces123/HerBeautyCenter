@@ -27,6 +27,7 @@ Reserva Cliente (Tests\Unit\ReservaCliente)
  [x] Peticion api reserva sin sesion retorna 401
  [x] Cliente autenticado accede a rutas de cliente
  [x] Cliente no puede acceder a panel admin
+ [x] Staff no puede acceder a rutas de cliente
  [x] Reserva cliente nace en estado solicitado sin abonar
  [x] Reglas cancelacion turno por cliente
  [x] Metodos de modelos incremento 3 existen

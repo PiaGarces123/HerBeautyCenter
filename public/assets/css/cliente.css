@@ -1,625 +1,1051 @@
 /* ==========================================================================
-   HER BEAUTY CENTER — Incremento N° 3: Vistas del Cliente y Reserva de Turnos
-   Reutiliza las variables de diseño de styles.css y componentes Bootstrap 5.3
+   HER BEAUTY CENTER — Vistas del Cliente (Incremento N° 3)
+   Reutiliza exclusivamente las variables de styles.css:
+   - Tipografías: --font-serif (EB Garamond) para títulos, --font-sans (Plus Jakarta Sans) para textos.
+   - Colores: marrones (--color-primary, --color-secondary) y rosas (--color-secondary-container, --color-bento-rose).
+   Sin dependencias extra: solo transiciones CSS y una animación de entrada liviana.
    ========================================================================== */
 
-.client-page-main {
-    padding-top: 6rem;
-    padding-bottom: 4rem;
-    min-height: calc(100vh - 180px);
-    background-color: var(--color-bg-light);
-}
-
-.client-container {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 0 1.25rem;
-}
-
 /* --------------------------------------------------------------------------
-   Barra de navegación rápida del Panel del Cliente y Breadcrumbs
+   1. Layout base
    -------------------------------------------------------------------------- */
-.client-breadcrumb {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    font-size: 0.875rem;
-    color: var(--color-text-muted);
-    margin-bottom: 1.25rem;
-    flex-wrap: wrap;
+.cl-main {
+    padding: calc(var(--header-height) + 1.5rem) 0 4rem;
+    min-height: 70vh;
+    background:
+        radial-gradient(circle at 100% 0, var(--color-bento-peach) 0, transparent 32rem),
+        var(--color-background);
+    overflow-x: hidden;
 }
 
-.client-breadcrumb a {
-    color: var(--color-text-muted);
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
-.client-breadcrumb a:hover {
-    color: var(--color-primary);
-}
-
-.client-panel-tabs {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    margin-bottom: 1.75rem;
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 0.85rem;
-}
-
-.client-panel-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.55rem 1.15rem;
-    border-radius: var(--radius-full);
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-.client-panel-tab:hover {
-    color: var(--color-primary);
-    border-color: var(--color-primary);
-}
-
-.client-panel-tab--active {
-    background-color: var(--color-primary);
-    color: #ffffff !important;
-    border-color: var(--color-primary);
-    box-shadow: 0 4px 12px rgba(214, 133, 142, 0.25);
-}
-
-/* --------------------------------------------------------------------------
-   Indicador de Pasos de Reserva (Stepper CU04)
-   -------------------------------------------------------------------------- */
-.booking-stepper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-}
-
-.booking-step {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    padding: 0.45rem 0.9rem;
-    border-radius: var(--radius-full);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-}
-
-.booking-step__num {
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 700;
-    background: var(--color-surface-soft);
-    color: var(--color-text-muted);
-}
-
-.booking-step--active {
-    border-color: var(--color-primary);
-    color: var(--color-text-main);
-    box-shadow: var(--shadow-soft);
-}
-
-.booking-step--active .booking-step__num {
-    background: var(--color-primary);
-    color: #ffffff;
-}
-
-.booking-step--done {
-    color: #2e7d52;
-    border-color: rgba(46, 125, 82, 0.3);
-}
-
-.booking-step--done .booking-step__num {
-    background: #d1e7dd;
-    color: #0f5132;
-}
-
-.booking-stepper__line {
-    width: 2rem;
-    height: 1px;
-    background: var(--color-border);
-}
-
-/* --------------------------------------------------------------------------
-   CU01: Vista de Detalle de Servicio + Carrusel Bootstrap 5
-   -------------------------------------------------------------------------- */
-.srv-detail-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    align-items: start;
-}
-
-@media (min-width: 992px) {
-    .srv-detail-grid {
-        grid-template-columns: 1.1fr 1fr;
-        gap: 2.75rem;
-    }
-}
-
-.srv-detail-carousel-card {
-    background: var(--color-surface);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-card);
-}
-
-.srv-detail-carousel__img {
+.cl-wrap {
     width: 100%;
-    height: 320px;
-    object-fit: cover;
-    display: block;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
 @media (min-width: 768px) {
-    .srv-detail-carousel__img {
-        height: 440px;
-    }
+    .cl-wrap { padding: 0 2rem; }
 }
 
-.srv-detail-info-card {
-    background: var(--color-surface);
-    border-radius: var(--radius-xl);
-    padding: 1.75rem;
-    border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-card);
+/* En las vistas del cliente los botones pueden ocupar dos líneas en móviles */
+.cl-main .btn {
+    white-space: normal;
+    gap: 0.4rem;
+    text-align: center;
 }
 
-@media (min-width: 768px) {
-    .srv-detail-info-card {
-        padding: 2.25rem;
-    }
+.cl-main .btn .material-symbols-outlined { font-size: 1.1rem; }
+
+.cl-main .btn--primary,
+.cl-main .btn--primary:hover,
+.cl-main .btn--primary:focus,
+.cl-main .btn--primary:active {
+    color: #ffffff !important;
 }
 
-.srv-detail-meta {
+/* --------------------------------------------------------------------------
+   2. Tipografía y encabezados
+   -------------------------------------------------------------------------- */
+.cl-eyebrow {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-secondary);
+    margin-bottom: 0.35rem;
+}
+
+.cl-title {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    color: var(--color-primary);
+    font-size: clamp(2rem, 6vw, 3rem);
+    line-height: 1.1;
+    margin: 0 0 0.5rem;
+}
+
+.cl-title em { font-style: italic; color: var(--color-secondary); }
+
+.cl-subtitle {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    color: var(--color-primary);
+    font-size: clamp(1.4rem, 4vw, 1.85rem);
+    line-height: 1.2;
+    margin: 0 0 0.35rem;
+}
+
+.cl-lead {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--color-on-surface-variant);
+    margin: 0;
+    max-width: 44rem;
+}
+
+.cl-muted { color: var(--color-on-surface-variant); font-size: 0.85rem; }
+
+.cl-head { margin-bottom: 1.75rem; }
+
+.cl-head--split {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin: 1rem 0 1.5rem;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
-.srv-detail-pill {
+/* --------------------------------------------------------------------------
+   3. Breadcrumb, pestañas del panel y stepper
+   -------------------------------------------------------------------------- */
+.cl-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    color: var(--color-outline);
+    margin-bottom: 1.5rem;
+}
+
+.cl-crumbs a:hover { color: var(--color-primary); }
+.cl-crumbs .material-symbols-outlined { font-size: 1rem; }
+.cl-crumbs [aria-current] { color: var(--color-primary); font-weight: 600; }
+
+.cl-tabs {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0.25rem;
+    margin-bottom: 2rem;
+}
+
+.cl-tabs::-webkit-scrollbar { display: none; }
+
+.cl-tab {
+    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.45rem 0.95rem;
+    padding: 0.6rem 1.15rem;
     border-radius: var(--radius-full);
-    font-size: 0.85rem;
+    border: 1px solid var(--color-outline-variant);
+    background: var(--color-surface-container-lowest);
+    font-size: 0.75rem;
     font-weight: 600;
-    background: var(--color-surface-soft);
-    color: var(--color-text-main);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant);
+    transition: var(--transition-fast);
 }
 
-.srv-detail-pill--price {
-    background: rgba(214, 133, 142, 0.14);
-    color: var(--color-primary-hover);
-    font-size: 0.95rem;
+.cl-tab .material-symbols-outlined { font-size: 1.1rem; }
+.cl-tab:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+.cl-tab--active,
+.cl-tab--active:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-primary);
 }
 
-.srv-detail-pro-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
+@media (min-width: 768px) {
+    .cl-tab--end { margin-left: auto; }
 }
 
-.srv-detail-pro-item {
+.cl-stepper {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.85rem;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
-    background: var(--color-bg-light);
-    border: 1px solid var(--color-border);
-    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.75rem;
+    overflow-x: auto;
+    scrollbar-width: none;
 }
 
-.srv-detail-pro-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--color-primary);
+.cl-stepper::-webkit-scrollbar { display: none; }
+
+.cl-step {
     flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-outline);
+}
+
+.cl-step__num {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-outline-variant);
+    background: var(--color-surface-container-lowest);
+    font-size: 0.75rem;
+}
+
+.cl-step--done { color: var(--color-secondary); }
+.cl-step--done .cl-step__num { background: var(--color-secondary-container); border-color: var(--color-secondary-container); }
+.cl-step--active { color: var(--color-primary); }
+.cl-step--active .cl-step__num { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-primary); }
+
+.cl-step__line {
+    flex: 1 0 1.5rem;
+    max-width: 4rem;
+    height: 1px;
+    background: var(--color-outline-variant);
+}
+
+/* Etiqueta del paso: en móviles solo se muestra la del paso activo */
+@media (max-width: 575.98px) {
+    .cl-step:not(.cl-step--active) .cl-step__label { display: none; }
 }
 
 /* --------------------------------------------------------------------------
-   CU04 Paso 1 y 2: "Reservá tu Turno" (Guía, Filtros, Calendario y Modal)
+   4. Tarjetas y píldoras reutilizables
    -------------------------------------------------------------------------- */
-.booking-guide-banner {
-    background: linear-gradient(135deg, rgba(214, 133, 142, 0.12) 0%, rgba(245, 237, 237, 0.85) 100%);
-    border: 1px solid var(--color-border);
-    border-left: 4px solid var(--color-primary);
-    border-radius: var(--radius-lg);
-    padding: 1.15rem 1.35rem;
-    margin-bottom: 1.5rem;
-}
-
-.booking-filters-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
+.cl-card {
+    background: var(--color-surface-container-lowest);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-2xl);
     padding: 1.25rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow-soft);
+    box-shadow: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-.booking-calendar-layout {
+.cl-card:hover {
+    box-shadow: -8px 8px 0px rgba(61, 35, 22, 0.75), -11px 11px 4px rgba(61, 35, 22, 0.25);
+    border-color: rgba(74, 44, 29, 0.45);
+}
+
+@media (min-width: 768px) {
+    .cl-card { padding: 2rem; }
+}
+
+.cl-card--rose {
+    background: linear-gradient(135deg, var(--color-surface-container-lowest) 0%, var(--color-bento-peach) 55%, var(--color-bento-rose) 100%);
+    border-color: var(--color-secondary-container);
+}
+
+.cl-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.cl-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-container);
+    color: var(--color-on-surface-variant);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.cl-pill .material-symbols-outlined { font-size: 1rem; color: var(--color-primary); }
+
+.cl-pill--rose {
+    background: var(--color-secondary-container);
+    color: var(--color-on-secondary-container);
+}
+
+.cl-pill--brown {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+.cl-pill--brown .material-symbols-outlined { color: var(--color-on-primary); }
+
+/* Estados de turno con la paleta del sitio */
+.cl-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.cl-status--Solicitado { background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+.cl-status--Confirmado { background: var(--color-primary); color: var(--color-on-primary); }
+.cl-status--Realizado  { background: var(--color-surface-container-highest); color: var(--color-tertiary); }
+.cl-status--Cancelado  { background: transparent; color: var(--color-outline); border: 1px dashed var(--color-outline-variant); }
+
+.cl-avatar {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid var(--color-secondary-container);
+    background: var(--color-surface-container);
+}
+
+.cl-btn-danger {
+    border: 1px solid var(--color-outline-variant);
+    color: var(--color-secondary);
+}
+
+.cl-btn-danger:hover {
+    background: var(--color-secondary-container);
+    border-color: var(--color-secondary);
+    transform: translateY(-2px);
+}
+
+.cl-btn-sm { padding: 0.6rem 1rem; font-size: 0.7rem; }
+
+/* --------------------------------------------------------------------------
+   5. CU01 — Detalle del servicio
+   -------------------------------------------------------------------------- */
+.cl-detail {
     display: grid;
-    grid-template-columns: 1fr;
     gap: 1.5rem;
     align-items: start;
 }
 
 @media (min-width: 992px) {
-    .booking-calendar-layout {
-        grid-template-columns: 1.55fr 1fr;
-    }
+    .cl-detail { grid-template-columns: 1.15fr 1fr; gap: 2.5rem; }
+    .cl-detail__gallery { position: sticky; top: calc(var(--header-height) + 1rem); }
 }
 
-.booking-calendar-box,
-.booking-quickdates-box {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
+.cl-gallery {
+    position: relative;
+    border-radius: var(--radius-3xl);
+    overflow: hidden;
+    background: var(--color-surface-container);
+    border: 1px solid var(--color-outline-variant);
+    box-shadow: none;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.cl-gallery:hover {
+    box-shadow: -8px 8px 0px rgba(61, 35, 22, 0.75), -11px 11px 4px rgba(61, 35, 22, 0.25);
+    border-color: rgba(74, 44, 29, 0.45);
+}
+
+.cl-gallery__img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+@media (min-width: 992px) {
+    .cl-gallery__img { aspect-ratio: 4 / 4.2; }
+}
+
+/* Indicadores del carrusel con sombras y alto contraste */
+.cl-gallery .carousel-indicators {
+    margin-bottom: 0.85rem;
+    gap: 0.5rem;
+    z-index: 4;
+}
+
+.cl-gallery .carousel-indicators [data-bs-target] {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1.5px solid rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.65), 0 0 2px rgba(0, 0, 0, 0.8);
+    opacity: 0.75;
+    transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.cl-gallery .carousel-indicators [data-bs-target].active {
+    background-color: var(--color-primary);
+    border-color: #ffffff;
+    opacity: 1;
+    transform: scale(1.35);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.8), 0 0 3px rgba(0, 0, 0, 0.9);
+}
+
+/* Flechas de navegación con fondo translúcido y sombra para fotos blancas */
+.cl-gallery .carousel-control-prev,
+.cl-gallery .carousel-control-next {
+    width: 14%;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+    z-index: 4;
+}
+
+.cl-gallery .carousel-control-prev:hover,
+.cl-gallery .carousel-control-next:hover {
+    opacity: 1;
+}
+
+.cl-gallery .carousel-control-prev-icon,
+.cl-gallery .carousel-control-next-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: rgba(30, 20, 15, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    background-size: 55%;
+    border: 1.5px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.7);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cl-gallery .carousel-control-prev:hover .carousel-control-prev-icon,
+.cl-gallery .carousel-control-next:hover .carousel-control-next-icon {
+    background-color: rgba(30, 20, 15, 0.85);
+    transform: scale(1.1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
+}
+
+.cl-gallery__chip {
+    position: absolute;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 3;
+}
+
+.cl-detail__desc {
+    margin: 1.25rem 0 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--color-on-surface-variant);
+    max-height: 17.5em; /* 10 renglones exactos (10 * 1.75 line-height) */
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-outline-variant) transparent;
+    cursor: default;
+}
+
+.cl-detail__desc::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cl-detail__desc::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cl-detail__desc::-webkit-scrollbar-thumb {
+    background-color: var(--color-outline-variant);
+    border-radius: var(--radius-full);
+}
+
+.cl-detail__desc::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-outline);
+}
+
+.cl-section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-outline);
+    margin: 0 0 0.75rem;
+}
+
+.cl-pros { display: grid; gap: 0.6rem; margin-bottom: 1.5rem; }
+
+.cl-pro {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
     border-radius: var(--radius-xl);
-    padding: 1.25rem;
-    box-shadow: var(--shadow-card);
+    background: var(--color-surface-container-low);
+    border: 1px solid transparent;
+    transition: var(--transition-fast);
 }
 
-@media (min-width: 768px) {
-    .booking-calendar-box,
-    .booking-quickdates-box {
-        padding: 1.75rem;
-    }
+.cl-pro:hover { border-color: var(--color-secondary-container); background: var(--color-surface-container-lowest); }
+
+.cl-pro__info { flex: 1; min-width: 0; }
+
+.cl-pro__name {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    color: var(--color-on-surface);
+    margin: 0;
+    line-height: 1.2;
 }
 
-/* Días con disponibilidad en FullCalendar */
-.fc-day-available {
-    background-color: rgba(214, 133, 142, 0.1) !important;
-    cursor: pointer !important;
-    transition: background-color 0.2s ease;
+.cl-pro__role { font-size: 0.75rem; color: var(--color-outline); margin: 0; }
+
+.cl-pro__link {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    color: var(--color-primary);
+    border: 1px solid var(--color-outline-variant);
+    transition: var(--transition-fast);
 }
 
-.fc-day-available:hover {
-    background-color: rgba(214, 133, 142, 0.24) !important;
+.cl-pro__link:hover,
+.cl-pro:hover .cl-pro__link {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-primary);
 }
 
-.fc-avail-event {
-    cursor: pointer !important;
-    border-radius: 999px !important;
-    padding: 2px 6px !important;
-    font-weight: 600 !important;
-    font-size: 0.75rem !important;
+.cl-cta {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-outline-variant);
+}
+
+.cl-cta .cl-muted { text-align: center; margin: 0.6rem 0 0; }
+
+/* Otros servicios sugeridos (reutiliza .srv-grid y .srv-card de styles.css) */
+.cl-related { margin-top: 3.5rem; }
+.cl-related .srv-grid { margin-top: 1.5rem; }
+.cl-related .srv-card { min-height: 280px; }
+
+/* --------------------------------------------------------------------------
+   6. CU04 — "Reservá tu Turno"
+   -------------------------------------------------------------------------- */
+.cl-guide {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+    padding: 1rem 1.15rem;
+    border-radius: var(--radius-xl);
+    background: var(--color-surface-container-low);
+    border-left: 3px solid var(--color-secondary-container);
+    margin-bottom: 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--color-on-surface-variant);
+}
+
+.cl-guide .material-symbols-outlined { color: var(--color-primary); font-size: 1.5rem; }
+.cl-guide ol { margin: 0; padding-left: 1.1rem; list-style: decimal; }
+.cl-guide strong { color: var(--color-primary); }
+
+.cl-filters {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+    margin-bottom: 1.25rem;
+}
+
+@media (min-width: 576px) {
+    .cl-filters { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 992px) {
+    .cl-filters { grid-template-columns: repeat(4, 1fr); }
+}
+
+.cl-filters .form-group { gap: 0.3rem; }
+
+.cl-inline { display: flex; gap: 0.5rem; }
+
+.cl-icon-btn {
+    flex-shrink: 0;
+    width: 2.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-outline-variant);
+    color: var(--color-primary);
+    transition: var(--transition-fast);
+}
+
+.cl-icon-btn:hover { background: var(--color-secondary-container); border-color: var(--color-secondary); }
+
+.cl-booking {
+    display: grid;
+    gap: 1.25rem;
+    align-items: start;
+}
+
+@media (min-width: 992px) {
+    .cl-booking { grid-template-columns: 1.6fr 1fr; gap: 1.5rem; }
+}
+
+.cl-booking__bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* FullCalendar con la paleta del sitio (sin tocar calendario.css del panel) */
+.cl-calendar .fc { font-family: var(--font-sans); font-size: 0.85rem; }
+.cl-calendar .fc .fc-toolbar-title { font-family: var(--font-serif); color: var(--color-primary); font-size: 1.35rem; text-transform: capitalize; }
+.cl-calendar .fc .fc-button { background: var(--color-surface-container-lowest); border: 1px solid var(--color-outline-variant); color: var(--color-primary); box-shadow: none; text-transform: capitalize; }
+.cl-calendar .fc .fc-button:hover,
+.cl-calendar .fc .fc-button:not(:disabled):active { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-primary); }
+.cl-calendar .fc .fc-col-header-cell-cushion { color: var(--color-outline); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; text-decoration: none; }
+.cl-calendar .fc .fc-daygrid-day-number { color: var(--color-on-surface-variant); text-decoration: none; }
+.cl-calendar .fc-theme-standard td,
+.cl-calendar .fc-theme-standard th,
+.cl-calendar .fc-theme-standard .fc-scrollgrid { border-color: var(--color-surface-container-high); }
+.cl-calendar .fc .fc-day-today { background: var(--color-surface-container-low) !important; }
+
+.cl-calendar .fc-day-available { background: var(--color-bento-peach); cursor: pointer; transition: background-color 0.2s ease; }
+.cl-calendar .fc-day-available:hover { background: var(--color-secondary-container); }
+
+.cl-calendar .cl-fc-event {
+    border: 0 !important;
+    border-radius: var(--radius-full) !important;
+    background: var(--color-primary) !important;
+    color: var(--color-on-primary) !important;
+    font-size: 0.68rem;
+    font-weight: 600;
     text-align: center;
+    padding: 1px 4px;
+    cursor: pointer;
 }
 
-/* Lista rápida de fechas disponibles (ideal para móviles y vista rápida) */
-.quick-date-item {
+@media (max-width: 575.98px) {
+    .cl-calendar .fc .fc-toolbar { flex-wrap: wrap; gap: 0.5rem; }
+    .cl-calendar .fc .fc-toolbar-title { font-size: 1.1rem; }
+    .cl-calendar .cl-fc-event { font-size: 0; height: 0.45rem; width: 0.45rem; margin: 0 auto; padding: 0; }
+}
+
+/* Lista de próximas fechas libres */
+.cl-dates {
+    display: grid;
+    gap: 0.5rem;
+    max-height: 28rem;
+    overflow-y: auto;
+    padding-right: 0.15rem;
+}
+
+.cl-date {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
     width: 100%;
     text-align: left;
-    padding: 0.85rem 1rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
-    background: var(--color-bg-light);
-    transition: all 0.2s ease;
-    cursor: pointer;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-outline-variant);
+    background: var(--color-surface-container-lowest);
+    transition: var(--transition-fast);
 }
 
-.quick-date-item:hover {
-    border-color: var(--color-primary);
-    background: rgba(214, 133, 142, 0.08);
-    transform: translateY(-1px);
+.cl-date:hover { border-color: var(--color-primary); transform: translateX(4px); }
+
+.cl-date__day {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    color: var(--color-on-surface);
+    text-transform: capitalize;
+    line-height: 1.2;
 }
 
-/* Tarjetas de horarios en el Modal:
-   ---------------
-   | Profesional |
-   | 14:30 hs    |
-   --------------- */
-.slots-grid {
+.cl-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--color-on-surface-variant);
+}
+
+.cl-empty .material-symbols-outlined { font-size: 2.5rem; color: var(--color-primary-container); }
+
+/* Modal de horarios */
+.cl-modal .modal-content {
+    border: 0;
+    border-radius: var(--radius-2xl);
+    background: var(--color-surface-container-lowest);
+    box-shadow: var(--shadow-lg);
+}
+
+.cl-modal .modal-header,
+.cl-modal .modal-footer { border-color: var(--color-surface-container-high); padding: 1.25rem 1.5rem; }
+.cl-modal .modal-body { padding: 1.5rem; }
+
+@media (max-width: 575.98px) {
+    .cl-modal .modal-dialog { margin: 0; min-height: 100%; display: flex; align-items: flex-end; }
+    .cl-modal .modal-content { border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; }
+    .cl-modal .modal-body { max-height: 60vh; overflow-y: auto; }
+}
+
+/* Tarjetas de horario:  [ Profesional | 14:30 hs ] */
+.cl-slots {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-    gap: 0.85rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
 }
 
-.slot-option-card {
-    position: relative;
+@media (min-width: 576px) {
+    .cl-slots { grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
+}
+
+.cl-slot {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 0.2rem;
+    padding: 0.9rem 0.6rem;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-outline-variant);
+    background: var(--color-surface-container-lowest);
     text-align: center;
-    padding: 1rem 0.85rem;
-    border-radius: var(--radius-md);
-    border: 2px solid var(--color-border);
-    background: var(--color-surface);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    user-select: none;
+    transition: var(--transition-fast);
+    animation: cl-rise 0.35s ease both;
 }
 
-.slot-option-card:hover {
-    border-color: var(--color-primary);
-    background: rgba(214, 133, 142, 0.05);
-    transform: translateY(-2px);
-}
+.cl-slot:hover { border-color: var(--color-primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
-.slot-option-card--selected {
-    border-color: var(--color-primary);
-    background: rgba(214, 133, 142, 0.14);
-    box-shadow: 0 6px 16px rgba(214, 133, 142, 0.22);
-}
+.cl-slot__name { font-family: var(--font-serif); font-size: 1.05rem; color: var(--color-on-surface); line-height: 1.15; }
+.cl-slot__role { font-size: 0.68rem; color: var(--color-outline); }
 
-.slot-option-card__prof {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--color-text-main);
-    margin-bottom: 0.2rem;
-    line-height: 1.25;
-}
-
-.slot-option-card__role {
-    font-size: 0.72rem;
-    color: var(--color-text-muted);
-    margin-bottom: 0.45rem;
-}
-
-.slot-option-card__time {
-    font-family: var(--font-serif);
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--color-primary-hover);
-    background: var(--color-surface);
-    padding: 0.2rem 0.75rem;
+.cl-slot__time {
+    margin-top: 0.35rem;
+    padding: 0.2rem 0.8rem;
     border-radius: var(--radius-full);
-    border: 1px solid var(--color-border);
+    background: var(--color-secondary-container);
+    color: var(--color-on-secondary-container);
+    font-weight: 700;
+    font-size: 0.9rem;
 }
 
-.slot-option-card--selected .slot-option-card__time {
-    background: var(--color-primary);
-    color: #ffffff;
+.cl-slot--selected {
     border-color: var(--color-primary);
+    background: var(--color-surface-container-low);
+    box-shadow: 0 0 0 2px var(--color-primary);
 }
+
+.cl-slot--selected .cl-slot__time { background: var(--color-primary); color: var(--color-on-primary); }
 
 /* --------------------------------------------------------------------------
-   CU04 Paso 3: Pre-Confirmación del Turno ("Tu Turno" + "Completá tus Datos")
+   7. CU04 — Pre-confirmación
    -------------------------------------------------------------------------- */
-.confirm-booking-grid {
+.cl-confirm {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.75rem;
+    gap: 1.25rem;
     align-items: start;
 }
 
 @media (min-width: 992px) {
-    .confirm-booking-grid {
-        grid-template-columns: 1fr 1.35fr;
-        gap: 2.25rem;
-    }
+    .cl-confirm { grid-template-columns: 1fr 1.3fr; gap: 2rem; }
+    .cl-confirm__summary { position: sticky; top: calc(var(--header-height) + 1rem); }
 }
 
-.confirm-summary-card,
-.confirm-form-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-card);
-}
+.cl-summary { display: grid; gap: 0; margin-top: 1rem; }
 
-@media (min-width: 768px) {
-    .confirm-summary-card,
-    .confirm-form-card {
-        padding: 2rem;
-    }
-}
-
-.confirm-summary-list {
+.cl-row {
     display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-    margin-top: 1.25rem;
-}
-
-.confirm-summary-row {
-    display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.85rem;
-    padding-bottom: 0.85rem;
-    border-bottom: 1px dashed var(--color-border);
+    padding: 0.85rem 0;
+    border-bottom: 1px dashed var(--color-outline-variant);
 }
 
-.confirm-summary-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
+.cl-row:last-child { border-bottom: 0; padding-bottom: 0; }
 
-.confirm-summary-icon {
-    width: 38px;
-    height: 38px;
+.cl-row__icon {
+    width: 2.5rem;
+    height: 2.5rem;
     border-radius: 50%;
-    background: var(--color-surface-soft);
-    color: var(--color-primary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    background: var(--color-surface-container-lowest);
+    color: var(--color-primary);
 }
 
-.confirm-notice-box {
+.cl-row__label { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-outline); font-weight: 700; }
+.cl-row__value { font-family: var(--font-serif); font-size: 1.2rem; color: var(--color-on-surface); line-height: 1.2; }
+.cl-row__extra { font-size: 0.8rem; color: var(--color-on-surface-variant); }
+
+.cl-form-grid { display: grid; gap: 1rem; }
+
+@media (min-width: 576px) {
+    .cl-form-grid { grid-template-columns: 1fr 1fr; }
+    .cl-form-grid .cl-span-2 { grid-column: span 2; }
+}
+
+.cl-notice {
     display: flex;
+    gap: 0.75rem;
     align-items: flex-start;
-    gap: 0.85rem;
-    background: rgba(214, 133, 142, 0.11);
-    border: 1px solid rgba(214, 133, 142, 0.35);
-    border-radius: var(--radius-md);
-    padding: 1rem 1.15rem;
-    margin-top: 1.25rem;
-    margin-bottom: 1.5rem;
-    font-size: 0.875rem;
-    color: var(--color-text-main);
-    line-height: 1.55;
+    margin: 1.25rem 0 1.5rem;
+    padding: 1rem;
+    border-radius: var(--radius-xl);
+    background: var(--color-bento-peach);
+    color: var(--color-on-secondary-container);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.cl-notice .material-symbols-outlined { color: var(--color-primary); }
+
+.cl-actions {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+}
+
+@media (min-width: 576px) {
+    .cl-actions { flex-direction: row; justify-content: space-between; align-items: center; }
 }
 
 /* --------------------------------------------------------------------------
-   CU05: Panel del Cliente — Tarjeta Destacada «Mi próximo turno» y Mis Turnos
+   8. CU05 — Panel del cliente: «Mi próximo turno» y listado
    -------------------------------------------------------------------------- */
-.next-appointment-card {
+.cl-next {
     position: relative;
-    background: linear-gradient(135deg, #ffffff 0%, #fdf5f6 65%, #f8e8ea 100%);
-    border: 1px solid rgba(214, 133, 142, 0.45);
-    border-radius: var(--radius-xl);
-    padding: 1.5rem;
-    margin-bottom: 2.25rem;
-    box-shadow: 0 14px 34px -8px rgba(214, 133, 142, 0.18);
     overflow: hidden;
+    margin-bottom: 2.5rem;
+    box-shadow: -8px 8px 0px rgba(61, 35, 22, 0.85), -11px 11px 4px rgba(61, 35, 22, 0.3) !important;
+    border: 1.5px solid rgba(74, 44, 29, 0.45) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-@media (min-width: 768px) {
-    .next-appointment-card {
-        padding: 2.15rem 2.5rem;
-    }
+.cl-next:hover {
+    box-shadow: -10px 10px 0px rgba(61, 35, 22, 0.95), -13px 13px 6px rgba(61, 35, 22, 0.4) !important;
+    transform: translate(2px, -3px);
+    border-color: rgba(74, 44, 29, 0.7) !important;
 }
 
-.next-appointment-card__eyebrow {
-    display: inline-flex;
+.cl-next::after {
+    content: '';
+    position: absolute;
+    right: -4rem;
+    top: -4rem;
+    width: 12rem;
+    height: 12rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-secondary-container);
+    pointer-events: none;
+}
+
+.cl-next__top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-primary-hover);
-    background: rgba(214, 133, 142, 0.16);
-    padding: 0.35rem 0.85rem;
-    border-radius: var(--radius-full);
+    gap: 0.5rem;
     margin-bottom: 1rem;
 }
 
-.next-appointment-card__grid {
+.cl-next__grid {
+    position: relative;
+    z-index: 1;
     display: grid;
-    grid-template-columns: 1fr;
     gap: 1.25rem;
     align-items: center;
 }
 
 @media (min-width: 992px) {
-    .next-appointment-card__grid {
-        grid-template-columns: 1.3fr 1fr auto;
-        gap: 1.75rem;
-    }
+    .cl-next__grid { grid-template-columns: 1.3fr 1fr auto; gap: 2rem; }
 }
 
-.next-appointment-datebox {
+.cl-next__service {
+    font-family: var(--font-serif);
+    font-size: clamp(1.75rem, 5vw, 2.4rem);
+    color: var(--color-primary);
+    line-height: 1.1;
+    margin: 0 0 0.75rem;
+}
+
+.cl-person { display: flex; align-items: center; gap: 0.75rem; }
+.cl-person__name { font-weight: 600; color: var(--color-on-surface); font-size: 0.9rem; margin: 0; }
+
+.cl-datebox {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 0.95rem 1.25rem;
+    padding: 0.9rem 1rem;
+    border-radius: var(--radius-xl);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--color-secondary-container);
 }
 
-.next-appointment-datebox__day {
-    width: 54px;
-    height: 54px;
-    border-radius: var(--radius-md);
+.cl-datebox__day {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--radius-lg);
     background: var(--color-primary);
-    color: #ffffff;
+    color: var(--color-on-primary);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    line-height: 1.1;
     flex-shrink: 0;
+    line-height: 1;
 }
 
-/* Listado de tarjetas de turnos del cliente (Mobile-First) */
-.client-turnos-grid {
+.cl-datebox__num { font-family: var(--font-serif); font-size: 1.6rem; }
+.cl-datebox__month { font-size: 0.6rem; letter-spacing: 0.12em; font-weight: 700; }
+
+.cl-next__actions { display: grid; gap: 0.5rem; }
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+    .cl-next__actions { grid-template-columns: 1fr 1fr; }
+}
+
+.cl-next__empty {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+@media (min-width: 768px) {
+    .cl-next__empty { flex-direction: row; align-items: center; justify-content: space-between; }
+}
+
+/* Barra de filtros del listado */
+.cl-filterbar { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.cl-filterbar .form-select { width: auto; flex: 1 1 10rem; font-size: 0.85rem; }
+
+/* Listado de turnos */
+.cl-turnos {
     display: grid;
-    grid-template-columns: 1fr;
     gap: 1rem;
 }
 
 @media (min-width: 768px) {
-    .client-turnos-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .cl-turnos { grid-template-columns: repeat(2, 1fr); }
 }
 
-.client-turno-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 1.35rem;
-    box-shadow: var(--shadow-soft);
+@media (min-width: 1200px) {
+    .cl-turnos { grid-template-columns: repeat(3, 1fr); }
+}
+
+.cl-turno {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 1rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    gap: 0.85rem;
+    padding: 1.25rem;
+    border-radius: var(--radius-2xl);
+    background: var(--color-surface-container-lowest);
+    border: 1px solid var(--color-outline-variant);
+    transition: var(--transition-smooth);
 }
 
-.client-turno-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-card);
+.cl-turno:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--color-secondary-container); }
+
+.cl-turno--Cancelado { opacity: 0.75; }
+
+.cl-turno__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+.cl-turno__title { font-family: var(--font-serif); font-size: 1.3rem; color: var(--color-on-surface); margin: 0; line-height: 1.2; }
+
+.cl-turno__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    font-size: 0.82rem;
+    color: var(--color-on-surface-variant);
 }
 
-/* Badges de estado coherentes con el sistema */
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.8rem;
-    border-radius: var(--radius-full);
+.cl-turno__meta span { display: inline-flex; align-items: center; gap: 0.3rem; }
+.cl-turno__meta .material-symbols-outlined { font-size: 1rem; color: var(--color-primary); }
+
+.cl-turno__note {
     font-size: 0.78rem;
-    font-weight: 700;
+    color: var(--color-on-surface-variant);
+    background: var(--color-surface-container-low);
+    border-radius: var(--radius-md);
+    padding: 0.5rem 0.75rem;
+    margin: 0;
 }
 
-.status-badge--Solicitado {
-    background-color: #fff3cd;
-    color: #856404;
+.cl-turno__foot {
+    margin-top: auto;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--color-surface-container-high);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.status-badge--Confirmado {
-    background-color: #d1e7dd;
-    color: #0f5132;
+/* --------------------------------------------------------------------------
+   9. Mi Perfil
+   -------------------------------------------------------------------------- */
+.cl-profile {
+    display: grid;
+    gap: 1.25rem;
+    align-items: start;
 }
 
-.status-badge--Realizado {
-    background-color: #cff4fc;
-    color: #055160;
+@media (min-width: 992px) {
+    .cl-profile { grid-template-columns: 20rem 1fr; gap: 2rem; }
 }
 
-.status-badge--Cancelado {
-    background-color: #f8d7da;
-    color: #842029;
+.cl-profile__card {
+    text-align: center;
+    box-shadow: -8px 8px 0px rgba(61, 35, 22, 0.85), -11px 11px 4px rgba(61, 35, 22, 0.3) !important;
+    border: 1.5px solid rgba(74, 44, 29, 0.45) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
+.cl-profile__card:hover {
+    box-shadow: -10px 10px 0px rgba(61, 35, 22, 0.95), -13px 13px 6px rgba(61, 35, 22, 0.4) !important;
+    transform: translate(2px, -3px);
+    border-color: rgba(74, 44, 29, 0.7) !important;
+}
+
+.cl-profile__avatar {
+    width: 7.5rem;
+    height: 7.5rem;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-surface-container-lowest);
+    box-shadow: 0 0 0 2px var(--color-secondary-container), var(--shadow-md);
+    background: var(--color-surface-container);
+}
+
+.cl-profile__name { font-family: var(--font-serif); font-size: 1.6rem; color: var(--color-primary); margin: 0; line-height: 1.15; }
+
+.cl-profile__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin: 1.25rem 0;
+}
+
+.cl-stat {
+    padding: 0.75rem 0.5rem;
+    border-radius: var(--radius-xl);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.cl-stat__num { display: block; font-family: var(--font-serif); font-size: 1.5rem; color: var(--color-primary); line-height: 1; }
+.cl-stat__label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-outline); font-weight: 700; }
+
+/* --------------------------------------------------------------------------
+   10. Movimiento liviano (respeta prefers-reduced-motion)
+   -------------------------------------------------------------------------- */
+@keyframes cl-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.cl-rise { animation: cl-rise 0.6s cubic-bezier(0.25, 1, 0.5, 1) both; }
+.cl-rise--2 { animation-delay: 0.08s; }
+.cl-rise--3 { animation-delay: 0.16s; }
+.cl-rise--4 { animation-delay: 0.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .cl-main *,
+    .cl-main *::before,
+    .cl-main *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

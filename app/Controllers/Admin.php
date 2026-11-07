@@ -111,8 +111,7 @@ class Admin extends BaseController
         $sort = $this->request->getGet('sort');
 
         $query = $db->table('servicio')
-            ->select('servicio.*, imagen.img_ruta as imagen_ruta, GROUP_CONCAT(DISTINCT profesional_servicio.p_id SEPARATOR ",") as profesionales_ids, GROUP_CONCAT(DISTINCT usuario.u_nbreCompleto SEPARATOR ", ") as profesionales_nombres')
-            ->join('imagen', 'imagen.img_sId = servicio.s_id', 'left')
+            ->select('servicio.*, (SELECT img_ruta FROM imagen WHERE imagen.img_sId = servicio.s_id ORDER BY imagen.img_orden ASC, imagen.img_id ASC LIMIT 1) as imagen_ruta, GROUP_CONCAT(DISTINCT profesional_servicio.p_id SEPARATOR ",") as profesionales_ids, GROUP_CONCAT(DISTINCT usuario.u_nbreCompleto SEPARATOR ", ") as profesionales_nombres')
             ->join('profesional_servicio', 'profesional_servicio.p_sId = servicio.s_id', 'left')
             ->join('profesional', 'profesional.p_id = profesional_servicio.p_id', 'left')
             ->join('usuario', 'usuario.u_id = profesional.u_id', 'left')

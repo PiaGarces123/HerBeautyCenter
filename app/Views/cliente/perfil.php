@@ -1,276 +1,193 @@
 <?php
 $u = $usuario ?? [];
 $prox = $proximoTurno ?? null;
-$defaultAvatar = base_url('public/assets/media/íconoPerfil.png');
-$avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
+$avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : base_url('public/assets/media/íconoPerfil.png');
 ?>
-<!DOCTYPE html>
-<html class="scroll-smooth" lang="es">
+<?= view('cliente/_head', ['pageTitle' => 'Mi Perfil']) ?>
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Mi Perfil — Panel del Cliente | Her Beauty Center</title>
+    <main class="cl-main">
+        <div class="cl-wrap">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
-
-    <!-- Bootstrap 5.3 CSS -->
-    <link rel="stylesheet" href="<?= base_url('public/assets/css/bootstrap.min.css') ?>" />
-
-    <!-- Estilos del Sistema (reutilizando admin.css para las tarjetas de perfil) -->
-    <link rel="stylesheet" href="<?= base_url('public/assets/css/styles.css?v=' . time()) ?>" />
-    <link rel="stylesheet" href="<?= base_url('public/assets/css/index-page.css?v=' . time()) ?>" />
-    <link rel="stylesheet" href="<?= base_url('public/assets/css/admin.css?v=' . time()) ?>" />
-    <link rel="stylesheet" href="<?= base_url('public/assets/css/cliente.css?v=' . time()) ?>" />
-</head>
-
-<body class="site-body">
-
-    <?= $this->include('modals/header') ?>
-
-    <main class="client-page-main">
-        <div class="client-container">
-
-            <!-- Pestañas de Navegación del Panel del Cliente -->
-            <nav class="client-panel-tabs" aria-label="Navegación del panel del cliente">
-                <a href="<?= base_url('mis-turnos') ?>" class="client-panel-tab">
-                    <span class="material-symbols-outlined fs-5">calendar_month</span>
-                    <span>Mis Turnos</span>
+            <nav class="cl-tabs" aria-label="Panel del cliente">
+                <a href="<?= base_url('mis-turnos') ?>" class="cl-tab">
+                    <span class="material-symbols-outlined">calendar_month</span> Mis Turnos
                 </a>
-                <a href="<?= base_url('mi-perfil') ?>" class="client-panel-tab client-panel-tab--active">
-                    <span class="material-symbols-outlined fs-5">person</span>
-                    <span>Mi Perfil</span>
+                <a href="<?= base_url('mi-perfil') ?>" class="cl-tab cl-tab--active" aria-current="page">
+                    <span class="material-symbols-outlined">person</span> Mi Perfil
                 </a>
-                <a href="<?= base_url('/#servicios') ?>" class="client-panel-tab ms-md-auto">
-                    <span class="material-symbols-outlined fs-5">add_circle</span>
-                    <span>Reservar Nuevo Turno</span>
+                <a href="<?= base_url('/#servicios') ?>" class="cl-tab cl-tab--end">
+                    <span class="material-symbols-outlined">add</span> Nuevo turno
                 </a>
             </nav>
 
-            <!-- Encabezado -->
-            <div class="mb-4">
-                <h1 class="mb-1" style="font-size: clamp(1.85rem, 3vw, 2.4rem);">Mi Perfil</h1>
-                <p class="text-muted mb-0">Consultá y actualizá tu información personal, foto de perfil y contraseña.</p>
-            </div>
+            <header class="cl-head cl-rise">
+                <span class="cl-eyebrow">Mi cuenta</span>
+                <h1 class="cl-title">Mi <em>Perfil</em></h1>
+                <p class="cl-lead">Consultá y actualizá tus datos personales, tu foto y tu contraseña.</p>
+            </header>
 
-            <!-- Grilla Reutilizada de Perfil (.admin-profile-grid) -->
-            <div class="admin-profile-grid">
+            <div class="cl-profile">
 
-                <!-- Card Izquierda: Avatar y Resumen del Cliente -->
-                <div class="admin-profile-card">
-                    <img id="profileAvatarImg" src="<?= esc($avatar) ?>"
-                        class="admin-profile-card__avatar <?= empty($u['u_avatar']) ? 'avatar-default' : 'avatar-custom' ?>"
-                        alt="Foto de perfil" />
+                <!-- Resumen -->
+                <aside class="cl-card cl-card--rose cl-profile__card cl-rise cl-rise--2">
+                    <img id="profileAvatarImg" src="<?= esc($avatar) ?>" class="cl-profile__avatar" alt="Foto de perfil" />
+                    <p class="cl-profile__name" id="profileDisplayName"><?= esc($u['u_nbreCompleto'] ?? '') ?></p>
+                    <p class="cl-muted m-0" id="profileDisplayEmail"><?= esc($u['u_correo'] ?? '') ?></p>
 
-                    <p class="admin-profile-card__name" id="profileDisplayName"><?= esc($u['u_nbreCompleto'] ?? '—') ?></p>
-                    <p class="admin-profile-card__role">Clienta</p>
-                    <p class="admin-profile-card__email" id="profileDisplayEmail"><?= esc($u['u_correo'] ?? '') ?></p>
+                    <div class="cl-profile__stats">
+                        <div class="cl-stat">
+                            <span class="cl-stat__num"><?= (int) ($totalTurnos ?? 0) ?></span>
+                            <span class="cl-stat__label">Reservas</span>
+                        </div>
+                        <div class="cl-stat">
+                            <span class="cl-stat__num"><?= $prox ? date('d/m', strtotime($prox['fecha'])) : '—' ?></span>
+                            <span class="cl-stat__label">Próximo turno</span>
+                        </div>
+                    </div>
 
                     <?php if (!empty($u['u_fRegistro'])): ?>
-                        <p class="admin-text-sm text-muted mt-2 mb-1">
-                            Miembro desde <?= date('d/m/Y', strtotime($u['u_fRegistro'])) ?>
-                        </p>
+                        <p class="cl-muted">Miembro desde <?= date('d/m/Y', strtotime($u['u_fRegistro'])) ?></p>
                     <?php endif; ?>
 
-                    <p class="admin-text-sm text-muted mb-2">
-                        Total de reservas: <strong><?= (int) ($totalTurnos ?? 0) ?></strong>
-                    </p>
-
-                    <input type="file" id="avatarInput" accept="image/jpeg, image/png, image/webp" class="d-none" />
-                    <button type="button" id="btnChangeAvatar" class="btn btn--outline admin-w-100 mt-2 admin-btn-sm">
-                        <span class="material-symbols-outlined fs-6">photo_camera</span>
-                        Cambiar foto
+                    <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/webp" class="d-none" />
+                    <button type="button" id="btnChangeAvatar" class="btn btn--outline cl-btn-sm w-100">
+                        <span class="material-symbols-outlined">photo_camera</span> Cambiar foto
                     </button>
-                </div>
+                </aside>
 
-                <!-- Card Derecha: Formulario de Edición de Datos Personales -->
-                <div class="admin-table-card admin-profile-card">
-                    <h2 class="admin-table-card__title mb-4">Editar mis datos personales</h2>
+                <!-- Formulario -->
+                <section class="cl-card cl-rise cl-rise--3" aria-labelledby="editTitle">
+                    <h2 class="cl-subtitle" id="editTitle">Mis datos personales</h2>
+                    <p class="cl-muted mb-4">La especialista usará estos datos para contactarte.</p>
 
                     <form id="perfilClienteForm" class="needs-validation" novalidate>
-                        <div class="admin-grid-2">
-                            <div class="form-group m-0">
+                        <div class="cl-form-grid">
+                            <div class="form-group">
                                 <label class="form-label" for="nombre_completo">Nombre completo *</label>
-                                <input class="form-input" type="text" id="nombre_completo" name="nombre_completo"
-                                    value="<?= esc($u['u_nbreCompleto'] ?? '') ?>" required minlength="3" />
+                                <input class="form-input" type="text" id="nombre_completo" name="nombre_completo" autocomplete="name"
+                                    value="<?= esc($u['u_nbreCompleto'] ?? '') ?>" required minlength="3" maxlength="100" />
+                                <div class="invalid-feedback">Mínimo 3 caracteres.</div>
                             </div>
-                            <div class="form-group m-0">
+                            <div class="form-group">
                                 <label class="form-label" for="telefono">Teléfono / WhatsApp *</label>
-                                <input class="form-input" type="tel" id="telefono" name="telefono"
-                                    value="<?= esc($u['u_tel'] ?? '') ?>" required minlength="8" />
+                                <input class="form-input" type="tel" id="telefono" name="telefono" autocomplete="tel" inputmode="tel"
+                                    value="<?= esc($u['u_tel'] ?? '') ?>" required minlength="8" maxlength="20" />
+                                <div class="invalid-feedback">Mínimo 8 dígitos.</div>
+                            </div>
+                            <div class="form-group cl-span-2">
+                                <label class="form-label" for="correo">Correo electrónico *</label>
+                                <input class="form-input" type="email" id="correo" name="correo" autocomplete="email"
+                                    value="<?= esc($u['u_correo'] ?? '') ?>" required maxlength="120" />
+                                <div class="invalid-feedback">Ingresá un correo válido.</div>
                             </div>
                         </div>
 
-                        <div class="form-group admin-form-group mt-3">
-                            <label class="form-label" for="correo">Correo electrónico *</label>
-                            <input class="form-input" type="email" id="correo" name="correo"
-                                value="<?= esc($u['u_correo'] ?? '') ?>" required />
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4 pt-2 border-top" style="border-color: var(--color-border) !important;">
-                            <button type="button" class="btn btn--outline admin-btn-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                                <span class="material-symbols-outlined fs-6">lock</span>
-                                Cambiar contraseña
+                        <div class="cl-actions mt-4">
+                            <button type="button" class="btn btn--outline" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                <span class="material-symbols-outlined">lock</span> Cambiar contraseña
                             </button>
-                            <button type="submit" class="btn btn--primary admin-btn-sm">
-                                <span class="material-symbols-outlined fs-6">save</span>
-                                Guardar cambios
+                            <button type="submit" class="btn btn--primary">
+                                <span class="material-symbols-outlined">save</span> Guardar cambios
                             </button>
                         </div>
                     </form>
-                </div>
+                </section>
 
             </div>
-
         </div>
     </main>
 
-    <!-- Modal Reutilizable: Cambiar Contraseña -->
-    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal: Cambiar contraseña -->
+    <div class="modal fade cl-modal" id="changePasswordModal" tabindex="-1" aria-labelledby="pwdTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content admin-modal-content">
-                <div class="modal-header admin-modal-header">
-                    <h5 class="modal-title fs-5 fw-bold admin-modal-title">Cambiar Contraseña</h5>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="cl-subtitle m-0" id="pwdTitle">Cambiar contraseña</h3>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <div class="modal-body admin-modal-body">
-                    <form id="passwordClienteForm">
-                        <div class="form-group mb-3">
+                <div class="modal-body">
+                    <form id="passwordClienteForm" class="d-grid gap-3">
+                        <div class="form-group">
                             <label class="form-label" for="password_antigua">Contraseña actual</label>
-                            <input type="password" id="password_antigua" name="password_antigua" class="form-control admin-form-input" required />
+                            <input type="password" id="password_antigua" name="password_antigua" class="form-input" autocomplete="current-password" required />
                         </div>
-
-                        <div class="form-group mb-3">
+                        <div class="form-group">
                             <label class="form-label" for="password_nueva">Nueva contraseña</label>
-                            <input type="password" id="password_nueva" name="password_nueva" class="form-control admin-form-input" required minlength="8" />
+                            <input type="password" id="password_nueva" name="password_nueva" class="form-input" autocomplete="new-password" required minlength="8" />
                         </div>
-
-                        <div class="form-group mb-3">
-                            <label class="form-label" for="password_confirmar">Confirmar nueva contraseña</label>
-                            <input type="password" id="password_confirmar" name="password_confirmar" class="form-control admin-form-input" required minlength="8" />
+                        <div class="form-group">
+                            <label class="form-label" for="password_confirmar">Confirmar contraseña</label>
+                            <input type="password" id="password_confirmar" name="password_confirmar" class="form-input" autocomplete="new-password" required minlength="8" />
                         </div>
-
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="submit" class="btn btn--primary">Actualizar contraseña</button>
-                        </div>
+                        <button type="submit" class="btn btn--primary">Actualizar</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <?= $this->include('modals/footer') ?>
-    <?= $this->include('modals/modalsBase') ?>
-
-    <script src="<?= base_url('public/assets/js/bootstrap.bundle.min.js') ?>"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        window.APP_CONFIG = {
-            baseUrl: '<?= rtrim(base_url(), '/') ?>',
-            apiUrl: '<?= rtrim(base_url('api'), '/') ?>'
-        };
-    </script>
-    <script src="<?= base_url('public/assets/js/index.js?v=' . time()) ?>" defer></script>
-
+<?= view('cliente/_scripts') ?>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const showFeedback = (success, message) => {
-            Swal.fire({
-                title: success ? '¡Éxito!' : 'Atención',
-                text: message,
-                icon: success ? 'success' : 'error',
-                confirmButtonColor: '#d6858e'
-            });
-        };
+        const BRAND = window.APP_CONFIG.brand;
+        const notify = (ok, msg) => Swal.fire({ title: ok ? '¡Listo!' : 'Atención', text: msg, icon: ok ? 'success' : 'error', confirmButtonColor: BRAND });
 
-        // Actualizar datos personales (reutilizando POST /api/perfil/actualizar)
+        // Envío genérico reutilizando los endpoints de PerfilApi
+        const send = async (url, body) => {
+            try {
+                const res = await fetch(url, { method: 'POST', body, headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const data = await res.json();
+                return { ok: res.ok, data };
+            } catch (e) {
+                return { ok: false, data: { message: 'Error de conexión.' } };
+            }
+        };
+        const msgOf = (d, def) => d.messages?.error || d.message || def;
+
         document.getElementById('perfilClienteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!e.target.checkValidity()) {
-                e.target.reportValidity();
+            const form = e.target;
+            form.classList.add('was-validated');
+            if (!form.checkValidity()) return;
+
+            const { ok, data } = await send('<?= base_url('api/perfil/actualizar') ?>', new FormData(form));
+            notify(ok, msgOf(data, ok ? 'Datos actualizados.' : 'No se pudo actualizar.'));
+            if (ok) {
+                document.getElementById('profileDisplayName').textContent = form.nombre_completo.value;
+                document.getElementById('profileDisplayEmail').textContent = form.correo.value;
+            }
+        });
+
+        const avatarInput = document.getElementById('avatarInput');
+        document.getElementById('btnChangeAvatar').addEventListener('click', () => avatarInput.click());
+        avatarInput.addEventListener('change', async () => {
+            const file = avatarInput.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                notify(false, 'La imagen no puede superar los 2 MB.');
+                avatarInput.value = '';
                 return;
             }
-
-            const fd = new FormData(e.target);
-
-            try {
-                const res = await fetch('<?= base_url('api/perfil/actualizar') ?>', {
-                    method: 'POST',
-                    body: fd
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showFeedback(true, data.message || 'Datos actualizados correctamente.');
-                    document.getElementById('profileDisplayName').textContent = document.getElementById('nombre_completo').value;
-                    document.getElementById('profileDisplayEmail').textContent = document.getElementById('correo').value;
-                } else {
-                    showFeedback(false, data.messages?.error || data.message || 'Error al actualizar el perfil.');
-                }
-            } catch (err) {
-                showFeedback(false, 'Error de conexión con el servidor.');
-            }
-        });
-
-        // Cambiar Avatar (reutilizando POST /api/perfil/avatar)
-        document.getElementById('btnChangeAvatar').addEventListener('click', () => {
-            document.getElementById('avatarInput').click();
-        });
-
-        document.getElementById('avatarInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
             const fd = new FormData();
             fd.append('avatar', file);
-            fd.append('u_avatar', file);
-
-            try {
-                const res = await fetch('<?= base_url('api/perfil/avatar') ?>', {
-                    method: 'POST',
-                    body: fd
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showFeedback(true, data.message || 'Foto de perfil actualizada.');
-                    const avatarImg = document.getElementById('profileAvatarImg');
-                    if (avatarImg && data.avatar_url) {
-                        avatarImg.src = data.avatar_url;
-                        avatarImg.classList.remove('avatar-default');
-                        avatarImg.classList.add('avatar-custom');
-                    }
-                } else {
-                    showFeedback(false, data.messages?.error || data.message || 'No se pudo subir la imagen.');
-                }
-            } catch (err) {
-                showFeedback(false, 'Error de conexión.');
-            } finally {
-                e.target.value = '';
-            }
+            const { ok, data } = await send('<?= base_url('api/perfil/avatar') ?>', fd);
+            notify(ok, msgOf(data, ok ? 'Foto actualizada.' : 'No se pudo subir la imagen.'));
+            if (ok && data.avatar_url) document.getElementById('profileAvatarImg').src = data.avatar_url;
+            avatarInput.value = '';
         });
 
-        // Cambiar Contraseña (reutilizando POST /api/perfil/password)
         document.getElementById('passwordClienteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const fd = new FormData(e.target);
-
-            try {
-                const res = await fetch('<?= base_url('api/perfil/password') ?>', {
-                    method: 'POST',
-                    body: fd
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showFeedback(true, data.message || 'Contraseña actualizada correctamente.');
-                    e.target.reset();
-                    const modalInst = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
-                    if (modalInst) modalInst.hide();
-                } else {
-                    showFeedback(false, data.messages?.error || data.message || 'Error al actualizar la contraseña.');
-                }
-            } catch (err) {
-                showFeedback(false, 'Error de conexión.');
+            const form = e.target;
+            if (form.password_nueva.value !== form.password_confirmar.value) {
+                notify(false, 'Las contraseñas nuevas no coinciden.');
+                return;
+            }
+            const { ok, data } = await send('<?= base_url('api/perfil/password') ?>', new FormData(form));
+            notify(ok, msgOf(data, ok ? 'Contraseña actualizada.' : 'No se pudo actualizar.'));
+            if (ok) {
+                form.reset();
+                bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'))?.hide();
             }
         });
     });
@@ -278,4 +195,3 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
 </body>
 
 </html>
-

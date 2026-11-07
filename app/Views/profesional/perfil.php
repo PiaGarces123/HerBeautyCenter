@@ -22,11 +22,11 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
 <div class="admin-profile-grid">
 
     <!-- Card izquierda: avatar + resumen -->
-    <div class="admin-profile-card">
-        <img id="profileAvatarImg" src="<?= esc($avatar) ?>" class="admin-profile-card__avatar" alt="Foto de perfil" class="<?= empty($u['u_avatar']) ? 'avatar-default' : 'avatar-custom' ?>" />
+    <div class="admin-profile-card admin-profile-card--summary">
+        <img id="profileAvatarImg" src="<?= esc($avatar) ?>" class="admin-profile-card__avatar <?= empty($u['u_avatar']) ? 'avatar-default' : 'avatar-custom' ?>" alt="Foto de perfil" />
 
         <p class="admin-profile-card__name"><?= esc($u['u_nbreCompleto'] ?? '—') ?></p>
-        <p class="admin-profile-card__role"><?= $p ? 'Profesional' : 'Administrador' ?></p>
+        <p class="admin-profile-card__role"><?= $p ? esc($p['p_titulo'] ?? 'Profesional') : 'Administrador' ?></p>
         <p class="admin-profile-card__email"><?= esc($u['u_correo'] ?? '') ?></p>
 
         <?php if (!empty($u['u_fRegistro'])): ?>
@@ -36,8 +36,9 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : $defaultAvatar;
         <?php endif; ?>
 
         <input type="file" id="avatarInput" accept="image/jpeg, image/png, image/webp" class="d-none" />
-        <button type="button" id="btnChangeAvatar" class="btn btn--outline admin-w-100 mt-3 admin-btn-sm">
-            Cambiar foto
+        <button type="button" id="btnChangeAvatar" class="btn btn--outline admin-w-100 mt-3 admin-btn-sm d-inline-flex align-items-center justify-content-center gap-2">
+            <span class="material-symbols-outlined" style="font-size: 1.1rem;">photo_camera</span>
+            <span>Cambiar foto</span>
         </button>
         <div id="avatarFeedback" class="admin-text-sm mt-2"></div>
     </div>

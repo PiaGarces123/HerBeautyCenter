@@ -248,8 +248,13 @@
 .admin-topbar__title {
     font-family: var(--font-serif);
     font-size: 1.4rem;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--color-primary);
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
 }
 
 .admin-topbar__actions {
@@ -307,14 +312,14 @@
     background: linear-gradient(145deg, #ffffff, #fdfbf9);
     border-radius: 1.25rem;
     padding: 1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.04);
+    border: 1.5px solid rgba(74, 44, 29, 0.45);
+    box-shadow: -8px 8px 0px rgba(61, 35, 22, 0.85), -11px 11px 4px rgba(61, 35, 22, 0.3);
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     gap: 0.5rem;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s ease;
     position: relative;
     overflow: hidden;
     z-index: 1;
@@ -328,70 +333,65 @@
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 25px rgba(61, 43, 26, 0.08);
-}
-
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(180deg, var(--color-primary), var(--color-secondary));
-    border-radius: 4px 0 0 4px;
-    opacity: 0.8;
+    transform: translate(3px, -5px);
+    box-shadow: -12px 12px 0px rgba(61, 35, 22, 0.95), -15px 15px 6px rgba(61, 35, 22, 0.45);
+    border-color: rgba(74, 44, 29, 0.75);
 }
 
 .stat-card__watermark {
     position: absolute;
-    right: -10%;
+    right: -8%;
     bottom: -15%;
-    font-size: 4rem !important;
+    font-size: 5.5rem !important;
     color: var(--color-primary);
-    opacity: 0.04;
-    z-index: -1;
+    opacity: 0.12;
+    z-index: 1;
+    pointer-events: none;
     transform: rotate(-10deg);
-    transition: all 0.4s ease;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease;
 }
 
 @media (min-width: 600px) {
     .stat-card__watermark {
-        font-size: 8rem !important;
+        font-size: 10rem !important;
+        right: -10%;
+        bottom: -18%;
     }
 }
 
 .stat-card:hover .stat-card__watermark {
-    transform: rotate(0deg) scale(1.1);
-    opacity: 0.06;
+    transform: rotate(0deg) scale(1.18);
+    opacity: 0.22;
 }
 
 .stat-card__icon {
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 0.85rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.95rem;
     background: var(--color-bento-peach);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--color-primary);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    position: relative;
+    z-index: 2;
 }
 
 .stat-card__icon .material-symbols-outlined {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-variation-settings: 'FILL' 1;
 }
 
 @media (min-width: 600px) {
     .stat-card__icon {
-        width: 3.25rem;
-        height: 3.25rem;
+        width: 3.75rem;
+        height: 3.75rem;
+        border-radius: 1.15rem;
     }
 
     .stat-card__icon .material-symbols-outlined {
-        font-size: 1.6rem;
+        font-size: 2rem;
     }
 }
 
@@ -402,6 +402,8 @@
     color: var(--color-primary);
     line-height: 1;
     margin-top: 0.2rem;
+    position: relative;
+    z-index: 2;
 }
 
 .stat-card__label {
@@ -410,6 +412,8 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-weight: 700;
+    position: relative;
+    z-index: 2;
 }
 
 @media (min-width: 600px) {
@@ -443,7 +447,7 @@
     gap: 1rem;
     text-decoration: none;
     color: inherit;
-    transition: var(--transition-smooth);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
@@ -869,6 +873,57 @@
     color: var(--color-on-surface-variant);
 }
 
+/* Card de perfil de resumen con los mismos estilos de la card de perfil del cliente y sombra fija */
+.admin-profile-card--summary {
+    background: linear-gradient(135deg, var(--color-surface-container-lowest) 0%, var(--color-bento-peach) 55%, var(--color-bento-rose) 100%) !important;
+    border: 1.5px solid rgba(74, 44, 29, 0.45) !important;
+    border-radius: var(--radius-2xl) !important;
+    padding: 2.25rem 1.75rem !important;
+    box-shadow: -8px 8px 0px rgba(61, 35, 22, 0.85), -11px 11px 4px rgba(61, 35, 22, 0.3) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.admin-profile-card--summary:hover {
+    box-shadow: -10px 10px 0px rgba(61, 35, 22, 0.95), -13px 13px 6px rgba(61, 35, 22, 0.4) !important;
+    transform: translate(2px, -3px);
+    border-color: rgba(74, 44, 29, 0.7) !important;
+}
+
+.admin-profile-card--summary .admin-profile-card__avatar {
+    width: 7.5rem;
+    height: 7.5rem;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 0 2px var(--color-secondary-container), var(--shadow-md);
+    background: var(--color-surface-container);
+}
+
+.admin-profile-card--summary .admin-profile-card__name {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    color: var(--color-primary);
+    margin: 0;
+    line-height: 1.15;
+    font-weight: 600;
+}
+
+.admin-profile-card--summary .admin-profile-card__role {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-secondary);
+    font-weight: 700;
+    margin-top: 0.25rem;
+}
+
+.admin-profile-card--summary .admin-profile-card__email {
+    font-size: 0.85rem;
+    color: var(--color-on-surface-variant);
+    margin-top: 0.2rem;
+}
+
 /* ==========================================================================
    SECTION PAGE HEADER
    ========================================================================== */
@@ -1069,12 +1124,25 @@
 
 .stat-card__muted--xs {
     font-size: 0.75rem;
+    position: relative;
+    z-index: 2;
 }
 
 /* Tendencia destacada dentro de stat-card (texto en color primario) */
 .stat-card__trend {
     color: var(--color-primary);
+    position: relative;
+    z-index: 2;
 }
+
+/* Color temático del ícono de fondo (watermark) según el tipo de stat-card */
+.stat-card:has(.stat-card__icon--rose) .stat-card__watermark { color: #b24c63; }
+.stat-card:has(.stat-card__icon--fuchsia) .stat-card__watermark { color: #880e4f; }
+.stat-card:has(.stat-card__icon--navy) .stat-card__watermark { color: #1e4f8a; }
+.stat-card:has(.stat-card__icon--green) .stat-card__watermark { color: #2d6a4f; }
+.stat-card:has(.stat-card__icon--indigo) .stat-card__watermark { color: #283593; }
+.stat-card:has(.stat-card__icon--orange) .stat-card__watermark { color: #d84315; }
+.stat-card:has(.stat-card__icon--teal) .stat-card__watermark { color: #006064; }
 
 /* ==========================================================================
    CLASES GENÉRICAS PARA PAGINACIÓN DEL PANEL
@@ -1450,20 +1518,31 @@
     /* Topbar en celulares */
     .admin-topbar {
         padding: 0 0.85rem;
-        height: 3.5rem;
+        height: 3.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .admin-topbar__left {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .admin-topbar__title {
-        font-size: 1.15rem;
-        max-width: 170px;
+        font-size: 1.1rem;
+        margin: 0;
+        line-height: 1;
+        display: flex;
+        align-items: center;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
     .admin-topbar__actions .btn {
-        padding: 0.35rem 0.6rem;
+        padding: 0.4rem 0.65rem;
         font-size: 0.8rem;
+        white-space: nowrap;
     }
 
     /* Padding de contenido general */
@@ -1561,4 +1640,160 @@
         max-width: 650px;
     }
 }
+
+/* ==========================================================================
+   MODAL DE GESTIÓN Y REORDENAMIENTO DE IMÁGENES (DRAG & DROP)
+   ========================================================================== */
+.admin-gallery-dropzone {
+    border: 2px dashed var(--color-outline-variant);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-container-low);
+    padding: 1.5rem;
+    text-align: center;
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.admin-gallery-dropzone:hover,
+.admin-gallery-dropzone.dragover {
+    border-color: var(--color-primary);
+    background: var(--color-surface-container);
+}
+
+.admin-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 576px) {
+    .admin-gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .admin-gallery-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.admin-gallery-card {
+    position: relative;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-container-lowest);
+    border: 2px solid var(--color-outline-variant);
+    overflow: hidden;
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-gallery-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+}
+
+.admin-gallery-card:active {
+    cursor: grabbing;
+}
+
+.admin-gallery-card.is-dragging {
+    opacity: 0.35;
+    transform: scale(0.92);
+    border: 2px dashed var(--color-primary);
+}
+
+.admin-gallery-card.is-drag-over {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(125, 86, 45, 0.25);
+    transform: scale(1.03);
+}
+
+.admin-gallery-thumb-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--color-surface-container);
+    overflow: hidden;
+}
+
+.admin-gallery-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+}
+
+.admin-gallery-badge {
+    position: absolute;
+    top: 0.4rem;
+    left: 0.4rem;
+    z-index: 2;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border-radius: var(--radius-full);
+    pointer-events: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    line-height: 1.2;
+}
+
+.admin-gallery-badge .material-symbols-outlined {
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+.admin-gallery-delete {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    z-index: 3;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: rgba(220, 53, 69, 0.9);
+    color: #ffffff;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.admin-gallery-delete:hover {
+    background: #dc3545;
+    transform: scale(1.1);
+}
+
+.admin-gallery-delete .material-symbols-outlined {
+    font-size: 1rem;
+}
+
+.admin-gallery-foot {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-on-surface-variant);
+    background: var(--color-surface-container-low);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    border-top: 1px solid var(--color-outline-variant);
+}
+
+.admin-gallery-foot .material-symbols-outlined {
+    font-size: 0.9rem;
+}
+
 

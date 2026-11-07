@@ -48,7 +48,7 @@ final class ReservaClienteTest extends CIUnitTestCase
     public function testInvitadoAnonimoEnRutaReservaRedirigeALogin(): void
     {
         $request  = $this->createRequest('http://localhost/reservar/1');
-        $response = $this->authFilter->before($request, ['all']);
+        $response = $this->authFilter->before($request, ['cliente']);
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
     }
@@ -59,14 +59,14 @@ final class ReservaClienteTest extends CIUnitTestCase
     public function testPeticionApiReservaSinSesionRetorna401(): void
     {
         $request  = $this->createRequest('http://localhost/api/reservas/confirmar');
-        $response = $this->authFilter->before($request, ['all']);
+        $response = $this->authFilter->before($request, ['cliente']);
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(401, $response->getStatusCode());
     }
 
     /**
-     * Test CU04/CU05: Cliente autenticado tiene acceso permitido a rutas con filtro auth:all
+     * Test CU04/CU05: Cliente autenticado tiene acceso permitido a rutas con filtro auth:cliente
      */
     public function testClienteAutenticadoAccedeARutasDeCliente(): void
     {
@@ -80,10 +80,10 @@ final class ReservaClienteTest extends CIUnitTestCase
         $reqMiPerfil  = $this->createRequest('http://localhost/mi-perfil');
         $reqApiConf   = $this->createRequest('http://localhost/api/reservas/confirmar');
 
-        $this->assertNull($this->authFilter->before($reqReservar, ['all']));
-        $this->assertNull($this->authFilter->before($reqMisTurnos, ['all']));
-        $this->assertNull($this->authFilter->before($reqMiPerfil, ['all']));
-        $this->assertNull($this->authFilter->before($reqApiConf, ['all']));
+        $this->assertNull($this->authFilter->before($reqReservar, ['cliente']));
+        $this->assertNull($this->authFilter->before($reqMisTurnos, ['cliente']));
+        $this->assertNull($this->authFilter->before($reqMiPerfil, ['cliente']));
+        $this->assertNull($this->authFilter->before($reqApiConf, ['cliente']));
     }
 
     /**
@@ -100,6 +100,28 @@ final class ReservaClienteTest extends CIUnitTestCase
         $response = $this->authFilter->before($request, ['admin', 'profesional']);
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
+    }
+
+    /**
+     * Test Seguridad RBAC: Un profesional o admin NO puede acceder a las rutas ni APIs exclusivas de cliente
+     */
+    public function testStaffNoPuedeAccederARutasDeCliente(): void
+    {
+        session()->set([
+            'usuario_id' => 10,
+            'rol'        => 'profesional',
+        ]);
+
+        // Petición web: es redirigido a /admin
+        $reqReservar  = $this->createRequest('http://localhost/reservar/1');
+        $respReservar = $this->authFilter->before($reqReservar, ['cliente']);
+        $this->assertInstanceOf(RedirectResponse::class, $respReservar);
+
+        // Petición API: retorna 403 Forbidden
+        $reqApiConf   = $this->createRequest('http://localhost/api/reservas/confirmar');
+        $respApiConf  = $this->authFilter->before($reqApiConf, ['cliente']);
+        $this->assertInstanceOf(Response::class, $respApiConf);
+        $this->assertSame(403, $respApiConf->getStatusCode());
     }
 
     /**
@@ -139,10 +161,12 @@ final class ReservaClienteTest extends CIUnitTestCase
     }
 
     /**
-     * Test Modelos Incremento 3: Existencia de métodos de consulta para CU04 y CU05
+     * Test Modelos Incremento 3: Existencia de métodos de consulta para CU01, CU04 y CU05
      */
     public function testMetodosDeModelosIncremento3Existen(): void
     {
+        $imagenModel = new \App\Models\ImagenModel();
+        $this->assertTrue(method_exists($imagenModel, 'getImagenesByServicio'));
         $this->assertTrue(method_exists($this->horarioModel, 'getDisponibilidadServicio'));
         $this->assertTrue(method_exists($this->horarioModel, 'getHorarioParaReserva'));
         $this->assertTrue(method_exists($this->turnoModel, 'getProximoTurnoCliente'));

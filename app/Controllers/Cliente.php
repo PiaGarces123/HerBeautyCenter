@@ -80,13 +80,11 @@ class Cliente extends BaseController
         $horarioModel = new HorarioModel();
         $horariosDisponibles = $horarioModel->getDisponibilidadServicio($sId);
 
-        // Otros servicios activos sugeridos
+        // Otros servicios activos sugeridos (con su imagen principal de portada)
         $otrosServicios = $db->table('servicio')
-            ->select('servicio.*, MIN(imagen.img_ruta) as imagen_ruta')
-            ->join('imagen', 'imagen.img_sId = servicio.s_id', 'left')
+            ->select('servicio.*, (SELECT img_ruta FROM imagen WHERE imagen.img_sId = servicio.s_id ORDER BY imagen.img_orden ASC, imagen.img_id ASC LIMIT 1) AS imagen_ruta')
             ->where('servicio.s_activo', 1)
             ->where('servicio.s_id !=', $sId)
-            ->groupBy('servicio.s_id')
             ->orderBy('servicio.s_orden', 'ASC')
             ->limit(3)
             ->get()
@@ -107,8 +105,14 @@ class Cliente extends BaseController
     // =========================================================================
     public function reservar(int $sId = 0)
     {
-        if (!session()->get('usuario_id')) {
+        $session = session();
+        if (!$session->get('usuario_id')) {
             return redirect()->to(base_url('/?login=1'));
+        }
+
+        // Profesionales y administradores tienen sus propias vistas de agenda en /admin
+        if (in_array($session->get('rol'), ['admin', 'profesional'], true)) {
+            return redirect()->to(base_url('admin'));
         }
 
         if ($sId <= 0) {
@@ -151,9 +155,14 @@ class Cliente extends BaseController
     // =========================================================================
     public function confirmar(int $hId = 0)
     {
-        $usuarioId = (int) session()->get('usuario_id');
+        $session = session();
+        $usuarioId = (int) $session->get('usuario_id');
         if (!$usuarioId) {
             return redirect()->to(base_url('/?login=1'));
+        }
+
+        if (in_array($session->get('rol'), ['admin', 'profesional'], true)) {
+            return redirect()->to(base_url('admin'));
         }
 
         if ($hId <= 0) {
@@ -187,9 +196,14 @@ class Cliente extends BaseController
     // =========================================================================
     public function misTurnos()
     {
-        $usuarioId = (int) session()->get('usuario_id');
+        $session = session();
+        $usuarioId = (int) $session->get('usuario_id');
         if (!$usuarioId) {
             return redirect()->to(base_url('/?login=1'));
+        }
+
+        if (in_array($session->get('rol'), ['admin', 'profesional'], true)) {
+            return redirect()->to(base_url('admin'));
         }
 
         $cId = $this->obtenerClienteId($usuarioId);
@@ -248,9 +262,14 @@ class Cliente extends BaseController
     // =========================================================================
     public function perfil()
     {
-        $usuarioId = (int) session()->get('usuario_id');
+        $session = session();
+        $usuarioId = (int) $session->get('usuario_id');
         if (!$usuarioId) {
             return redirect()->to(base_url('/?login=1'));
+        }
+
+        if (in_array($session->get('rol'), ['admin', 'profesional'], true)) {
+            return redirect()->to(base_url('admin/perfil'));
         }
 
         $usuarioModel = new UsuarioModel();

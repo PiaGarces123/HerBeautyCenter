@@ -129,6 +129,11 @@ $this->section('content');
                                 data-profs="<?= esc($s['profesionales_ids']) ?>">
                                 <span class="material-symbols-outlined admin-action-icon">group_add</span>
                             </button>
+                            <button class="table-btn table-btn--edit btn-manage-images" title="Gestionar Imágenes"
+                                data-id="<?= esc($s['s_id']) ?>"
+                                data-name="<?= esc($s['s_nbre']) ?>">
+                                <span class="material-symbols-outlined admin-action-icon">photo_library</span>
+                            </button>
                             <button class="table-btn table-btn--edit btn-edit-servicio" title="Editar"
                                 data-bs-toggle="modal" data-bs-target="#editServicioModal"
                                 data-id="<?= esc($s['s_id']) ?>"
@@ -240,11 +245,11 @@ $this->section('content');
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label fw-bold text-muted admin-text-sm">Imagen Representativa</label>
-                            <input class="form-control" type="file" id="createSrvImg" name="imagen" accept=".png, .jpg, .jpeg, .webp" required
+                            <label class="form-label fw-bold text-muted admin-text-sm">Imágenes del Servicio</label>
+                            <input class="form-control" type="file" id="createSrvImg" name="imagenes[]" accept=".png, .jpg, .jpeg, .webp" multiple required
                                 class="admin-form-input">
-                            <div class="form-text admin-text-sm text-muted">Recomendado: 800x600px. Máximo: 2MB. Formatos: PNG, JPG, WEBP.</div>
-                            <div class="invalid-feedback">Por favor, subí una imagen válida (Máx 2MB).</div>
+                            <div class="form-text admin-text-sm text-muted">Podés seleccionar una o varias imágenes (la 1ra será la portada). Máx: 2MB por imagen. Formatos: PNG, JPG, WEBP.</div>
+                            <div class="invalid-feedback">Por favor, subí al menos una imagen válida (Máx 2MB por archivo).</div>
                             <div class="mt-2 text-center d-none" id="createSrvImgPreviewContainer">
                                 <img id="createSrvImgPreview" src="" alt="Previsualización" class="admin-img-preview">
                             </div>
@@ -305,13 +310,24 @@ $this->section('content');
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label fw-bold text-muted admin-text-sm">Reemplazar Imagen (Opcional)</label>
-                            <input class="form-control" type="file" id="editSrvImg" name="imagen" accept=".png, .jpg, .jpeg, .webp"
-                                class="admin-form-input">
-                            <div class="form-text admin-text-sm text-muted">Recomendado: 800x600px. Máximo: 2MB. Formatos: PNG, JPG, WEBP.</div>
-                            <div class="invalid-feedback">Por favor, subí una imagen válida (Máx 2MB).</div>
-                            <div class="mt-2 text-center d-none" id="editSrvImgPreviewContainer">
-                                <img id="editSrvImgPreview" src="" alt="Previsualización" class="admin-img-preview">
+                            <label class="form-label fw-bold text-muted admin-text-sm">Galería de Imágenes</label>
+                            <div class="p-3 border rounded-3 bg-light d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="position-relative" style="width: 52px; height: 52px;">
+                                        <img id="editSrvCurrentThumb" src="" alt="Portada" class="w-100 h-100 rounded object-fit-cover d-none border shadow-sm">
+                                        <div id="editSrvNoThumb" class="w-100 h-100 rounded bg-white border d-flex align-items-center justify-content-center text-muted">
+                                            <span class="material-symbols-outlined fs-3">image</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark admin-text-sm">Fotos del Servicio</div>
+                                        <small class="text-muted d-block">La 1ra foto se usa como portada. Podés sumar más fotos y arrastrarlas para ordenarlas.</small>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-pink admin-btn-sm" id="btnEditOpenManageImages">
+                                    <span class="material-symbols-outlined fs-6 align-middle me-1">photo_library</span>
+                                    Gestionar Imágenes
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -359,6 +375,68 @@ $this->section('content');
     </div>
 </div>
 
+<!-- Modal: Gestionar Imágenes del Servicio (Galería y Ordenamiento Drag & Drop) -->
+<div class="modal fade" id="manageImagesModal" tabindex="-1" aria-labelledby="manageImagesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header admin-modal-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="modal-title fs-5 fw-bold admin-modal-title" id="manageImagesModalLabel">
+                        Imágenes del Servicio
+                    </h5>
+                    <p class="admin-modal-subtitle m-0 text-muted" id="manageImagesSrvSubtitle">Gestionar fotos y orden de portada</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body admin-modal-body p-4">
+                <input type="hidden" id="manageImagesSrvId" value="">
+
+                <!-- Zona de Carga / Dropzone para Sumar Imágenes -->
+                <div class="admin-gallery-dropzone mb-3" id="dropzoneArea">
+                    <input type="file" id="inputUploadNewImages" accept=".png, .jpg, .jpeg, .webp" multiple class="d-none">
+                    <span class="material-symbols-outlined fs-1 text-muted mb-1">add_photo_alternate</span>
+                    <div class="fw-bold text-dark admin-text-sm mb-1">Sumar imágenes al servicio</div>
+                    <p class="text-muted small mb-2">Hacé clic aquí o arrastrá tus fotos (podés elegir múltiples a la vez). Máx. 2MB por imagen.</p>
+                    <button type="button" class="btn btn--primary admin-action-btn" id="btnSelectFiles">
+                        <span class="material-symbols-outlined admin-action-icon">upload_file</span>
+                        Seleccionar Archivos
+                    </button>
+                    <div id="uploadSpinner" class="mt-2 text-primary fw-semibold small d-none">
+                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                        Subiendo y optimizando a WebP...
+                    </div>
+                </div>
+
+                <!-- Notificación / Guía -->
+                <div class="alert alert-info py-2 px-3 d-flex align-items-center gap-2 mb-3" style="background: var(--color-surface-container-low); border-color: var(--color-outline-variant); color: var(--color-on-surface-variant); font-size: 0.82rem;">
+                    <span class="material-symbols-outlined fs-5" style="color: var(--color-primary);">info</span>
+                    <span>
+                        <strong><span class="material-symbols-outlined align-middle fs-6" style="color: #b8860b;">star</span> La 1ra foto (con icono de estrella)</strong> es la que se mostrará como portada en las cards y en la página principal. <strong>Arrastrá las tarjetas</strong> para ordenar las fotos dinámicamente.
+                    </span>
+                </div>
+
+                <!-- Grid de Imágenes Ordenables por Drag and Drop -->
+                <div id="manageImagesGrid" class="admin-gallery-grid">
+                    <!-- Se inyectan dinámicamente las tarjetas de imágenes -->
+                </div>
+
+                <!-- Estado Vacío -->
+                <div id="manageImagesEmptyState" class="text-center py-4 d-none">
+                    <span class="material-symbols-outlined fs-1 text-muted mb-2">image_not_supported</span>
+                    <p class="text-muted fw-semibold mb-1">Este servicio aún no tiene imágenes asociadas.</p>
+                    <small class="text-muted">Subí la primera foto para definir la portada.</small>
+                </div>
+            </div>
+            <div class="modal-footer border-top p-3 d-flex justify-content-between align-items-center">
+                <span id="manageImagesCounter" class="text-muted small fw-semibold">0 imágenes</span>
+                <button type="button" class="btn btn-pink admin-btn-sm" data-bs-dismiss="modal">
+                    Listo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -395,7 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     setupImagePreviewAndValidation('createSrvImg', 'createSrvImgPreviewContainer', 'createSrvImgPreview');
-    setupImagePreviewAndValidation('editSrvImg', 'editSrvImgPreviewContainer', 'editSrvImgPreview');
 
     const validateTextarea = (textareaId) => {
         const textarea = document.getElementById(textareaId);
@@ -472,14 +549,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('editSrvDur').value = btn.getAttribute('data-dur');
                 document.getElementById('editSrvPrice').value = btn.getAttribute('data-price');
                 document.getElementById('editSrvActive').value = btn.getAttribute('data-active');
-                document.getElementById('editSrvImg').value = ''; // Reset file input
-                document.getElementById('editSrvImgPreviewContainer').classList.add('d-none');
-                document.getElementById('editSrvImgPreview').src = '';
+
+                // Actualizar miniatura actual de portada
+                const imgUrl = btn.getAttribute('data-img');
+                const editThumb = document.getElementById('editSrvCurrentThumb');
+                const editNoThumb = document.getElementById('editSrvNoThumb');
+                if (imgUrl) {
+                    editThumb.src = imgUrl;
+                    editThumb.classList.remove('d-none');
+                    editNoThumb.classList.add('d-none');
+                } else {
+                    editThumb.src = '';
+                    editThumb.classList.add('d-none');
+                    editNoThumb.classList.remove('d-none');
+                }
                 
                 document.getElementById('editServicioError').classList.add('d-none');
                 editForm.classList.remove('was-validated');
             });
         });
+
+        // Botón "Gestionar Imágenes" dentro del modal de edición
+        const btnEditManage = document.getElementById('btnEditOpenManageImages');
+        if (btnEditManage) {
+            btnEditManage.addEventListener('click', () => {
+                const srvId = document.getElementById('editSrvId').value;
+                const srvName = document.getElementById('editSrvName').value;
+                const editModalInst = bootstrap.Modal.getInstance(document.getElementById('editServicioModal'));
+                if (editModalInst) editModalInst.hide();
+                abrirModalGestionImagenes(srvId, srvName);
+            });
+        }
 
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -642,6 +742,9 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // =========================================================================
+    // 1. ORDENAMIENTO DE SERVICIOS EN TABLA PRINCIPAL
+    // =========================================================================
     const btnToggle = document.getElementById('btnToggleOrden');
     const btnGuardar = document.getElementById('btnGuardarOrden');
     const thDrag = document.getElementById('thDragHandle');
@@ -649,88 +752,425 @@ document.addEventListener('DOMContentLoaded', () => {
     let sortable = null;
     let ordenModoActivo = false;
 
-    if (!btnToggle || !tbody) return;
+    if (btnToggle && tbody) {
+        btnToggle.addEventListener('click', () => {
+            ordenModoActivo = !ordenModoActivo;
 
-    btnToggle.addEventListener('click', () => {
-        ordenModoActivo = !ordenModoActivo;
+            // Toggle drag handle column visibility
+            thDrag.classList.toggle('d-none', !ordenModoActivo);
+            document.querySelectorAll('.drag-handle-cell').forEach(td => {
+                td.classList.toggle('d-none', !ordenModoActivo);
+            });
 
-        // Toggle drag handle column visibility
-        thDrag.classList.toggle('d-none', !ordenModoActivo);
-        document.querySelectorAll('.drag-handle-cell').forEach(td => {
-            td.classList.toggle('d-none', !ordenModoActivo);
+            btnGuardar.classList.toggle('d-none', !ordenModoActivo);
+            btnToggle.style.background = ordenModoActivo ? 'var(--color-primary)' : 'transparent';
+            btnToggle.style.color = ordenModoActivo ? '#fff' : 'var(--color-primary)';
+
+            if (ordenModoActivo) {
+                tbody.style.cursor = 'grab';
+                tbody.querySelectorAll('tr').forEach(tr => {
+                    tr.style.transition = 'background 0.2s';
+                });
+
+                sortable = new Sortable(tbody, {
+                    animation: 180,
+                    handle: '.drag-handle-cell',
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    onEnd: () => {
+                        let i = 1;
+                        tbody.querySelectorAll('tr').forEach(tr => {
+                            const ordenCell = tr.querySelector('.orden-cell');
+                            if (ordenCell) ordenCell.textContent = i++;
+                        });
+                    }
+                });
+            } else {
+                if (sortable) { sortable.destroy(); sortable = null; }
+                tbody.style.cursor = '';
+            }
         });
 
-        btnGuardar.classList.toggle('d-none', !ordenModoActivo);
-        btnToggle.style.background = ordenModoActivo ? 'var(--color-primary)' : 'transparent';
-        btnToggle.style.color = ordenModoActivo ? '#fff' : 'var(--color-primary)';
+        btnGuardar.addEventListener('click', async () => {
+            const ids = Array.from(tbody.querySelectorAll('tr[data-id]')).map(tr => tr.getAttribute('data-id'));
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">hourglass_top</span> Guardando...';
 
-        if (ordenModoActivo) {
-            // Highlight rows in drag mode
-            tbody.style.cursor = 'grab';
-            tbody.querySelectorAll('tr').forEach(tr => {
-                tr.style.transition = 'background 0.2s';
-            });
+            try {
+                const res = await fetch('<?= base_url("api/servicios/ordenar") ?>', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orden: ids })
+                });
+                const data = await res.json();
 
-            sortable = new Sortable(tbody, {
-                animation: 180,
-                handle: '.drag-handle-cell',
-                ghostClass: 'sortable-ghost',
-                chosenClass: 'sortable-chosen',
-                onEnd: () => {
-                    // Update # cells after drag
-                    let i = 1;
-                    tbody.querySelectorAll('tr').forEach(tr => {
-                        const ordenCell = tr.querySelector('.orden-cell');
-                        if (ordenCell) ordenCell.textContent = i++;
+                if (data.success) {
+                    ordenModoActivo = false;
+                    thDrag.classList.add('d-none');
+                    document.querySelectorAll('.drag-handle-cell').forEach(td => td.classList.add('d-none'));
+                    btnGuardar.classList.add('d-none');
+                    btnToggle.style.background = 'transparent';
+                    btnToggle.style.color = 'var(--color-primary)';
+                    if (sortable) { sortable.destroy(); sortable = null; }
+
+                    Swal.fire({
+                        title: '¡Orden guardado!',
+                        text: 'Los servicios ahora se muestran en el orden que definiste.',
+                        icon: 'success',
+                        confirmButtonColor: '#d6858e'
                     });
+                } else {
+                    Swal.fire({ title: 'Error', text: data.message || 'Error al guardar el orden.', icon: 'error', confirmButtonColor: '#d6858e' });
+                    btnGuardar.disabled = false;
+                    btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">save</span> Guardar Orden';
                 }
-            });
-        } else {
-            if (sortable) { sortable.destroy(); sortable = null; }
-            tbody.style.cursor = '';
-        }
+            } catch (e) {
+                Swal.fire({ title: 'Error', text: 'Error de conexión.', icon: 'error', confirmButtonColor: '#d6858e' });
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">save</span> Guardar Orden';
+            }
+        });
+    }
+
+    // =========================================================================
+    // 2. GESTIÓN DE GALERÍA Y DRAG & DROP DE IMÁGENES POR SERVICIO
+    // =========================================================================
+    let currentSrvId = null;
+    let sortableGallery = null;
+    const manageImagesModalEl = document.getElementById('manageImagesModal');
+    const manageImagesModal = manageImagesModalEl ? new bootstrap.Modal(manageImagesModalEl) : null;
+    const manageImagesGrid = document.getElementById('manageImagesGrid');
+    const manageImagesEmpty = document.getElementById('manageImagesEmptyState');
+    const manageImagesCounter = document.getElementById('manageImagesCounter');
+    const dropzoneArea = document.getElementById('dropzoneArea');
+    const inputUploadNewImages = document.getElementById('inputUploadNewImages');
+    const btnSelectFiles = document.getElementById('btnSelectFiles');
+    const uploadSpinner = document.getElementById('uploadSpinner');
+
+    const toastAlert = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true
     });
 
-    btnGuardar.addEventListener('click', async () => {
-        const ids = Array.from(tbody.querySelectorAll('tr[data-id]')).map(tr => tr.getAttribute('data-id'));
-        btnGuardar.disabled = true;
-        btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">hourglass_top</span> Guardando...';
+    function sincronizarPortadaEnTabla(srvId, nuevaRutaPortada) {
+        const row = document.querySelector(`tr[data-id="${srvId}"]`);
+        if (row) {
+            const btnEdit = row.querySelector('.btn-edit-servicio');
+            if (btnEdit) {
+                btnEdit.setAttribute('data-img', nuevaRutaPortada || '');
+            }
+            const avatarEl = row.querySelector('.admin-table-img');
+            if (avatarEl) {
+                if (nuevaRutaPortada) {
+                    avatarEl.outerHTML = `<img src="${nuevaRutaPortada}" alt="Servicio" class="table-avatar admin-table-img">`;
+                } else {
+                    avatarEl.outerHTML = `<span class="table-avatar-placeholder admin-table-img"><span class="material-symbols-outlined admin-visibility-icon">image</span></span>`;
+                }
+            }
+        }
+
+        const editSrvId = document.getElementById('editSrvId');
+        if (editSrvId && editSrvId.value === String(srvId)) {
+            const editThumb = document.getElementById('editSrvCurrentThumb');
+            const editNoThumb = document.getElementById('editSrvNoThumb');
+            if (nuevaRutaPortada) {
+                if (editThumb) { editThumb.src = nuevaRutaPortada; editThumb.classList.remove('d-none'); }
+                if (editNoThumb) editNoThumb.classList.add('d-none');
+            } else {
+                if (editThumb) { editThumb.src = ''; editThumb.classList.add('d-none'); }
+                if (editNoThumb) editNoThumb.classList.remove('d-none');
+            }
+        }
+    }
+
+    function actualizarBadgesEnDOM() {
+        if (!manageImagesGrid) return;
+        const cards = manageImagesGrid.querySelectorAll('.admin-gallery-card');
+        cards.forEach((card, index) => {
+            const badge = card.querySelector('.admin-gallery-badge');
+            if (badge) {
+                if (index === 0) {
+                    badge.className = 'admin-gallery-badge bg-warning text-dark';
+                    badge.innerHTML = '<span class="material-symbols-outlined">star</span> Portada';
+                } else {
+                    badge.className = 'admin-gallery-badge bg-light text-muted border';
+                    badge.textContent = `#${index + 1}`;
+                }
+            }
+        });
+        if (manageImagesCounter) {
+            manageImagesCounter.textContent = `${cards.length} imagen(es)`;
+        }
+    }
+
+    async function guardarOrdenGaleria() {
+        if (!currentSrvId || !manageImagesGrid) return;
+        const cards = Array.from(manageImagesGrid.querySelectorAll('.admin-gallery-card'));
+        const ids = cards.map(c => c.getAttribute('data-id'));
+        if (ids.length === 0) return;
+
+        // Actualizar visualmente badges de inmediato
+        actualizarBadgesEnDOM();
+
+        // Obtener portada local
+        const firstImg = cards[0].querySelector('img');
+        const nuevaPortadaUrl = firstImg ? firstImg.src : null;
+        sincronizarPortadaEnTabla(currentSrvId, nuevaPortadaUrl);
 
         try {
-            const res = await fetch('<?= base_url("api/servicios/ordenar") ?>', {
+            const res = await fetch(`<?= base_url("api/servicios/imagenes/ordenar") ?>/${currentSrvId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orden: ids })
             });
             const data = await res.json();
-
             if (data.success) {
-                // Exit drag mode
-                ordenModoActivo = false;
-                thDrag.classList.add('d-none');
-                document.querySelectorAll('.drag-handle-cell').forEach(td => td.classList.add('d-none'));
-                btnGuardar.classList.add('d-none');
-                btnToggle.style.background = 'transparent';
-                btnToggle.style.color = 'var(--color-primary)';
-                if (sortable) { sortable.destroy(); sortable = null; }
-
-                Swal.fire({
-                    title: '¡Orden guardado!',
-                    text: 'Los servicios ahora se muestran en el orden que definiste.',
+                toastAlert.fire({
                     icon: 'success',
-                    confirmButtonColor: '#d6858e'
+                    title: 'Portada y orden actualizados.'
                 });
             } else {
-                Swal.fire({ title: 'Error', text: data.message || 'Error al guardar el orden.', icon: 'error', confirmButtonColor: '#d6858e' });
-                btnGuardar.disabled = false;
-                btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">save</span> Guardar Orden';
+                toastAlert.fire({
+                    icon: 'error',
+                    title: data.message || 'Error al ordenar las fotos.'
+                });
             }
         } catch (e) {
-            Swal.fire({ title: 'Error', text: 'Error de conexión.', icon: 'error', confirmButtonColor: '#d6858e' });
-            btnGuardar.disabled = false;
-            btnGuardar.innerHTML = '<span class="material-symbols-outlined admin-action-icon">save</span> Guardar Orden';
+            toastAlert.fire({
+                icon: 'error',
+                title: 'Error de conexión al ordenar fotos.'
+            });
         }
+    }
+
+    function renderGaleria(imagenes) {
+        if (!manageImagesGrid) return;
+        manageImagesGrid.innerHTML = '';
+        if (!imagenes || imagenes.length === 0) {
+            if (manageImagesEmpty) manageImagesEmpty.classList.remove('d-none');
+            if (manageImagesCounter) manageImagesCounter.textContent = '0 imágenes';
+            sincronizarPortadaEnTabla(currentSrvId, null);
+            return;
+        }
+
+        if (manageImagesEmpty) manageImagesEmpty.classList.add('d-none');
+        if (manageImagesCounter) manageImagesCounter.textContent = `${imagenes.length} imagen(es)`;
+
+        imagenes.forEach((img, idx) => {
+            const isCover = idx === 0;
+            const card = document.createElement('div');
+            card.className = 'admin-gallery-card';
+            card.setAttribute('data-id', img.img_id);
+
+            card.innerHTML = `
+                <div class="admin-gallery-thumb-wrap">
+                    <span class="admin-gallery-badge ${isCover ? 'bg-warning text-dark' : 'bg-light text-muted border'}">
+                        ${isCover ? '<span class="material-symbols-outlined">star</span> Portada' : `#${idx + 1}`}
+                    </span>
+                    <button type="button" class="admin-gallery-delete" data-img-id="${img.img_id}" title="Eliminar imagen">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                    <img src="${img.img_ruta}" alt="Servicio" class="admin-gallery-thumb" loading="lazy">
+                </div>
+                <div class="admin-gallery-foot">
+                    <span class="material-symbols-outlined">drag_indicator</span> Arrastrar
+                </div>
+            `;
+
+            // Botón eliminar
+            const btnDelete = card.querySelector('.admin-gallery-delete');
+            if (btnDelete) {
+                btnDelete.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    eliminarImagenGaleria(img.img_id);
+                });
+            }
+
+            manageImagesGrid.appendChild(card);
+        });
+
+        // Sincronizar portada con la tabla principal
+        if (imagenes[0] && imagenes[0].img_ruta) {
+            sincronizarPortadaEnTabla(currentSrvId, imagenes[0].img_ruta);
+        }
+
+        // Inicializar SortableJS para la galería
+        if (sortableGallery) {
+            sortableGallery.destroy();
+        }
+        sortableGallery = new Sortable(manageImagesGrid, {
+            animation: 200,
+            ghostClass: 'is-dragging',
+            chosenClass: 'is-drag-over',
+            onEnd: () => {
+                guardarOrdenGaleria();
+            }
+        });
+    }
+
+    async function cargarGaleria(srvId) {
+        try {
+            const res = await fetch(`<?= base_url("api/servicios/imagenes") ?>/${srvId}`);
+            const data = await res.json();
+            if (data.success) {
+                renderGaleria(data.imagenes);
+            } else {
+                toastAlert.fire({ icon: 'error', title: data.message || 'No se pudieron cargar las fotos.' });
+            }
+        } catch (e) {
+            toastAlert.fire({ icon: 'error', title: 'Error al conectar con el servidor.' });
+        }
+    }
+
+    window.abrirModalGestionImagenes = function(srvId, srvName) {
+        currentSrvId = srvId;
+        const inputHidden = document.getElementById('manageImagesSrvId');
+        if (inputHidden) inputHidden.value = srvId;
+        const subtitle = document.getElementById('manageImagesSrvSubtitle');
+        if (subtitle) subtitle.textContent = `Fotos del servicio: "${srvName}"`;
+        if (manageImagesGrid) manageImagesGrid.innerHTML = '';
+        if (manageImagesEmpty) manageImagesEmpty.classList.add('d-none');
+        if (manageImagesModal) {
+            manageImagesModal.show();
+        }
+        cargarGaleria(srvId);
+    };
+
+    // Listeners en botones de la tabla principal
+    document.querySelectorAll('.btn-manage-images').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const srvId = btn.getAttribute('data-id');
+            const srvName = btn.getAttribute('data-name');
+            window.abrirModalGestionImagenes(srvId, srvName);
+        });
     });
+
+    // Subida de múltiples fotos
+    async function subirArchivosGaleria(files) {
+        if (!currentSrvId || !files || files.length === 0) return;
+
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].size > 2097152) {
+                Swal.fire({
+                    title: 'Archivo demasiado grande',
+                    text: `El archivo "${files[i].name}" supera el límite de 2MB.`,
+                    icon: 'warning',
+                    confirmButtonColor: '#d6858e'
+                });
+                return;
+            }
+        }
+
+        if (uploadSpinner) uploadSpinner.classList.remove('d-none');
+        if (btnSelectFiles) btnSelectFiles.disabled = true;
+
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('imagenes[]', files[i]);
+        }
+
+        try {
+            const res = await fetch(`<?= base_url("api/servicios/imagenes/subir") ?>/${currentSrvId}`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                toastAlert.fire({ icon: 'success', title: data.message || 'Imágenes subidas exitosamente.' });
+                renderGaleria(data.imagenes);
+            } else {
+                Swal.fire('Error', data.message || 'No se pudieron subir las fotos.', 'error');
+            }
+        } catch (e) {
+            Swal.fire('Error', 'Error de conexión al subir imágenes.', 'error');
+        } finally {
+            if (uploadSpinner) uploadSpinner.classList.add('d-none');
+            if (btnSelectFiles) btnSelectFiles.disabled = false;
+            if (inputUploadNewImages) inputUploadNewImages.value = '';
+        }
+    }
+
+    // Drag & Drop en el dropzone
+    if (dropzoneArea) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzoneArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzoneArea.classList.add('is-drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzoneArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzoneArea.classList.remove('is-drag-over');
+            });
+        });
+
+        dropzoneArea.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt ? dt.files : null;
+            if (files && files.length > 0) {
+                subirArchivosGaleria(files);
+            }
+        });
+
+        dropzoneArea.addEventListener('click', (e) => {
+            if (e.target !== btnSelectFiles && (!btnSelectFiles || !btnSelectFiles.contains(e.target))) {
+                if (inputUploadNewImages) inputUploadNewImages.click();
+            }
+        });
+    }
+
+    if (btnSelectFiles && inputUploadNewImages) {
+        btnSelectFiles.addEventListener('click', (e) => {
+            e.stopPropagation();
+            inputUploadNewImages.click();
+        });
+    }
+
+    if (inputUploadNewImages) {
+        inputUploadNewImages.addEventListener('change', () => {
+            if (inputUploadNewImages.files && inputUploadNewImages.files.length > 0) {
+                subirArchivosGaleria(inputUploadNewImages.files);
+            }
+        });
+    }
+
+    // Eliminar foto con confirmación
+    async function eliminarImagenGaleria(imgId) {
+        const confirm = await Swal.fire({
+            title: '¿Eliminar imagen?',
+            text: 'Esta acción borrará el archivo permanentemente.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (!confirm.isConfirmed) return;
+
+        try {
+            const res = await fetch(`<?= base_url("api/servicios/imagenes/eliminar") ?>/${imgId}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+            if (data.success) {
+                toastAlert.fire({ icon: 'success', title: 'Imagen eliminada.' });
+                cargarGaleria(currentSrvId);
+            } else {
+                Swal.fire('Error', data.message || 'No se pudo eliminar la imagen.', 'error');
+            }
+        } catch (e) {
+            Swal.fire('Error', 'Error de conexión al eliminar la imagen.', 'error');
+        }
+    }
 });
 </script>
 

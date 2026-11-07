@@ -24,16 +24,18 @@
             <div class="header-user-section">
                 <?php if (in_array(session()->get('rol'), ['admin', 'profesional'], true)): ?>
                     <a href="<?= base_url('admin') ?>" aria-label="Panel de Gestión"
-                        class="header-profile-btn btn btn--outline header-admin-link">
+                        class="btn btn--outline header-admin-link"
+                        title="<?= session()->get('rol') === 'admin' ? 'Panel Admin' : 'Mi Agenda' ?>">
                         <span class="material-symbols-outlined">dashboard</span>
-                        <span><?= session()->get('rol') === 'admin' ? 'Panel Admin' : 'Mi Agenda' ?></span>
+                        <span class="header-admin-text"><?= session()->get('rol') === 'admin' ? 'Panel Admin' : 'Mi Agenda' ?></span>
                     </a>
                 <?php else: ?>
                     <!-- Accesos directos del Panel del Cliente (CU05) -->
                     <a href="<?= base_url('mis-turnos') ?>" aria-label="Mis Turnos"
-                        class="header-profile-btn btn btn--outline header-admin-link">
+                        class="btn btn--outline header-admin-link"
+                        title="Mis Turnos">
                         <span class="material-symbols-outlined">calendar_month</span>
-                        <span>Mis Turnos</span>
+                        <span class="header-admin-text">Mis Turnos</span>
                     </a>
                     <a href="<?= base_url('mi-perfil') ?>" aria-label="Mi Perfil"
                         class="header-user-badge text-decoration-none" title="Ir a Mi Perfil">
@@ -44,7 +46,7 @@
                 <!-- Botón de cerrar sesión -->
                 <a href="<?= base_url('logout') ?>" class="btn btn--outline header-logout-link"
                     title="Cerrar sesión" aria-label="Cerrar sesión">
-                    <span>Cerrar Sesión</span>
+                    <span class="header-logout-text">Cerrar Sesión</span>
                     <span class="material-symbols-outlined">logout</span>
                 </a>
             </div>
@@ -65,7 +67,9 @@
         <button aria-label="Cerrar menú" class="mobile-menu__close-btn" id="mobileMenuClose">
             <span class="material-symbols-outlined">close</span>
         </button>
-        <a class="mobile-menu__logo" href="<?= base_url('/') ?>">Her Beauty Center</a>
+        <a class="mobile-menu__logo" href="<?= base_url('/') ?>">
+            <img src="<?= base_url('public/assets/media/logoText.png') ?>" alt="Her Beauty Center" class="mobile-menu__logo-img" />
+        </a>
         <ul class="mobile-menu__links">
             <li><a class="mobile-menu__link" href="<?= base_url('/#servicios') ?>">Servicios</a></li>
             <li><a class="mobile-menu__link" href="<?= base_url('/#profesionales') ?>">Profesionales</a></li>
@@ -73,23 +77,27 @@
             <li><a class="mobile-menu__link" href="<?= base_url('/#contacto') ?>">Contacto</a></li>
             <li class="mobile-menu__user-section">
                 <?php if (function_exists('session') && session()->get('usuario_id')): ?>
-                    <?php if (in_array(session()->get('rol'), ['admin', 'profesional'], true)): ?>
-                        <a class="mobile-menu__link mobile-menu__admin-link" href="<?= base_url('admin') ?>">
-                            <span class="material-symbols-outlined">dashboard</span>
-                            <?= session()->get('rol') === 'admin' ? 'Panel Admin' : 'Mi Agenda' ?>
+                    <div class="mobile-menu__user-buttons">
+                        <?php if (in_array(session()->get('rol'), ['admin', 'profesional'], true)): ?>
+                            <a class="btn mobile-menu__btn mobile-menu__btn--admin" href="<?= base_url('admin') ?>">
+                                <span class="material-symbols-outlined">dashboard</span>
+                                <span><?= session()->get('rol') === 'admin' ? 'Panel Admin' : 'Mi Agenda' ?></span>
+                            </a>
+                        <?php else: ?>
+                            <a class="btn mobile-menu__btn mobile-menu__btn--admin" href="<?= base_url('mis-turnos') ?>">
+                                <span class="material-symbols-outlined">calendar_month</span>
+                                <span>Mis Turnos</span>
+                            </a>
+                            <a class="btn btn--outline mobile-menu__btn" href="<?= base_url('mi-perfil') ?>">
+                                <span class="material-symbols-outlined">account_circle</span>
+                                <span>Mi Perfil (<?= esc(explode(' ', session()->get('usuario_nombre') ?? '')[0]) ?>)</span>
+                            </a>
+                        <?php endif; ?>
+                        <a class="btn mobile-menu__btn mobile-menu__btn--logout" href="<?= base_url('logout') ?>">
+                            <span class="material-symbols-outlined">logout</span>
+                            <span>Cerrar Sesión</span>
                         </a>
-                    <?php else: ?>
-                        <a class="mobile-menu__link mobile-menu__admin-link" href="<?= base_url('mis-turnos') ?>">
-                            <span class="material-symbols-outlined">calendar_month</span> Mis Turnos
-                        </a>
-                        <a class="mobile-menu__link" href="<?= base_url('mi-perfil') ?>">
-                            <span class="material-symbols-outlined">account_circle</span>
-                            Mi Perfil (<?= esc(explode(' ', session()->get('usuario_nombre') ?? '')[0]) ?>)
-                        </a>
-                    <?php endif; ?>
-                    <a class="mobile-menu__link mobile-menu__logout-link" href="<?= base_url('logout') ?>">
-                        <span class="material-symbols-outlined">logout</span> Cerrar Sesión
-                    </a>
+                    </div>
                 <?php else: ?>
                     <button class="btn btn--primary mobile-menu__login-btn" id="mobileLoginBtn" data-bs-toggle="modal"
                         data-bs-target="#loginModal">

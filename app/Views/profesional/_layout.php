@@ -135,13 +135,13 @@ $navItems = [
                     aria-label="Abrir menú">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
-                <h1 class="admin-topbar__title"><?= esc($pageTitle) ?></h1>
+                <h1 class="admin-topbar__title m-0">Panel de Administración</h1>
             </div>
             <div class="admin-topbar__actions">
                 <a href="<?= base_url() ?>" class="btn btn-pink d-flex align-items-center gap-1 admin-topbar__site-btn"
                     title="Ver sitio web">
                     <span class="material-symbols-outlined">search</span>
-                    <span class="d-none d-sm-inline">Ver Sitio</span>
+                    <span>Ver Sitio</span>
                 </a>
             </div>
         </header>
