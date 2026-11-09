@@ -23,6 +23,13 @@ if (!function_exists('esc')) {
         content="Descubrí Her Beauty Center, un espacio diseñado para tu bienestar y estética. Servicios de cejas, pestañas, tratamientos faciales y manicura en San Luis." />
     <title>Her Beauty Center | Centro de Estética & Bienestar</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="<?= base_url('public/assets/media/logoText.ico?v=' . time()) ?>" />
+    <link rel="shortcut icon" type="image/x-icon" href="<?= base_url('public/assets/media/logoText.ico?v=' . time()) ?>" />
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('public/assets/media/favicon-32x32.png?v=' . time()) ?>" />
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('public/assets/media/favicon-16x16.png?v=' . time()) ?>" />
+    <link rel="apple-touch-icon" href="<?= base_url('public/assets/media/apple-touch-icon.png?v=' . time()) ?>" />
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -75,8 +82,10 @@ if (!function_exists('esc')) {
             </div>
             <div class="hero__visual">
                 <div class="hero__bg-shape"></div>
-                <img alt="Tratamiento de belleza relajante" class="hero__image" data-alt="Tratamieinto."
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUFfwp7IBYpnjNLKWuizwg1i3OsG5L9WDosG0v1ApmzlstbeUVl1nN3qzd6_vmK45cVuSe2fEJ9z6er0Z5hXysky6SgNPSGnIf7eJvqKm3n85D58DbEV2uwg7tYkiXc3qW7_xdWz3ydRnXmHzHfEzjFLRDSg4rB2MoGy7XqtvGiPLRXRlrSh48zmV6B6WbHyV6zlRdz3qw2Gcsp5aDDdh6DEuhztjoH3s6ZEokvkZiSW7AGTK_8yaI" />
+                <img alt="Servicios de estética, spa y belleza en Her Beauty Center" class="hero__image" data-alt="Servicios Her Beauty Center"
+                    width="1815" height="1064"
+                    width="1815" height="1064"
+                    src="<?= base_url('public/assets/media/banner_hero.jpeg?v=' . time()) ?>" />
             </div>
         </section>
 
@@ -249,7 +258,7 @@ if (!function_exists('esc')) {
         <!-- Philosophy Section (Nosotros) -->
         <section class="philosophy" id="nosotros">
             <div class="philosophy__image-wrapper">
-                <img alt="Interior del salón " class="philosophy__image" src="public/assets/media/logo.jpeg" />
+                <img alt="Interior del salón " class="philosophy__image" src="public/assets/media/filosofia.jpeg" />
             </div>
             <div class="philosophy__content">
                 <h2 class="philosophy__title">Nuestra filosofía</h2>

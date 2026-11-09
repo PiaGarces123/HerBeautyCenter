@@ -37,6 +37,13 @@ $navItems = [
     <title><?= esc($pageTitle) ?> | Admin — Her Beauty Center</title>
     <meta name="robots" content="noindex, nofollow" />
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="<?= base_url('public/assets/media/logoText.ico?v=' . time()) ?>" />
+    <link rel="shortcut icon" type="image/x-icon" href="<?= base_url('public/assets/media/logoText.ico?v=' . time()) ?>" />
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('public/assets/media/favicon-32x32.png?v=' . time()) ?>" />
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('public/assets/media/favicon-16x16.png?v=' . time()) ?>" />
+    <link rel="apple-touch-icon" href="<?= base_url('public/assets/media/apple-touch-icon.png?v=' . time()) ?>" />
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />

@@ -6,7 +6,7 @@
  * Script de creación de Base de Datos
  * ============================================================
  *
- * Base de datos: her_beauty_center
+ * Base de datos: herbeautycenter_db
  * Motor: MySQL
  * Conexión: MySQLi
  *
@@ -33,7 +33,7 @@
 $host = "localhost";
 $username = "root";
 $password = "";
-$database = "her_beauty_center";
+$database = "herbeautycenter_db";
 
 
 // ------------------------------------------------------------
@@ -438,10 +438,13 @@ CREATE TABLE IF NOT EXISTS turno (
         'Disponible',
         'Solicitado',
         'Confirmado',
-        'Realizado'
+        'Realizado',
+        'Cancelado'
     ) NOT NULL DEFAULT 'Disponible',
 
     abonado TINYINT(1) NOT NULL DEFAULT 0,
+
+    motivo_cancelacion TEXT NULL,
 
     monto DECIMAL(10,2) NOT NULL DEFAULT 0,
 

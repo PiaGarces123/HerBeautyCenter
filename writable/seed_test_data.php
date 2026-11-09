@@ -9,7 +9,7 @@
  * - Turnos en todos los estados (Mis Turnos & Calendario)
  */
 
-$mysqli = new mysqli('localhost', 'root', '', 'her_beauty_center');
+$mysqli = new mysqli('localhost', 'root', '', 'herbeautycenter_db');
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error . "\n");
 }

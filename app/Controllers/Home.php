@@ -7,7 +7,7 @@ class Home extends BaseController
     public function index(): string
     {
         $db = \Config\Database::connect();
-        
+
         // Obtener servicios con su primera imagen según orden establecido
         $serviciosQuery = $db->table('servicio')
             ->select('servicio.*, (SELECT img_ruta FROM imagen WHERE imagen.img_sId = servicio.s_id ORDER BY imagen.img_orden ASC, imagen.img_id ASC LIMIT 1) AS imagen_ruta')
@@ -24,19 +24,19 @@ class Home extends BaseController
             ->orderBy('profesional.p_orden', 'ASC')
             ->get();
         $profesionales = $profesionalesQuery->getResultArray();
-        
+
         $redesSocialesQuery = $db->table('red_social')->get();
         $redesSociales = $redesSocialesQuery->getResultArray();
-        
+
         foreach ($profesionales as &$prof) {
-            $filtered = array_filter($redesSociales, function($red) use ($prof) {
-                return (int)$red['rs_pId'] === (int)$prof['p_id'];
+            $filtered = array_filter($redesSociales, function ($red) use ($prof) {
+                return (int) $red['rs_pId'] === (int) $prof['p_id'];
             });
-            $prof['redes'] = array_values(array_map(function($red) {
+            $prof['redes'] = array_values(array_map(function ($red) {
                 return [
-                    'id'      => $red['rs_id'],
-                    'tipo'    => $red['rs_tipo'],
-                    'link'    => $red['rs_link'],
+                    'id' => $red['rs_id'],
+                    'tipo' => $red['rs_tipo'],
+                    'link' => $red['rs_link'],
                     'rs_tipo' => $red['rs_tipo'],
                     'rs_link' => $red['rs_link'],
                 ];
@@ -46,6 +46,16 @@ class Home extends BaseController
         return view('index', [
             'servicios' => $servicios,
             'profesionales' => $profesionales
+        ]);
+    }
+
+    /**
+     * Vista pública: Términos, Condiciones y Política de Privacidad (Ley 25.326)
+     */
+    public function politicaPrivacidad(): string
+    {
+        return view('legal/privacidad', [
+            'pageTitle' => 'Términos, Condiciones y Política de Privacidad'
         ]);
     }
 }

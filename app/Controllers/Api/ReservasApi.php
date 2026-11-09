@@ -219,7 +219,7 @@ class ReservasApi extends BaseController
             }
 
             $notaCliente = $consideraciones !== ''
-                ? 'Consideraciones/Alergias: ' . $consideraciones
+                ? 'Consideraciones: ' . $consideraciones
                 : null;
 
             $datosTurno = [

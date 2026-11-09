@@ -138,7 +138,7 @@ final class ReservaClienteTest extends CIUnitTestCase
             'estado'             => 'Solicitado',
             'abonado'            => 0,
             'monto'              => 8500.00,
-            'motivo_cancelacion' => 'Consideraciones/Alergias: Piel sensible a látex',
+            'motivo_cancelacion' => 'Consideraciones: Preferencia de atención suave y productos neutros',
         ];
 
         $this->assertSame('Solicitado', $datosReservaInicial['estado']);

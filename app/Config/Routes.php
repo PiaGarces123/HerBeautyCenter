@@ -5,6 +5,10 @@ use CodeIgniter\Router\RouteCollection;
 /** @var RouteCollection $routes */
 $routes->get('/', 'Home::index');
 
+// Marco Legal, Términos y Política de Privacidad (Ley 25.326)
+$routes->get('politica-de-privacidad', 'Home::politicaPrivacidad');
+$routes->get('terminos-y-condiciones', 'Home::politicaPrivacidad');
+
 // =========================================================================
 // VISTAS PÚBLICAS Y DEL CLIENTE (Incremento N° 3)
 // =========================================================================

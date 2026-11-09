@@ -95,9 +95,9 @@ class PerfilApi extends BaseController
             $db->table('profesional')->where('p_id', $profesional['p_id'])->update(['p_titulo' => $titulo]);
         }
 
-        // Actualizar consideraciones / alergias si el usuario es cliente
-        if (array_key_exists('consideraciones', $req) || array_key_exists('c_consideraciones', $req) || array_key_exists('alergias', $req)) {
-            $consideraciones = trim($req['consideraciones'] ?? $req['c_consideraciones'] ?? $req['alergias'] ?? '');
+        // Actualizar consideraciones especiales si el usuario es cliente
+        if (array_key_exists('consideraciones', $req) || array_key_exists('c_consideraciones', $req)) {
+            $consideraciones = trim($req['consideraciones'] ?? $req['c_consideraciones'] ?? '');
             $cliente = $db->table('cliente')->where('c_uId', $usuario_id)->get()->getRowArray();
             if ($cliente) {
                 $db->table('cliente')->where('c_id', $cliente['c_id'])->update(['c_consideraciones' => $consideraciones]);

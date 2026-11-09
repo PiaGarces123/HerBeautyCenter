@@ -36,13 +36,13 @@ $sId   = (int) ($s['s_id'] ?? 0);
             <div class="cl-guide cl-rise cl-rise--2">
                 <span class="material-symbols-outlined">tips_and_updates</span>
                 <ol>
-                    <li>Si tenés preferencias, usá los <strong>filtros</strong> (especialista, día o franja horaria).</li>
-                    <li>Tocá una <strong>fecha destacada</strong> en el calendario o en la lista de fechas libres.</li>
+                    <li>Si tenés preferencia, podés elegir tu <strong>especialista</strong> favorita.</li>
+                    <li>Tocá una <strong>fecha destacada</strong> en el calendario o en la lista de próximas fechas libres.</li>
                     <li>Elegí la tarjeta con la profesional y el horario, y presioná <strong>Guardar</strong>.</li>
                 </ol>
             </div>
 
-            <!-- Filtros -->
+            <!-- Filtro Especialista -->
             <div class="cl-filters cl-rise cl-rise--3">
                 <div class="form-group">
                     <label for="filterProfesional" class="form-label">Especialista</label>
@@ -54,35 +54,6 @@ $sId   = (int) ($s['s_id'] ?? 0);
                             </option>
                         <?php endforeach; ?>
                     </select>
-                </div>
-                <div class="form-group">
-                    <label for="filterDiaSemana" class="form-label">Día</label>
-                    <select id="filterDiaSemana" class="form-select">
-                        <option value="0">Todos los días</option>
-                        <option value="1">Lunes</option>
-                        <option value="2">Martes</option>
-                        <option value="3">Miércoles</option>
-                        <option value="4">Jueves</option>
-                        <option value="5">Viernes</option>
-                        <option value="6">Sábado</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="filterFranja" class="form-label">Franja horaria</label>
-                    <select id="filterFranja" class="form-select">
-                        <option value="">Cualquier horario</option>
-                        <option value="manana">Mañana (antes de 13 hs)</option>
-                        <option value="tarde">Tarde (desde 13 hs)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="filterFechaEspecifica" class="form-label">Fecha exacta</label>
-                    <div class="cl-inline">
-                        <input type="date" id="filterFechaEspecifica" class="form-input" min="<?= date('Y-m-d') ?>" />
-                        <button type="button" id="btnResetFiltros" class="cl-icon-btn" title="Limpiar filtros" aria-label="Limpiar filtros">
-                            <span class="material-symbols-outlined">restart_alt</span>
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -143,7 +114,7 @@ $sId   = (int) ($s['s_id'] ?? 0);
         const BRAND = window.APP_CONFIG.brand;
 
         const $ = (id) => document.getElementById(id);
-        const fProf = $('filterProfesional'), fDia = $('filterDiaSemana'), fFranja = $('filterFranja'), fFecha = $('filterFechaEspecifica');
+        const fProf = $('filterProfesional');
         const badge = $('badgeTotalTurnos'), quickList = $('quickDatesList');
         const modalEl = $('horariosDisponiblesModal'), slotsBox = $('slotsGridContainer'), btnGuardar = $('btnGuardarHorario');
 
@@ -211,8 +182,8 @@ $sId   = (int) ($s['s_id'] ?? 0);
                 const empty = el('div', 'cl-empty');
                 empty.append(
                     el('span', 'material-symbols-outlined', 'event_busy'),
-                    el('p', 'fw-semibold mb-1', 'No hay horarios con esos filtros'),
-                    el('p', 'cl-muted m-0', 'Probá con "Todas las profesionales" o limpiá los filtros.')
+                    el('p', 'fw-semibold mb-1', 'No hay horarios disponibles'),
+                    el('p', 'cl-muted m-0', 'Probá seleccionando "Todas las profesionales" o revisá el mes siguiente.')
                 );
                 quickList.appendChild(empty);
                 return;
@@ -253,7 +224,7 @@ $sId   = (int) ($s['s_id'] ?? 0);
         calendar.render();
 
         const cargar = async (fechaAbrir = null) => {
-            const params = new URLSearchParams({ s_id: S_ID, p_id: fProf.value, dia_semana: fDia.value, franja: fFranja.value });
+            const params = new URLSearchParams({ s_id: S_ID, p_id: fProf ? fProf.value : 0 });
             try {
                 const res = await fetch(`${API_URL}?${params}`, { headers: { 'Accept': 'application/json' } });
                 const data = await res.json();
@@ -283,12 +254,9 @@ $sId   = (int) ($s['s_id'] ?? 0);
             }
         };
 
-        [fProf, fDia, fFranja].forEach(f => f.addEventListener('change', () => cargar()));
-        fFecha.addEventListener('change', () => fFecha.value && cargar(fFecha.value));
-        $('btnResetFiltros').addEventListener('click', () => {
-            fProf.value = '0'; fDia.value = '0'; fFranja.value = ''; fFecha.value = '';
-            cargar();
-        });
+        if (fProf) {
+            fProf.addEventListener('change', () => cargar());
+        }
 
         cargar();
     });

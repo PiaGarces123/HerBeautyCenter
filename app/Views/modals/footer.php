@@ -72,7 +72,7 @@
         <div class="footer__bottom-container">
             <p class="footer__copyright">© 2026 Her Beauty Center - Diseño y Desarrollo por <a href="https://wa.me/5492664159744?text=<?= urlencode('Hola! Vengo de la Web de Her Beauty Center! Me interesan tus servicios!') ?>" target="_blank" rel="noopener noreferrer" class="footer__dev-link">María Pía Garces Brocal</a>. Todos los derechos reservados.</p>
             <div class="footer__bottom-links">
-                <a class="footer__bottom-link" href="#">Políticas de Privacidad</a>
+                <a class="footer__bottom-link" href="<?= base_url('politica-de-privacidad') ?>">Términos, Condiciones y Privacidad</a>
             </div>
         </div>
     </div>

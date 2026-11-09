@@ -472,6 +472,7 @@ ol {
 }
 
 @media (min-width: 48rem) {
+
     .header-logout-link span:not(.material-symbols-outlined),
     .header-logout-text {
         display: inline;
@@ -505,6 +506,7 @@ ol {
 }
 
 @media (min-width: 48rem) {
+
     .header-admin-link span:not(.material-symbols-outlined),
     .header-admin-text {
         display: inline;
@@ -707,20 +709,44 @@ ol {
 .hero__bg-shape {
     position: absolute;
     inset: 0;
-    background-color: rgba(125, 86, 45, 0.05);
-    /* primary/5 */
-    border-radius: clamp(1.5rem, 4vw, 3rem);
-    transform: translate(-1rem, 1rem);
+    background-color: var(--color-on-primary-container);
+    border-radius: clamp(1.25rem, 4vw, 3rem);
+    transform: translate(-0.5rem, 0.5rem);
     z-index: -1;
 }
 
 .hero__image {
     width: 100%;
-    height: clamp(18rem, 35vh, 28rem);
-    /* reducida de 25rem/43.75rem */
+    height: auto;
+    aspect-ratio: 1815 / 1064;
     object-fit: cover;
-    border-radius: clamp(1.5rem, 4vw, 3rem);
-    box-shadow: var(--shadow-lg);
+    border-radius: clamp(1.25rem, 4vw, 3rem);
+    box-shadow: 0 8px 20px rgba(45, 25, 16, 0.38), 0 3px 6px rgba(45, 25, 16, 0.22);
+    display: block;
+}
+
+@media (max-width: 47.98rem) {
+    .hero__visual {
+        max-width: 32rem;
+        margin: 0 auto;
+    }
+
+    .hero__bg-shape {
+        transform: translate(-0.35rem, 0.35rem);
+    }
+
+    .hero__image {
+        height: auto;
+        max-height: none;
+        object-fit: contain;
+        box-shadow: 0 6px 16px rgba(45, 25, 16, 0.35), 0 2px 5px rgba(45, 25, 16, 0.2);
+    }
+}
+
+@media (min-width: 48rem) {
+    .hero__image {
+        max-height: 28rem;
+    }
 }
 
 /* Animación de Revelado */
@@ -1187,18 +1213,16 @@ a.srv-card:focus {
     cursor: pointer;
     margin-top: 1rem;
 
-    background: linear-gradient(
-        135deg,
-        #78564e,
-        #8B655A,
-        #B88C7D
-    );
+    background: linear-gradient(135deg,
+            #78564e,
+            #8B655A,
+            #B88C7D);
 
     color: #FFF9F3 !important;
     box-shadow: 0 4px 14px rgba(120, 86, 78, 0.22);
     transition: transform .3s ease,
-                box-shadow .3s ease,
-                border-color .3s ease;
+        box-shadow .3s ease,
+        border-color .3s ease;
 }
 
 .btn-shimmer::before,
@@ -1208,14 +1232,12 @@ a.srv-card:focus {
     inset: 0;
     transform: translateX(-120%) skewX(-25deg);
 
-    background: linear-gradient(
-        110deg,
-        transparent 20%,
-        rgba(222, 177, 94, 0.636) 40%,
-        rgba(255, 230, 160, 0.8) 50%,
-        rgba(255, 240, 220, 0.65) 55%,
-        transparent 75%
-    );
+    background: linear-gradient(110deg,
+            transparent 20%,
+            rgba(222, 177, 94, 0.636) 40%,
+            rgba(255, 230, 160, 0.8) 50%,
+            rgba(255, 240, 220, 0.65) 55%,
+            transparent 75%);
 
     transition: transform .7s ease;
     pointer-events: none;
@@ -1571,8 +1593,8 @@ a.srv-card:focus {
     color: #dc3545;
 }
 
-.is-invalid ~ .invalid-feedback,
-.was-validated :invalid ~ .invalid-feedback {
+.is-invalid~.invalid-feedback,
+.was-validated :invalid~.invalid-feedback {
     display: block !important;
 }
 

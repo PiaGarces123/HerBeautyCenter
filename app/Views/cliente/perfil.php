@@ -38,7 +38,7 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : base_url('public/a
                 <div class="cl-profile__stats">
                     <div class="cl-stat">
                         <span class="cl-stat__num"><?= (int) ($totalTurnos ?? 0) ?></span>
-                        <span class="cl-stat__label">Reservas</span>
+                        <span class="cl-stat__label">Por asistir</span>
                     </div>
                     <div class="cl-stat">
                         <span class="cl-stat__num"><?= esc($proxFecha) ?></span>
@@ -84,11 +84,11 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : base_url('public/a
                             <div class="invalid-feedback">Ingresá un correo válido.</div>
                         </div>
                         <div class="form-group cl-span-2">
-                            <label class="form-label" for="consideraciones">Alergias o consideraciones
+                            <label class="form-label" for="consideraciones">Consideraciones especiales
                                 (opcional)</label>
                             <textarea class="form-textarea" id="consideraciones" name="consideraciones" rows="3"
                                 maxlength="500"
-                                placeholder="Indicá si tenés alergias a productos, piel sensible o alguna consideración especial..."><?= esc($u['consideraciones'] ?? '') ?></textarea>
+                                placeholder="Indicá preferencias para tu atención, tipo de piel o alguna consideración especial..."><?= esc($u['consideraciones'] ?? '') ?></textarea>
                             <small class="text-muted d-block mt-1">Esta información se autocompletará en el formulario
                                 al solicitar tus turnos.</small>
                         </div>
@@ -140,6 +140,91 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : base_url('public/a
                     </div>
                     <button type="submit" class="btn btn--primary">Actualizar</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos específicos del Modal de Encuadre de Avatar -->
+<style>
+    .avatar-crop-container {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 1rem 0 !important;
+        width: 100% !important;
+    }
+    .avatar-crop-viewport {
+        width: 240px !important;
+        height: 240px !important;
+        border-radius: 50% !important;
+        position: relative !important;
+        overflow: hidden !important;
+        margin: 0 auto !important;
+        border: 4px solid var(--color-primary, #4a2c1d) !important;
+        box-shadow: 0 8px 30px rgba(74, 44, 29, 0.25) !important;
+        background: #1a1a1a !important;
+        cursor: grab !important;
+        touch-action: none !important;
+        user-select: none !important;
+    }
+    .avatar-crop-viewport:active {
+        cursor: grabbing !important;
+    }
+    .avatar-crop-viewport img {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform-origin: center center !important;
+        max-width: none !important;
+        max-height: none !important;
+        pointer-events: none !important;
+        user-select: none !important;
+        will-change: transform;
+    }
+    .avatar-zoom-controls {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        max-width: 320px !important;
+        margin: 1rem auto 0 !important;
+        gap: 0.75rem !important;
+    }
+    .avatar-zoom-controls .form-range {
+        cursor: pointer !important;
+    }
+</style>
+
+<!-- Modal: Encuadrar Foto de Perfil -->
+<div class="modal fade cl-modal" id="avatarCropModal" tabindex="-1" aria-labelledby="avatarCropTitle" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="cl-subtitle m-0" id="avatarCropTitle">Encuadrar Foto de Perfil</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="cl-muted text-center mb-3">Arrastrá la imagen para centrarla y usá el control para acercar o alejar.</p>
+                <div class="avatar-crop-container" style="display: flex; justify-content: center; align-items: center; padding: 1rem 0; width: 100%;">
+                    <div class="avatar-crop-viewport" id="avatarCropViewport" style="width: 240px; height: 240px; border-radius: 50%; position: relative; overflow: hidden; margin: 0 auto; border: 4px solid #4a2c1d; box-shadow: 0 8px 30px rgba(74, 44, 29, 0.25); background: #1a1a1a; cursor: grab; touch-action: none; user-select: none;">
+                        <img id="avatarCropPreview" src="" alt="Previsualización" draggable="false" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transform-origin: center center; max-width: none; max-height: none; pointer-events: none; user-select: none;" />
+                    </div>
+                </div>
+                <div class="avatar-zoom-controls" style="display: flex; align-items: center; justify-content: center; max-width: 320px; margin: 1rem auto 0; gap: 0.75rem;">
+                    <span class="material-symbols-outlined text-muted" style="font-size: 1.25rem;">zoom_out</span>
+                    <input type="range" class="form-range" id="avatarZoomRange" min="1" max="3" step="0.02" value="1" style="flex: 1; cursor: pointer;" />
+                    <span class="material-symbols-outlined text-muted" style="font-size: 1.25rem;">zoom_in</span>
+                </div>
+                <div class="text-center mt-2">
+                    <small class="text-muted">Podés arrastrar la imagen para ajustar el encuadre.</small>
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between p-3">
+                <button type="button" class="btn btn--outline cl-btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnGuardarAvatar" class="btn btn--primary cl-btn-sm d-inline-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined" id="btnGuardarAvatarIcon">save</span>
+                    <span id="btnGuardarAvatarText">Guardar Nueva Foto</span>
+                </button>
             </div>
         </div>
     </div>
@@ -263,22 +348,232 @@ $avatar = !empty($u['u_avatar']) ? base_url($u['u_avatar']) : base_url('public/a
             }
         });
 
+        // Manejo y encuadre de Avatar
         const avatarInput = document.getElementById('avatarInput');
+        const cropModalEl = document.getElementById('avatarCropModal');
+        const cropModal = new bootstrap.Modal(cropModalEl);
+        const cropViewport = document.getElementById('avatarCropViewport');
+        const cropImg = document.getElementById('avatarCropPreview');
+        const zoomRange = document.getElementById('avatarZoomRange');
+        const btnGuardarAvatar = document.getElementById('btnGuardarAvatar');
+        const btnGuardarAvatarIcon = document.getElementById('btnGuardarAvatarIcon');
+        const btnGuardarAvatarText = document.getElementById('btnGuardarAvatarText');
+
+        let baseScale = 1;
+        let currentZoom = 1;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let startPointerX = 0;
+        let startPointerY = 0;
+        const VIEWPORT_SIZE = 240;
+
+        const updateTransform = () => {
+            cropImg.style.transform = `translate(-50%, -50%) translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+        };
+
+        const clampOffsets = () => {
+            const currentW = cropImg.naturalWidth * baseScale * currentZoom;
+            const currentH = cropImg.naturalHeight * baseScale * currentZoom;
+            const maxPanX = Math.max(0, (currentW - VIEWPORT_SIZE) / 2);
+            const maxPanY = Math.max(0, (currentH - VIEWPORT_SIZE) / 2);
+            panX = Math.min(maxPanX, Math.max(-maxPanX, panX));
+            panY = Math.min(maxPanY, Math.max(-maxPanY, panY));
+        };
+
         document.getElementById('btnChangeAvatar').addEventListener('click', () => avatarInput.click());
-        avatarInput.addEventListener('change', async () => {
+
+        avatarInput.addEventListener('change', () => {
             const file = avatarInput.files[0];
             if (!file) return;
-            if (file.size > 2 * 1024 * 1024) {
-                notify(false, 'La imagen no puede superar los 2 MB.');
+
+            // Validación de extensión y formato
+            const validExts = ['.jpg', '.jpeg', '.png', '.webp'];
+            const validMimes = ['image/jpeg', 'image/png', 'image/webp'];
+            const nameLower = file.name.toLowerCase();
+            const hasValidExt = validExts.some(ext => nameLower.endsWith(ext));
+            const hasValidMime = validMimes.includes(file.type);
+
+            if (!hasValidExt || (!hasValidMime && file.type)) {
+                Swal.fire({
+                    title: 'Formato no permitido',
+                    text: 'Por favor seleccioná una imagen en formato JPG, PNG o WEBP.',
+                    icon: 'warning',
+                    confirmButtonColor: BRAND
+                });
                 avatarInput.value = '';
                 return;
             }
-            const fd = new FormData();
-            fd.append('avatar', file);
-            const { ok, data } = await send(window.APP_CONFIG.apiUrl + '/perfil/avatar', fd);
-            notify(ok, msgOf(data, ok ? 'Foto actualizada.' : 'No se pudo subir la imagen.'));
-            if (ok && data.avatar_url) document.getElementById('profileAvatarImg').src = data.avatar_url;
+
+            // Validación de peso (máximo 3 MB)
+            const MAX_BYTES = 3 * 1024 * 1024;
+            if (file.size > MAX_BYTES) {
+                const pesoMb = (file.size / (1024 * 1024)).toFixed(1);
+                Swal.fire({
+                    title: 'Imagen demasiado pesada',
+                    text: `La imagen seleccionada pesa ${pesoMb} MB. El tamaño máximo permitido es de 3 MB.`,
+                    icon: 'warning',
+                    confirmButtonColor: BRAND
+                });
+                avatarInput.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                cropImg.src = e.target.result;
+                cropImg.onload = () => {
+                    baseScale = Math.max(VIEWPORT_SIZE / cropImg.naturalWidth, VIEWPORT_SIZE / cropImg.naturalHeight);
+                    cropImg.style.width = `${cropImg.naturalWidth * baseScale}px`;
+                    cropImg.style.height = `${cropImg.naturalHeight * baseScale}px`;
+                    currentZoom = 1;
+                    zoomRange.value = 1;
+                    panX = 0;
+                    panY = 0;
+                    updateTransform();
+                    cropModal.show();
+                };
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Eventos de arrastre en viewport
+        cropViewport.addEventListener('pointerdown', (e) => {
+            isDragging = true;
+            startPointerX = e.clientX - panX;
+            startPointerY = e.clientY - panY;
+            cropViewport.setPointerCapture(e.pointerId);
+        });
+
+        cropViewport.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            panX = e.clientX - startPointerX;
+            panY = e.clientY - startPointerY;
+            clampOffsets();
+            updateTransform();
+        });
+
+        const stopDragging = () => { isDragging = false; };
+        cropViewport.addEventListener('pointerup', stopDragging);
+        cropViewport.addEventListener('pointercancel', stopDragging);
+
+        // Control de Zoom con slider
+        zoomRange.addEventListener('input', () => {
+            currentZoom = parseFloat(zoomRange.value);
+            clampOffsets();
+            updateTransform();
+        });
+
+        // Guardar nueva foto recortada
+        btnGuardarAvatar.addEventListener('click', () => {
+            btnGuardarAvatar.disabled = true;
+            btnGuardarAvatarIcon.classList.add('d-none');
+            btnGuardarAvatarText.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Actualizando imagen...';
+
+            Swal.fire({
+                title: 'Actualizando imagen',
+                text: 'Estamos procesando tu nueva foto de perfil...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            // Generar canvas 400x400
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+            const factor = 400 / VIEWPORT_SIZE;
+
+            ctx.save();
+            ctx.translate(200, 200);
+            ctx.scale(factor, factor);
+            ctx.translate(panX, panY);
+            ctx.scale(currentZoom, currentZoom);
+            ctx.drawImage(
+                cropImg,
+                -(cropImg.naturalWidth * baseScale) / 2,
+                -(cropImg.naturalHeight * baseScale) / 2,
+                cropImg.naturalWidth * baseScale,
+                cropImg.naturalHeight * baseScale
+            );
+            ctx.restore();
+
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    Swal.fire({ title: 'Error', text: 'No se pudo procesar la imagen.', icon: 'error', confirmButtonColor: BRAND });
+                    resetBtnGuardar();
+                    return;
+                }
+
+                const fd = new FormData();
+                fd.append('avatar', blob, 'avatar.jpg');
+
+                try {
+                    const res = await fetch(window.APP_CONFIG.apiUrl + '/perfil/avatar', {
+                        method: 'POST',
+                        body: fd,
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        cropModal.hide();
+                        const newUrl = data.avatar_url + '?t=' + Date.now();
+                        const avatarEl = document.getElementById('profileAvatarImg');
+                        if (avatarEl) avatarEl.src = newUrl;
+
+                        document.querySelectorAll('.user-avatar, .header-avatar, .cl-profile__avatar').forEach(img => {
+                            img.src = newUrl;
+                        });
+
+                        Swal.fire({
+                            title: '¡Foto actualizada!',
+                            text: data.message || 'Tu nueva foto de perfil ha sido guardada correctamente.',
+                            icon: 'success',
+                            confirmButtonColor: BRAND
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error al subir',
+                            text: data.messages?.error || data.message || 'No se pudo guardar la imagen.',
+                            icon: 'error',
+                            confirmButtonColor: BRAND
+                        });
+                    }
+                } catch (err) {
+                    Swal.fire({
+                        title: 'Error de conexión',
+                        text: 'No se pudo contactar con el servidor. Intentá nuevamente.',
+                        icon: 'error',
+                        confirmButtonColor: BRAND
+                    });
+                } finally {
+                    resetBtnGuardar();
+                    avatarInput.value = '';
+                }
+            }, 'image/jpeg', 0.92);
+        });
+
+        const resetBtnGuardar = () => {
+            btnGuardarAvatar.disabled = false;
+            btnGuardarAvatarIcon.classList.remove('d-none');
+            btnGuardarAvatarText.textContent = 'Guardar Nueva Foto';
+        };
+
+        cropModalEl.addEventListener('shown.bs.modal', () => {
+            if (cropImg.naturalWidth) {
+                baseScale = Math.max(VIEWPORT_SIZE / cropImg.naturalWidth, VIEWPORT_SIZE / cropImg.naturalHeight);
+                cropImg.style.width = `${Math.round(cropImg.naturalWidth * baseScale)}px`;
+                cropImg.style.height = `${Math.round(cropImg.naturalHeight * baseScale)}px`;
+                clampOffsets();
+                updateTransform();
+            }
+        });
+
+        cropModalEl.addEventListener('hidden.bs.modal', () => {
             avatarInput.value = '';
+            resetBtnGuardar();
         });
 
         document.getElementById('passwordClienteForm').addEventListener('submit', async (e) => {

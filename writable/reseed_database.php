@@ -4,7 +4,7 @@
  * Cumple con restricciones: CERO EMOJIS, datos consistentes y relaciones FK íntegras.
  */
 
-$mysqli = new mysqli('localhost', 'root', '', 'her_beauty_center');
+$mysqli = new mysqli('localhost', 'root', '', 'herbeautycenter_db');
 if ($mysqli->connect_error) {
     die("Error de conexion: " . $mysqli->connect_error . "\n");
 }
@@ -44,15 +44,15 @@ while ($row = $resP->fetch_assoc()) {
     }
 }
 
-// 4. Actualizar consideraciones / alergias en clientes
+// 4. Actualizar consideraciones especiales en clientes
 $clientesConsideraciones = [
-    'Lucía Fernández'  => 'Piel sensible y reactiva a fragancias fuertes. Alergia a la penicilina.',
+    'Lucía Fernández'  => 'Piel sensible y reactiva a fragancias fuertes. Preferencia por emulsiones neutras.',
     'Sofía Martínez'   => 'Tendencia a rosácea leve en pómulos. Evitar exfoliantes mecánicos abrasivos.',
-    'Valentina Rossi'  => 'Utiliza lentes de contacto descartables. Alergia al látex (usar guantes de nitrilo).',
-    'Agustina Gómez'   => 'Piel mixta a grasa con comedones. Sin alergias cosméticas conocidas.',
+    'Valentina Rossi'  => 'Utiliza lentes de contacto descartables. Preferencia por guantes de nitrilo.',
+    'Agustina Gómez'   => 'Piel mixta a grasa con comedones. Preferencia por productos livianos no comedogénicos.',
     'Carolina Herrera' => 'Piel muy deshidratada. Intolerancia a productos con base de alcohol o astringentes.',
     'Martina Díaz'     => 'Sensibilidad en la zona periocular. Emplear adhesivo hipoalergénico para lifting.',
-    'Cliente Prueba'   => 'Piel sensible. Alergia al ácido glicólico en concentraciones superiores al 10%.'
+    'Cliente Prueba'   => 'Piel sensible. Preferencia por concentraciones suaves de principios activos.'
 ];
 
 $clientesMap = [];
@@ -63,7 +63,7 @@ while ($row = $resC->fetch_assoc()) {
     $clientesMap[$nombre] = $cId;
     $clientesMap[mb_strtolower($nombre)] = $cId;
 
-    $consideracion = $clientesConsideraciones[$nombre] ?? 'Sin alergias ni afecciones cutáneas previas declaradas.';
+    $consideracion = $clientesConsideraciones[$nombre] ?? 'Sin consideraciones particulares declaradas.';
     
     $stmtUpd = $mysqli->prepare("UPDATE cliente SET c_consideraciones = ? WHERE c_id = ?");
     $stmtUpd->bind_param("si", $consideracion, $cId);

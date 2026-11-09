@@ -191,18 +191,18 @@ final class PerfilTest extends CIUnitTestCase
     }
 
     /**
-     * Test: Consideraciones y alergias de la clienta (máximo 500 caracteres)
+     * Test: Consideraciones especiales de la clienta (máximo 500 caracteres)
      */
     public function testValidacionConsideracionesCliente(): void
     {
-        $consideracionesValidas = 'Piel extremadamente sensible a exfoliantes químicos con ácido glicólico.';
+        $consideracionesValidas = 'Piel sensible a exfoliantes intensos. Preferencia de atención por la tarde.';
         $this->assertLessThanOrEqual(500, mb_strlen($consideracionesValidas));
 
         // Permite vacío (opcional)
         $this->assertSame('', trim('   '));
 
         // Texto que excede los 500 caracteres
-        $textoLargo = str_repeat('Alergia ', 70); // 560 caracteres
+        $textoLargo = str_repeat('Consideracion ', 50); // 700 caracteres
         $this->assertGreaterThan(500, mb_strlen($textoLargo));
     }
 

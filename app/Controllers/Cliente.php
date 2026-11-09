@@ -282,7 +282,14 @@ class Cliente extends BaseController
         $cId = $this->obtenerClienteId($usuarioId);
         $turnoModel = new TurnoModel();
         $proximoTurno = $turnoModel->getProximoTurnoCliente($cId);
-        $todosLosTurnos = $turnoModel->getTurnosCliente($cId);
+
+        // Contar exclusivamente reservas vigentes (no canceladas ni pasadas)
+        $ahora = date('Y-m-d H:i:s');
+        $turnosProximos = $turnoModel->getTurnosCliente($cId, ['periodo' => 'proximos']);
+        $turnosPorAsistir = array_filter($turnosProximos, function ($t) use ($ahora) {
+            $finTurno = trim(($t['fecha'] ?? '') . ' ' . ($t['h_horaHasta'] ?? '23:59:59'));
+            return $finTurno >= $ahora && in_array($t['estado'] ?? '', ['Solicitado', 'Confirmado'], true);
+        });
 
         $db = \Config\Database::connect();
         $cliente = $db->table('cliente')->where('c_id', $cId)->get()->getRowArray();
@@ -291,7 +298,7 @@ class Cliente extends BaseController
         return view('cliente/perfil', [
             'usuario'      => $usuario,
             'proximoTurno' => $proximoTurno,
-            'totalTurnos'  => count($todosLosTurnos),
+            'totalTurnos'  => count($turnosPorAsistir),
         ]);
     }
 }
