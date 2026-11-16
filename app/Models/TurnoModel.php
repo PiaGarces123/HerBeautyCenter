@@ -41,6 +41,8 @@ class TurnoModel extends Model
         $builder = $this->db->table('turno')
             ->select('turno.*, horario.h_fecha AS fecha, horario.h_horaDesde, horario.h_horaHasta,
                       servicio.s_nbre AS nombre_servicio, servicio.s_id AS servicio_id,
+                      servicio.s_duracionMinutos AS duracion_estimada,
+                      TIMESTAMPDIFF(MINUTE, turno.t_horaDesde, turno.t_horaHasta) AS duracion_real,
                       u_prof.u_nbreCompleto AS nombre_profesional,
                       u_cli.u_nbreCompleto AS nombre_cliente,
                       cliente.c_id AS cliente_id')
@@ -76,6 +78,8 @@ class TurnoModel extends Model
         $result = $this->db->table('turno')
             ->select('turno.*, horario.h_fecha AS fecha, horario.h_horaDesde, horario.h_horaHasta,
                       servicio.s_nbre AS nombre_servicio, servicio.s_precio AS precio_servicio,
+                      servicio.s_duracionMinutos AS duracion_estimada,
+                      TIMESTAMPDIFF(MINUTE, turno.t_horaDesde, turno.t_horaHasta) AS duracion_real,
                       u_prof.u_nbreCompleto AS nombre_profesional, u_prof.u_correo AS correo_profesional,
                       u_cli.u_nbreCompleto AS nombre_cliente, u_cli.u_correo AS correo_cliente,
                       u_cli.u_tel AS tel_cliente')

@@ -124,6 +124,7 @@ $routes->group('api', function ($routes) {
         $routes->get('turnos/detalle/(:num)',          'Api\TurnosApi::detalle/$1');
         $routes->put('turnos/estado/(:num)',           'Api\TurnosApi::actualizarEstado/$1');
         $routes->put('turnos/pago/(:num)',             'Api\TurnosApi::actualizarPago/$1');
+        $routes->put('turnos/duracion/(:num)',         'Api\TurnosApi::actualizarDuracion/$1');
         $routes->post('turnos/google-calendar/(:num)', 'Api\TurnosApi::exportarGoogleCalendar/$1');
     });
 });

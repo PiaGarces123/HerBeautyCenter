@@ -204,7 +204,11 @@ class Admin extends BaseController
         $query = $db->table('turno')
             ->select('turno.t_id, turno.t_pId, turno.t_cId, turno.t_hId,
                       turno.estado, turno.abonado, turno.monto,
-                      horario.h_fecha AS fecha, horario.h_horaDesde AS t_horaDesde, horario.h_horaHasta AS t_horaHasta,
+                      horario.h_fecha AS fecha,
+                      COALESCE(turno.t_horaDesde, horario.h_horaDesde) AS t_horaDesde,
+                      COALESCE(turno.t_horaHasta, horario.h_horaHasta) AS t_horaHasta,
+                      servicio.s_duracionMinutos AS duracion_estimada,
+                      TIMESTAMPDIFF(MINUTE, COALESCE(turno.t_horaDesde, horario.h_horaDesde), COALESCE(turno.t_horaHasta, horario.h_horaHasta)) AS duracion_real,
                       servicio.s_nbre AS nombre_servicio,
                       u_prof.u_nbreCompleto AS nombre_profesional,
                       u_cli.u_nbreCompleto AS nombre_cliente')

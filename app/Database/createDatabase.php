@@ -143,6 +143,8 @@ CREATE TABLE IF NOT EXISTS profesional (
 
     p_anioInicioAct YEAR,
 
+    p_orden INT NOT NULL DEFAULT 0,
+
     CONSTRAINT fk_profesional_usuario
         FOREIGN KEY (u_id)
         REFERENCES usuario(u_id)

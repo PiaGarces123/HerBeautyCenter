@@ -119,7 +119,13 @@ $diasSemana = [
                         </p>
                     </td>
                     <td class="admin-text-sm">
-                        <?= date('H:i', strtotime($t['t_horaDesde'])) ?> – <?= date('H:i', strtotime($t['t_horaHasta'])) ?>
+                        <span class="fw-medium"><?= date('H:i', strtotime($t['t_horaDesde'])) ?> – <?= date('H:i', strtotime($t['t_horaHasta'])) ?></span>
+                        <?php 
+                            $durMins = $t['duracion_real'] ?? round((strtotime($t['t_horaHasta']) - strtotime($t['t_horaDesde'])) / 60);
+                            if ($durMins > 0): 
+                        ?>
+                            <br><small class="text-muted"><span class="material-symbols-outlined align-middle" style="font-size: 0.85rem;">timer</span> <?= $durMins ?> min</small>
+                        <?php endif; ?>
                     </td>
                     <td><?= esc($t['nombre_servicio'] ?? '—') ?></td>
                     <td><?= esc($t['nombre_cliente'] ?? '—') ?></td>
@@ -282,6 +288,7 @@ window.HBC_TUR = {
     apiDetalle:    '<?= base_url('api/turnos/detalle') ?>',
     apiEstado:     '<?= base_url('api/turnos/estado') ?>',
     apiPago:       '<?= base_url('api/turnos/pago') ?>',
+    apiDuracion:   '<?= base_url('api/turnos/duracion') ?>',
     apiGoogleCal:  '<?= base_url('api/turnos/google-calendar') ?>',
     apiCrearTurno: '<?= base_url('api/turnos/crear') ?>',
 };

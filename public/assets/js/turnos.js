@@ -12,20 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const cfg = window.HBC_TUR;
     if (!cfg) return;
 
-    let tIdActivo      = null;
-    let tIdParaCancel  = null;
+    let tIdActivo = null;
+    let tIdParaCancel = null;
 
     const modalDetalleEl = document.getElementById('modalTurnoDetalle');
-    const modalCancelEl  = document.getElementById('modalCancelarTurno');
-    let bsModalDetalle   = modalDetalleEl ? new bootstrap.Modal(modalDetalleEl) : null;
-    let bsModalCancel    = modalCancelEl  ? new bootstrap.Modal(modalCancelEl)  : null;
+    const modalCancelEl = document.getElementById('modalCancelarTurno');
+    let bsModalDetalle = modalDetalleEl ? new bootstrap.Modal(modalDetalleEl) : null;
+    let bsModalCancel = modalCancelEl ? new bootstrap.Modal(modalCancelEl) : null;
 
     const estadoBadgeClass = {
         'Disponible': 'badge--blue',
         'Solicitado': 'badge--orange',
         'Confirmado': 'badge--green',
-        'Realizado':  'badge--gray',
-        'Cancelado':  'badge--rose',
+        'Realizado': 'badge--gray',
+        'Cancelado': 'badge--rose',
     };
 
     // -------------------------------------------------------
@@ -37,11 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function abrirDetalle(tId) {
         tIdActivo = tId;
-        const body    = document.getElementById('modalTurnoBody');
-        const footer  = document.getElementById('modalTurnoFooter');
+        const body = document.getElementById('modalTurnoBody');
+        const footer = document.getElementById('modalTurnoFooter');
         const badgeEl = document.getElementById('modalTurnoBadge');
 
-        body.innerHTML   = '<div class="cal-loading"><div class="cal-spinner"></div>Cargando...</div>';
+        body.innerHTML = '<div class="cal-loading"><div class="cal-spinner"></div>Cargando...</div>';
         footer.innerHTML = '';
         bsModalDetalle?.show();
 
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Badge
             badgeEl.textContent = estado;
-            badgeEl.className   = `badge ${estadoBadgeClass[estado] ?? ''}`;
+            badgeEl.className = `badge ${estadoBadgeClass[estado] ?? ''}`;
 
             // Body
             body.innerHTML = renderDetalleBody(t);
@@ -74,21 +74,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderDetalleBody(t) {
         const fmtMonto = m => `$${parseFloat(m || 0).toLocaleString('es-AR')}`;
-        const esc = s => s ? String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;') : '—';
+        const esc = s => s ? String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;') : '—';
+
+        const horaInicio = t.t_horaDesde || t.h_horaDesde;
+        const horaFin = t.t_horaHasta || t.h_horaHasta;
+        let duracionCalculada = 60;
+        if (t.duracion_real && parseInt(t.duracion_real) > 0) {
+            duracionCalculada = parseInt(t.duracion_real);
+        } else if (horaInicio && horaFin) {
+            const d1 = new Date('1970-01-01T' + horaInicio);
+            const d2 = new Date('1970-01-01T' + horaFin);
+            duracionCalculada = Math.max(5, Math.round((d2 - d1) / 60000));
+        } else if (t.duracion_estimada) {
+            duracionCalculada = parseInt(t.duracion_estimada);
+        }
 
         return `
         <div class="cal-detalle-grid">
             <div class="cal-detalle-item">
                 <span class="cal-detalle-label">Fecha</span>
-                <span class="cal-detalle-value">${new Date(t.fecha + 'T00:00:00').toLocaleDateString('es-AR', {weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</span>
+                <span class="cal-detalle-value">${new Date(t.fecha + 'T00:00:00').toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</span>
             </div>
             <div class="cal-detalle-item">
                 <span class="cal-detalle-label">Horario</span>
-                <span class="cal-detalle-value">${t.h_horaDesde?.slice(0,5)} – ${t.h_horaHasta?.slice(0,5)}</span>
+                <span class="cal-detalle-value" id="detHorarioTexto">${(t.t_horaDesde || t.h_horaDesde)?.slice(0, 5)} – ${(t.t_horaHasta || t.h_horaHasta)?.slice(0, 5)}</span>
             </div>
             <div class="cal-detalle-item">
                 <span class="cal-detalle-label">Servicio</span>
                 <span class="cal-detalle-value">${esc(t.nombre_servicio)}</span>
+            </div>
+            <div class="cal-detalle-item">
+                <span class="cal-detalle-label">Duración estimada</span>
+                <span class="cal-detalle-value">${t.duracion_estimada || 60} min</span>
             </div>
             <div class="cal-detalle-item">
                 <span class="cal-detalle-label">Cliente</span>
@@ -104,6 +121,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="cal-detalle-label">Tel. cliente</span>
                 <span class="cal-detalle-value">${esc(t.tel_cliente)}</span>
             </div>` : ''}
+            <div class="cal-detalle-divider"></div>
+            <div class="cal-detalle-item cal-detalle-item--full">
+                <span class="cal-detalle-label">Duración Real del Servicio (minutos)</span>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                    <input type="number" id="detDuracionInput" class="cal-monto-input" style="max-width: 140px;"
+                           value="${duracionCalculada}" min="5" max="480" step="5">
+                    <span class="text-muted admin-text-sm">min</span>
+                    <button type="button" class="btn btn-sm btn--primary ms-auto" id="detBtnGuardarDuracion">
+                        <span class="material-symbols-outlined align-middle" style="font-size:1.1rem">update</span>
+                        Guardar Duración
+                    </button>
+                </div>
+                <small class="text-muted d-block mt-1">Al guardar la duración real, se recalcula automáticamente la hora de finalización del turno en la agenda.</small>
+            </div>
             <div class="cal-detalle-divider"></div>
             <div class="cal-detalle-item">
                 <span class="cal-detalle-label">Precio base</span>
@@ -147,15 +178,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (t.estado === 'Confirmado') {
             btns += `
             <button type="button" class="btn btn-success" id="detBtnRealizado">
-                <span class="material-symbols-outlined" style="font-size:1rem">task_alt</span> Marcar Realizado
+                <span class="material-symbols-outlined" style="font-size:1rem">task_alt</span> Turno Realizado
             </button>
             <button type="button" class="btn" style="background:#4285F4;color:#fff" id="detBtnGCal">
-                <span class="material-symbols-outlined" style="font-size:1rem">event_available</span> Google Cal
+                <span class="material-symbols-outlined" style="font-size:1rem">event_available</span> Google Calendar   
             </button>`;
         }
         if (t.estado === 'Solicitado' || t.estado === 'Confirmado') {
             btns += `<button type="button" class="btn btn-danger" id="detBtnCancelar">
-                <span class="material-symbols-outlined" style="font-size:1rem">cancel</span> Cancelar
+                <span class="material-symbols-outlined" style="font-size:1rem">cancel</span> Cancelar Turno
             </button>`;
         }
         return btns;
@@ -163,10 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function bindDetalleEvents(t) {
         document.getElementById('detBtnGuardarPago')?.addEventListener('click', () => guardarPago(t.t_id));
-        document.getElementById('detBtnConfirmar')?.addEventListener('click',  () => cambiarEstado(t.t_id, 'Confirmado'));
-        document.getElementById('detBtnRealizado')?.addEventListener('click',  () => cambiarEstado(t.t_id, 'Realizado'));
-        document.getElementById('detBtnGCal')?.addEventListener('click',       () => exportarGCal(t.t_id));
-        document.getElementById('detBtnCancelar')?.addEventListener('click',   () => {
+        document.getElementById('detBtnGuardarDuracion')?.addEventListener('click', () => guardarDuracion(t.t_id));
+        document.getElementById('detBtnConfirmar')?.addEventListener('click', () => cambiarEstado(t.t_id, 'Confirmado'));
+        document.getElementById('detBtnRealizado')?.addEventListener('click', () => cambiarEstado(t.t_id, 'Realizado'));
+        document.getElementById('detBtnGCal')?.addEventListener('click', () => exportarGCal(t.t_id));
+        document.getElementById('detBtnCancelar')?.addEventListener('click', () => {
             tIdParaCancel = t.t_id;
             bsModalDetalle?.hide();
             bsModalCancel?.show();
@@ -234,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function guardarPago(tId) {
         const abonado = document.getElementById('detPagoCheck')?.checked ? 1 : 0;
-        const monto   = parseFloat(document.getElementById('detMontoInput')?.value ?? 0);
+        const monto = parseFloat(document.getElementById('detMontoInput')?.value ?? 0);
         if (isNaN(monto) || monto < 0) {
             Swal.fire({ icon: 'warning', title: 'Monto inválido', text: 'El monto debe ser positivo.' }); return;
         }
@@ -257,6 +289,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function guardarDuracion(tId) {
+        const duracion = parseInt(document.getElementById('detDuracionInput')?.value ?? 0);
+        if (isNaN(duracion) || duracion < 5 || duracion > 480) {
+            Swal.fire({ icon: 'warning', title: 'Duración inválida', text: 'La duración debe estar entre 5 y 480 minutos.' });
+            return;
+        }
+
+        const btn = document.getElementById('detBtnGuardarDuracion');
+        if (btn) btn.disabled = true;
+
+        try {
+            const resp = await fetch(`${cfg.apiDuracion}/${tId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ duracion_minutos: duracion }),
+            });
+            const data = await resp.json();
+            if (resp.ok && data.success) {
+                if (document.getElementById('detHorarioTexto') && data.t_horaDesde && data.t_horaHasta) {
+                    document.getElementById('detHorarioTexto').innerText = `${data.t_horaDesde} – ${data.t_horaHasta}`;
+                }
+                Swal.fire({ icon: 'success', title: 'Duración actualizada', text: data.message, timer: 1800, showConfirmButton: false })
+                    .then(() => { bsModalDetalle?.hide(); location.reload(); });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.messages?.error ?? data.message ?? 'Error al actualizar duración.' });
+                if (btn) btn.disabled = false;
+            }
+        } catch {
+            Swal.fire({ icon: 'error', title: 'Error de red', text: 'No se pudo conectar al actualizar duración.' });
+            if (btn) btn.disabled = false;
+        }
+    }
+
     async function exportarGCal(tId) {
         try {
             const resp = await fetch(`${cfg.apiGoogleCal}/${tId}`, {
@@ -273,6 +339,40 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch {
             Swal.fire({ icon: 'error', title: 'Error de red', text: 'No se pudo conectar.' });
+        }
+    }
+
+    async function guardarDuracion(tId) {
+        const duracion = parseInt(document.getElementById('detDuracionInput')?.value ?? 0);
+        if (isNaN(duracion) || duracion < 5 || duracion > 480) {
+            Swal.fire({ icon: 'warning', title: 'Duración inválida', text: 'La duración debe estar entre 5 y 480 minutos.' });
+            return;
+        }
+
+        const btn = document.getElementById('detBtnGuardarDuracion');
+        if (btn) btn.disabled = true;
+
+        try {
+            const resp = await fetch(`${cfg.apiDuracion}/${tId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ duracion_minutos: duracion }),
+            });
+            const data = await resp.json();
+            if (resp.ok && data.success) {
+                if (document.getElementById('detHorarioTexto') && data.t_horaDesde && data.t_horaHasta) {
+                    document.getElementById('detHorarioTexto').innerText = `${data.t_horaDesde} – ${data.t_horaHasta}`;
+                }
+                Swal.fire({ icon: 'success', title: 'Duración actualizada', text: data.message, timer: 1800, showConfirmButton: false })
+                    .then(() => { bsModalDetalle?.hide(); location.reload(); });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.messages?.error ?? data.message ?? 'Error al actualizar duración.' });
+                if (btn) btn.disabled = false;
+            }
+        } catch {
+            Swal.fire({ icon: 'error', title: 'Error de red', text: 'No se pudo conectar al actualizar duración.' });
+            if (btn) btn.disabled = false;
         }
     }
 

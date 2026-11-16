@@ -374,6 +374,71 @@ class TurnosApi extends BaseController
     }
 
     // -------------------------------------------------------
+    // PUT /api/turnos/duracion/:id
+    // Actualiza la duración real del servicio (recalculando la hora de fin)
+    // -------------------------------------------------------
+    public function actualizarDuracion(int $tId): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $auth = $this->verificarSesion();
+        if (!$auth) return $this->failUnauthorized('Acceso denegado.');
+
+        $pId = $this->getProfesionalId($auth['uid']);
+        if (!$pId) return $this->failNotFound('No existe un perfil profesional asociado.');
+
+        $model = new TurnoModel();
+        $turno = $model->find($tId);
+
+        if (!$turno || ($auth['rol'] !== 'admin' && (int) $turno['t_pId'] !== $pId)) {
+            return $this->failNotFound('Turno no encontrado o sin permiso.');
+        }
+
+        $data = $this->getRequestData();
+        $duracion = isset($data['duracion_minutos']) ? intval($data['duracion_minutos']) : (isset($data['duracion']) ? intval($data['duracion']) : null);
+
+        if (!$duracion || $duracion < 5 || $duracion > 480) {
+            return $this->fail('La duración debe ser un número entero de entre 5 y 480 minutos.');
+        }
+
+        $horaInicio = $turno['t_horaDesde'];
+        $horaDesdeTimestamp = strtotime($horaInicio);
+        $nuevaHoraHastaTimestamp = $horaDesdeTimestamp + ($duracion * 60);
+        $nuevaHoraHasta = date('H:i:s', $nuevaHoraHastaTimestamp);
+
+        if ($nuevaHoraHasta <= $horaInicio || date('Y-m-d', $horaDesdeTimestamp) !== date('Y-m-d', $nuevaHoraHastaTimestamp)) {
+            $nuevaHoraHasta = '23:59:00';
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        // 1. Actualizar t_horaHasta en turno
+        $db->table('turno')->where('t_id', $tId)->update([
+            't_horaHasta' => $nuevaHoraHasta
+        ]);
+
+        // 2. Actualizar h_horaHasta en horario vinculado para mantener sincronizada la agenda
+        if (!empty($turno['t_hId'])) {
+            $db->table('horario')->where('h_id', $turno['t_hId'])->update([
+                'h_horaHasta' => $nuevaHoraHasta
+            ]);
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return $this->failServerError('Error al actualizar la duración del servicio.');
+        }
+
+        return $this->respond([
+            'success'          => true,
+            'message'          => "Duración del servicio actualizada a {$duracion} minutos.",
+            'duracion_minutos' => $duracion,
+            't_horaDesde'      => substr($horaInicio, 0, 5),
+            't_horaHasta'      => substr($nuevaHoraHasta, 0, 5)
+        ]);
+    }
+
+    // -------------------------------------------------------
     // POST /api/turnos/google-calendar/:id
     // Retorna datos estructurados del turno para exportar a GCal
     // La integración real OAuth2 requiere credenciales de cada profesional
