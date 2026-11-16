@@ -10,27 +10,43 @@ use CodeIgniter\Model;
  *
  * Gestiona el ciclo de vida de los turnos (tabla `turno`).
  * Estados válidos: Disponible → Solicitado → Confirmado → Realizado | Cancelado
+ * 
+ * Sus responsabilidades principales son:
+ * 1. Obtener turnos con información de clientes, profesionales y servicios.
+ * 2. Consultar el detalle completo de un turno.
+ * 3. Validar las transiciones permitidas entre estados.
+ * 4. Obtener el próximo turno activo de un cliente.
+ * 5. Consultar el historial de turnos de un cliente.* 
+ * 
  */
 class TurnoModel extends Model
 {
-    protected $table      = 'turno';
+    protected $table = 'turno';
     protected $primaryKey = 't_id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $returnType = 'array';
+    protected $useSoftDeletes = false;
 
     protected $allowedFields = [
-        't_hId', 't_pId', 't_cId', 't_fecha', 't_horaDesde', 't_horaHasta',
-        'estado', 'abonado', 'monto', 'motivo_cancelacion',
+        't_hId',
+        't_pId',
+        't_cId',
+        't_fecha',
+        't_horaDesde',
+        't_horaHasta',
+        'estado',
+        'abonado',
+        'monto',
+        'motivo_cancelacion',
     ];
 
-    // Transiciones de estado válidas (RN12 - ciclo de vida)
+    // Transiciones de estado válidas (ciclo de vida)
     public const TRANSICIONES_VALIDAS = [
-        'Disponible'  => ['Solicitado'],
-        'Solicitado'  => ['Confirmado', 'Cancelado'],
-        'Confirmado'  => ['Realizado', 'Cancelado'],
-        'Realizado'   => [],
-        'Cancelado'   => [],
+        'Disponible' => ['Solicitado'],
+        'Solicitado' => ['Confirmado', 'Cancelado'],
+        'Confirmado' => ['Realizado', 'Cancelado'],
+        'Realizado' => [],
+        'Cancelado' => [],
     ];
 
     // ------------------------------------------------------------
@@ -104,7 +120,7 @@ class TurnoModel extends Model
     }
 
     // ------------------------------------------------------------
-    // Incremento N° 3 (CU05): Obtener el próximo turno activo de un cliente
+    // Obtener el próximo turno activo de un cliente
     // ------------------------------------------------------------
     public function getProximoTurnoCliente(int $cId): ?array
     {
@@ -158,12 +174,12 @@ class TurnoModel extends Model
         if (!empty($filtros['periodo'])) {
             if ($filtros['periodo'] === 'proximos') {
                 $builder->whereIn('turno.estado', ['Solicitado', 'Confirmado'])
-                        ->where('horario.h_fecha >=', $hoy);
+                    ->where('horario.h_fecha >=', $hoy);
             } elseif ($filtros['periodo'] === 'historial') {
                 $builder->groupStart()
-                            ->whereIn('turno.estado', ['Realizado', 'Cancelado'])
-                            ->orWhere('horario.h_fecha <', $hoy)
-                        ->groupEnd();
+                    ->whereIn('turno.estado', ['Realizado', 'Cancelado'])
+                    ->orWhere('horario.h_fecha <', $hoy)
+                    ->groupEnd();
             }
         }
 

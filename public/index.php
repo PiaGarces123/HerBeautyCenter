@@ -58,7 +58,6 @@ if (getcwd() . DIRECTORY_SEPARATOR !== FCPATH) {
 
 // CARGA DEL ARCHIVO DE CONFIGURACIÓN DE RUTAS
 // Esta línea especifica la ubicación de la configuración de rutas de la carpeta /app.
-// Si mueves la estructura de carpetas de tu servidor, debes ajustar esta ruta.
 require FCPATH . '../app/Config/Paths.php';
 
 // Instancia la clase de rutas para acceder a las ubicaciones del sistema

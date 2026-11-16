@@ -6,33 +6,59 @@ use CodeIgniter\Model;
 
 /**
  * HorarioModel
- * Her Beauty Center — Incremento N° 2
+ * Her Beauty Center — Incrementos N° 2 y N° 3
  *
- * Gestiona los bloques de disponibilidad horaria (tabla `horario`).
+ * Gestiona los bloques de disponibilidad horaria de los profesionales
+ * (tabla `horario`).
+ *
+ * Sus responsabilidades principales son:
+ * 1. Obtener los horarios de una profesional junto con la información del servicio asociado.
+ * 2. Proporcionar los eventos necesarios para mostrar los horarios y turnos en FullCalendar.
+ * 3. Detectar superposiciones entre franjas horarias para evitar conflictos de disponibilidad.
+ * 4. Verificar si un horario tiene turnos activos asociados.
+ * 5. Comprobar si existen turnos activos dentro de un rango horario propuesto.
+ * 6. Obtener la disponibilidad de un servicio aplicando filtros de búsqueda.
+ * 7. Consultar el detalle de un horario para el proceso de reserva y pre-confirmación.
  */
 class HorarioModel extends Model
 {
-    protected $table      = 'horario';
+    protected $table = 'horario';
     protected $primaryKey = 'h_id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $returnType = 'array';
+    protected $useSoftDeletes = false;
 
+    // Lista de campos permitidos para insertar o actualizar registros.
     protected $allowedFields = [
-        'h_pId', 'h_sId', 'h_fecha', 'h_horaDesde', 'h_horaHasta',
+        'h_pId',
+        'h_sId',
+        'h_fecha',
+        'h_horaDesde',
+        'h_horaHasta',
     ];
 
+    // ------------------------------------------------------------
+    // REGLAS DE VALIDACIÓN
+    // ------------------------------------------------------------
     protected $validationRules = [
-        'h_pId'       => 'required|integer|greater_than[0]',
-        'h_sId'       => 'required|integer|greater_than[0]',
-        'h_fecha'     => 'required|valid_date[Y-m-d]',
+        // El ID del profesional es obligatorio, debe ser un número entero
+        // y tiene que ser mayor que cero.
+        'h_pId' => 'required|integer|greater_than[0]',
+        // El ID del servicio también es obligatorio y debe ser un entero positivo.
+        'h_sId' => 'required|integer|greater_than[0]',
+        // La fecha es obligatoria y debe respetar el formato año-mes-día.
+        'h_fecha' => 'required|valid_date[Y-m-d]',
+        // La hora de inicio es obligatoria.
         'h_horaDesde' => 'required',
+        // La hora de finalización también es obligatoria.
         'h_horaHasta' => 'required',
     ];
 
     // ------------------------------------------------------------
-    // Obtener horarios de una profesional (con nombre de servicio)
+    // OBTENER HORARIOS DE UNA PROFESIONAL
+    // Incluye información del servicio asociado.
     // ------------------------------------------------------------
+
     public function getHorariosProfesional(int $pId): array
     {
         return $this->db->table('horario')
@@ -45,7 +71,8 @@ class HorarioModel extends Model
     }
 
     // ------------------------------------------------------------
-    // Eventos para el calendario FullCalendar (rango de fechas)
+    // EVENTOS PARA FULLCALENDAR
+    // Obtiene horarios y turnos dentro de un rango de fechas.
     // ------------------------------------------------------------
     public function getEventosCalendario(int $pId, string $start, string $end): array
     {
@@ -76,15 +103,16 @@ class HorarioModel extends Model
             ->where('h_sId', $sId)
             ->where('h_fecha', $fecha)
             ->groupStart()
-                ->where('h_horaDesde <', $hasta)
-                ->where('h_horaHasta >', $desde)
+            ->where('h_horaDesde <', $hasta)
+            ->where('h_horaHasta >', $desde)
             ->groupEnd();
-        if ($excludeId !== null) $builder->where('h_id !=', $excludeId);
+        if ($excludeId !== null)
+            $builder->where('h_id !=', $excludeId);
         return $builder->countAllResults() > 0;
     }
 
     // ------------------------------------------------------------
-    // Verificar turno activo vinculado a un horario
+    // VERIFICAR SI UN HORARIO TIENE UN TURNO ACTIVO
     // ------------------------------------------------------------
     public function tieneTurnoActivo(int $hId): bool
     {
@@ -95,7 +123,8 @@ class HorarioModel extends Model
     }
 
     // ------------------------------------------------------------
-    // Verificar si hay turno activo en rango propuesto
+    // VERIFICAR TURNOS ACTIVOS EN UN RANGO HORARIO
+    // Comprueba si una nueva franja se superpone con un turno activo.
     // ------------------------------------------------------------
     public function existeTurnoEnRango(int $pId, int $sId, string $fecha, string $desde, string $hasta, ?int $excludeHId = null): bool
     {
@@ -106,16 +135,17 @@ class HorarioModel extends Model
             ->where('horario.h_fecha', $fecha)
             ->whereIn('turno.estado', ['Solicitado', 'Confirmado'])
             ->groupStart()
-                ->where('horario.h_horaDesde <', $hasta)
-                ->where('horario.h_horaHasta >', $desde)
+            ->where('horario.h_horaDesde <', $hasta)
+            ->where('horario.h_horaHasta >', $desde)
             ->groupEnd();
-        if ($excludeHId !== null) $builder->where('horario.h_id !=', $excludeHId);
+        if ($excludeHId !== null)
+            $builder->where('horario.h_id !=', $excludeHId);
         return $builder->countAllResults() > 0;
     }
 
     // ------------------------------------------------------------
-    // Incremento N° 3 (CU04): Obtener disponibilidad de un servicio
-    // para el calendario y el modal de selección de horarios
+    // OBTENER DISPONIBILIDAD DE UN SERVICIO
+    // Devuelve los horarios disponibles para el proceso de reserva.
     // ------------------------------------------------------------
     public function getDisponibilidadServicio(int $sId, array $filtros = []): array
     {
@@ -135,22 +165,27 @@ class HorarioModel extends Model
             ->where('horario.h_fecha >=', $hoy)
             ->where("NOT EXISTS (SELECT 1 FROM turno WHERE turno.t_hId = horario.h_id AND turno.estado IN ('Solicitado', 'Confirmado', 'Realizado'))", null, false);
 
+        // FILTRO OPCIONAL: PROFESIONAL
         if (!empty($filtros['p_id'])) {
             $builder->where('horario.h_pId', (int) $filtros['p_id']);
         }
 
+        // FILTRO OPCIONAL: FECHA EXACTA
         if (!empty($filtros['fecha'])) {
             $builder->where('horario.h_fecha', $filtros['fecha']);
         }
 
+        // FILTRO OPCIONAL: FECHA INICIAL
         if (!empty($filtros['start'])) {
             $builder->where('horario.h_fecha >=', $filtros['start']);
         }
 
+        // FILTRO OPCIONAL: FECHA FINAL
         if (!empty($filtros['end'])) {
             $builder->where('horario.h_fecha <=', $filtros['end']);
         }
 
+        // FILTRO OPCIONAL: FRANJA HORARIA
         if (!empty($filtros['franja'])) {
             if ($filtros['franja'] === 'manana') {
                 $builder->where('horario.h_horaDesde <', '13:00:00');
@@ -159,6 +194,11 @@ class HorarioModel extends Model
             }
         }
 
+
+        // Ejecuta la consulta y ordena los resultados:
+        // 1. Por fecha, de la más próxima a la más lejana.
+        // 2. Por hora de inicio, de menor a mayor.
+        // 3. Por nombre de profesional, en orden alfabético.
         $rows = $builder->orderBy('horario.h_fecha', 'ASC')
             ->orderBy('horario.h_horaDesde', 'ASC')
             ->orderBy('u_prof.u_nbreCompleto', 'ASC')
@@ -167,7 +207,22 @@ class HorarioModel extends Model
         // Filtrado opcional por día de la semana (1 = Lunes .. 7 = Domingo, compatible con MySQL y SQLite)
         if (!empty($filtros['dia_semana'])) {
             $diaBuscado = (int) $filtros['dia_semana'];
+
+            // array_filter recorre los resultados y conserva únicamente
+            // aquellos horarios cuyo día de la semana coincide con el solicitado.
+
+            // static function define una función anónima que no necesita
+            // acceder al contexto del objeto actual ($this).
+
+            // use ($diaBuscado) permite utilizar dentro de esa función
+            // la variable definida fuera de ella.
             $rows = array_values(array_filter($rows, static function (array $row) use ($diaBuscado): bool {
+
+                // strtotime convierte la fecha en un valor de tiempo
+                // que PHP puede interpretar.
+                // date('N', ...) obtiene el día de la semana:
+                // 1 = Lunes, 2 = Martes, ..., 7 = Domingo.
+                // Se compara con el día solicitado.
                 return (int) date('N', strtotime($row['h_fecha'])) === $diaBuscado;
             }));
         }
@@ -176,7 +231,8 @@ class HorarioModel extends Model
     }
 
     // ------------------------------------------------------------
-    // Incremento N° 3 (CU04): Detalle completo de un horario para pre-confirmación
+    // OBTENER DETALLE DE UN HORARIO PARA RESERVA
+    // Recupera toda la información necesaria para la pre-confirmación.
     // ------------------------------------------------------------
     public function getHorarioParaReserva(int $hId): ?array
     {
@@ -190,6 +246,9 @@ class HorarioModel extends Model
             ->join('usuario AS u_prof', 'u_prof.u_id = profesional.u_id')
             ->where('horario.h_id', $hId)
             ->get()->getRowArray();
+
+        // Si se encontró el horario, devuelve sus datos.
+        // Si la consulta no encontró ningún registro, devuelve NULL.
 
         return $row ?: null;
     }

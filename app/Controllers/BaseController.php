@@ -8,23 +8,30 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * BaseController provides a convenient place for loading components
- * and performing functions that are needed by all your controllers.
+ * BaseController
+ * Her Beauty Center
  *
- * Extend this class in any new controllers:
- * ```
- *     class Home extends BaseController
- * ```
+ * Clase base de la que heredan los controladores
+ * de la aplicación.
  *
- * For security, be sure to declare any new methods as protected or private.
+ * Su finalidad es centralizar configuraciones y funcionalidades
+ * que pueden ser compartidas por los distintos controladores,
+ * evitando repetir código.
+ *
+ * Sus responsabilidades principales son:
+ *
+ * 1. Inicializar los componentes comunes de los controladores.
+ * 2. Proporcionar un método reutilizable para obtener los datos
+ *    enviados mediante formularios o solicitudes JSON.
+ *
+ * Al ser una clase abstracta, no se instancia directamente.
+ * Los controladores específicos deben heredar de ella.
  */
 abstract class BaseController extends Controller
 {
-    /**
-     * Be sure to declare properties for any property fetch you initialized.
-     * The creation of dynamic property is deprecated in PHP 8.2.
-     */
-
+    // Ejemplo de una propiedad para almacenar la sesión.
+    // Si se necesitara utilizar, primero habría que declararla
+    // y luego inicializarla dentro de initController().
     // protected $session;
 
     /**
@@ -32,15 +39,16 @@ abstract class BaseController extends Controller
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Load here all helpers you want to be available in your controllers that extend BaseController.
-        // Caution: Do not put the this below the parent::initController() call below.
-        // $this->helpers = ['form', 'url'];
+        //CodeIgniter ejecuta este método al inicializar
+        // un controlador que hereda de BaseController.
+        // Recibe los objetos principales que permiten trabajar
+        //con la solicitud, la respuesta y el registro de eventos.
 
-        // Caution: Do not edit this line.
+        // En este espacio se pueden cargar los helpers
+        // que estarán disponibles en todos los controladores
+        // que hereden de BaseController.
         parent::initController($request, $response, $logger);
 
-        // Preload any models, libraries, etc, here.
-        // $this->session = service('session');
     }
 
     /**
@@ -49,20 +57,54 @@ abstract class BaseController extends Controller
      */
     protected function getRequestData(): array
     {
+
+        // Obtiene los datos enviados mediante POST.
+
+        // getPost() recupera los campos enviados por formularios.
         $postData = $this->request->getPost();
+
+        // Si los datos recibidos son un array, se conservan.
+        // En caso contrario, se inicializa un array vacío.
         $data = is_array($postData) ? $postData : [];
 
+        // Obtiene el encabezado HTTP Content-Type.
+        // Este encabezado informa el formato del contenido
+        // enviado en el cuerpo de la solicitud.
         $cType = $this->request->getHeaderLine('Content-Type');
+
+        // Comprueba si el contenido recibido corresponde a JSON.
+        // stripos() busca una cadena dentro de otra sin distinguir
+        // entre mayúsculas y minúsculas.
+        // Se utiliza en lugar de una comparación exacta porque
+        // el encabezado también puede incluir parámetros adicionales,
+        // por ejemplo: application/json; charset=UTF-8.
         if (stripos($cType, 'application/json') !== false) {
+
+            // Obtiene el cuerpo completo de la solicitud HTTP.
             $body = $this->request->getBody();
+
+            // Si contiene información, intenta interpretarla como JSON.
             if (!empty($body)) {
+
+                // Convierte el contenido JSON en un array asociativo.
                 $json = json_decode($body, true);
+
+                // Verifica que la conversión haya sido correcta
+                // y que el resultado sea un array.
                 if (json_last_error() === JSON_ERROR_NONE && is_array($json)) {
+
+                    // Combina los datos recibidos mediante POST
+                    // con los datos obtenidos desde JSON.
                     $data = array_merge($data, $json);
                 }
             }
         }
 
+        // Devuelve todos los datos recopilados en un único array.
+        //
+        // Los controladores pueden acceder a ellos mediante
+        // sus claves, por ejemplo:
+        // $data['email'], $data['password'] o $data['nombre'].
         return $data;
     }
 }
