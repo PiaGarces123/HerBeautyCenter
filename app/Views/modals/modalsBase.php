@@ -7,8 +7,8 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg admin-modal-content">
             <div class="modal-header border-0 pb-0 d-flex flex-column align-items-center position-relative">
-                <button type="button" class="btn-close position-absolute admin-modal-close-btn"
-                    data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close position-absolute admin-modal-close-btn" data-bs-dismiss="modal"
+                    aria-label="Cerrar"></button>
                 <img src="<?= base_url('public/assets/media/logoText.png') ?>" alt="Her Beauty Center Logo"
                     class="admin-modal-logo">
                 <h2 class="modal-title fs-4 fw-bold text-center w-100 admin-modal-title" id="loginModalLabel">
@@ -19,16 +19,19 @@
                 <form id="loginForm" class="needs-validation" novalidate>
                     <div class="mb-3 position-relative">
                         <label class="form-label fw-medium" for="loginEmail">Email</label>
-                        <input class="form-control form-control-lg admin-form-input" id="loginEmail" type="email" required
-                            placeholder="ejemplo@gmail.com" autocomplete="email" pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$">
+                        <input class="form-control form-control-lg admin-form-input" id="loginEmail" type="email"
+                            required placeholder="ejemplo@gmail.com" autocomplete="email"
+                            pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$">
                         <div class="invalid-feedback">Ingresá un correo válido (ej: correo@gmail.com).</div>
                     </div>
                     <div class="mb-3 position-relative">
                         <label class="form-label fw-medium" for="loginPassword">Contraseña</label>
                         <div class="input-group has-validation">
-                            <input class="form-control form-control-lg admin-form-input-left" id="loginPassword" type="password" required
-                                placeholder="••••••••" autocomplete="current-password" minlength="8">
-                            <button class="btn btn-outline-secondary toggle-password admin-form-input-group-text" type="button">
+                            <input class="form-control form-control-lg admin-form-input-left" id="loginPassword"
+                                type="password" required placeholder="••••••••" autocomplete="current-password"
+                                minlength="8">
+                            <button class="btn btn-outline-secondary toggle-password admin-form-input-group-text"
+                                type="button">
                                 <span class="material-symbols-outlined admin-visibility-icon">visibility</span>
                             </button>
                             <div class="invalid-feedback">Debe contener al menos 8 caracteres.</div>
@@ -39,6 +42,13 @@
                     <p class="text-center text-muted mt-3 mb-0 admin-text-sm">
                         ¿No tienes cuenta? <a href="#" id="switchToRegister"
                             class="text-decoration-none fw-bold text-pink">Regístrate</a>
+                    </p>
+                    <p class="text-center mt-2 mb-0 admin-text-sm">
+                        <a href="https://wa.me/5492664946985?text=<?= urlencode('¡Hola! Olvidé mi contraseña de Her Beauty Center y necesito recuperarla.') ?>"
+                            target="_blank" rel="noopener noreferrer"
+                            class="text-decoration-none text-muted fw-medium admin-text-sm d-inline-flex align-items-center justify-content-center gap-1">
+                            ¿Olvidaste tu contraseña?
+                        </a>
                     </p>
                 </form>
             </div>
@@ -51,8 +61,8 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg admin-modal-content">
             <div class="modal-header border-0 pb-0 d-flex flex-column align-items-center position-relative">
-                <button type="button" class="btn-close position-absolute admin-modal-close-btn"
-                    data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close position-absolute admin-modal-close-btn" data-bs-dismiss="modal"
+                    aria-label="Cerrar"></button>
                 <img src="<?= base_url('public/assets/media/logoText.png') ?>" alt="Her Beauty Center Logo"
                     class="admin-modal-logo">
                 <h2 class="modal-title fs-4 fw-bold text-center w-100 admin-modal-title" id="registerModalLabel">
@@ -64,8 +74,9 @@
                 <form id="registerForm" class="needs-validation" novalidate>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <input class="form-control admin-form-input" id="regName" type="text" required placeholder="Nombre completo"
-                                autocomplete="name" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,}$">
+                            <input class="form-control admin-form-input" id="regName" type="text" required
+                                placeholder="Nombre completo" autocomplete="name"
+                                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,}$">
                             <div class="invalid-feedback">Debe contener al menos 3 letras.</div>
                         </div>
                         <div class="col-md-6">
@@ -75,15 +86,16 @@
                             <div class="invalid-feedback">Ingresá un correo válido (ej: correo@gmail.com).</div>
                         </div>
                         <div class="col-md-12">
-                            <input class="form-control admin-form-input" id="regPhone" type="text" required placeholder="Teléfono"
-                                minlength="8">
+                            <input class="form-control admin-form-input" id="regPhone" type="text" required
+                                placeholder="Teléfono" minlength="8">
                             <div class="invalid-feedback">Campo obligatorio: al menos 8 números.</div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-group has-validation">
-                                <input class="form-control admin-form-input-left" id="regPassword" type="password" required minlength="8"
-                                    placeholder="Contraseña" autocomplete="new-password">
-                                <button class="btn btn-outline-secondary toggle-password admin-form-input-group-text" type="button">
+                                <input class="form-control admin-form-input-left" id="regPassword" type="password"
+                                    required minlength="8" placeholder="Contraseña" autocomplete="new-password">
+                                <button class="btn btn-outline-secondary toggle-password admin-form-input-group-text"
+                                    type="button">
                                     <span class="material-symbols-outlined admin-visibility-icon">visibility</span>
                                 </button>
                                 <div class="invalid-feedback">Mínimo 8 caracteres.</div>
@@ -91,9 +103,11 @@
                         </div>
                         <div class="col-md-6">
                             <div class="input-group has-validation">
-                                <input class="form-control admin-form-input-left" id="regPasswordConfirm" type="password" required
-                                    minlength="8" placeholder="Confirmar contraseña" autocomplete="new-password">
-                                <button class="btn btn-outline-secondary toggle-password admin-form-input-group-text" type="button">
+                                <input class="form-control admin-form-input-left" id="regPasswordConfirm"
+                                    type="password" required minlength="8" placeholder="Confirmar contraseña"
+                                    autocomplete="new-password">
+                                <button class="btn btn-outline-secondary toggle-password admin-form-input-group-text"
+                                    type="button">
                                     <span class="material-symbols-outlined admin-visibility-icon">visibility</span>
                                 </button>
                                 <div class="invalid-feedback">Las contraseñas deben coincidir.</div>

@@ -54,6 +54,7 @@ $routes->group('api', function ($routes) {
         // Servicios APIs
         $routes->post('servicios/crear',                    'Api\ServiciosApi::crear');
         $routes->post('servicios/editar/(:num)',            'Api\ServiciosApi::editar/$1');
+        $routes->put('servicios/toggle-estado/(:num)',      'Api\ServiciosApi::toggleEstado/$1');
         $routes->delete('servicios/eliminar/(:num)',        'Api\ServiciosApi::eliminar/$1');
         $routes->put('servicios/profesionales/(:num)',      'Api\ServiciosApi::profesionales/$1');
         $routes->post('servicios/ordenar',                  'Api\ServiciosApi::ordenar');
@@ -67,6 +68,7 @@ $routes->group('api', function ($routes) {
         $routes->post('profesionales/servicios',        'Api\ProfesionalesApi::servicios');
         $routes->put('profesionales/editar/(:num)',     'Api\ProfesionalesApi::editar/$1');
         $routes->put('profesionales/password/(:num)',   'Api\ProfesionalesApi::password/$1');
+        $routes->put('profesionales/toggle-estado/(:num)','Api\ProfesionalesApi::toggleEstado/$1');
         $routes->delete('profesionales/eliminar/(:num)','Api\ProfesionalesApi::eliminar/$1');
         $routes->post('profesionales/ordenar',          'Api\ProfesionalesApi::ordenar');
 
@@ -74,6 +76,7 @@ $routes->group('api', function ($routes) {
         $routes->post('clientes/crear',                 'Api\ClientesApi::crear');
         $routes->put('clientes/editar/(:num)',          'Api\ClientesApi::editar/$1');
         $routes->put('clientes/password/(:num)',        'Api\ClientesApi::password/$1');
+        $routes->put('clientes/toggle-estado/(:num)',   'Api\ClientesApi::toggleEstado/$1');
         $routes->delete('clientes/eliminar/(:num)',     'Api\ClientesApi::eliminar/$1');
         $routes->post('clientes/convertir/(:num)',      'Api\ClientesApi::convertir/$1');
     });

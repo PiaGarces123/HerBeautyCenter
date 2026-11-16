@@ -260,6 +260,16 @@ class ServiciosApi extends BaseController
             return $this->failNotFound('Servicio no encontrado.');
         }
 
+        // Control de Integridad: Verificar si posee turnos registrados en la agenda
+        $tieneTurnos = $db->table('horario')
+            ->join('turno', 'turno.t_hId = horario.h_id')
+            ->where('horario.h_sId', $id)
+            ->countAllResults();
+
+        if ($tieneTurnos > 0) {
+            return $this->fail('No es posible eliminar el servicio porque posee turnos registrados en la agenda. Utilice la baja lógica desactivándolo.');
+        }
+
         $db->transStart();
 
         // Delete physical image
@@ -619,6 +629,34 @@ class ServiciosApi extends BaseController
             'message'     => 'Imagen eliminada correctamente.',
             'total'       => count($restantes),
             'portada_url' => $nuevaPortada['img_ruta'] ?? null
+        ]);
+    }
+
+    public function toggleEstado($id)
+    {
+        $session = session();
+        if (!$session->get('usuario_id') || $session->get('rol') !== 'admin') {
+            return $this->failUnauthorized('Acceso denegado');
+        }
+
+        if (!$id) {
+            return $this->fail('ID de servicio no proporcionado.');
+        }
+
+        $db = \Config\Database::connect();
+        $servicio = $db->table('servicio')->where('s_id', intval($id))->get()->getRow();
+        if (!$servicio) {
+            return $this->failNotFound('Servicio no encontrado.');
+        }
+
+        $nuevoEstado = $servicio->s_activo ? 0 : 1;
+        $db->table('servicio')->where('s_id', intval($id))->update(['s_activo' => $nuevoEstado]);
+
+        $accion = $nuevoEstado ? 'activado' : 'desactivado (inactivo)';
+        return $this->respond([
+            'success' => true,
+            'message' => "Servicio {$accion} exitosamente.",
+            'nuevo_estado' => $nuevoEstado
         ]);
     }
 }

@@ -105,7 +105,8 @@ $this->section('content');
                                         data-id="<?= esc($cli['c_id']) ?>"
                                         data-name="<?= esc($cli['u_nbreCompleto']) ?>"
                                         data-email="<?= esc($cli['u_correo']) ?>"
-                                        data-phone="<?= esc($cli['u_tel']) ?>">
+                                        data-phone="<?= esc($cli['u_tel']) ?>"
+                                        data-active="<?= esc($cli['u_activo']) ?>">
                                         <span class="material-symbols-outlined admin-action-icon">edit</span>
                                     </button>
                                     <button class="table-btn table-btn--edit btn-password-cliente" title="Cambiar Contraseña"
@@ -113,6 +114,13 @@ $this->section('content');
                                         data-id="<?= esc($cli['u_id']) ?>"
                                         data-name="<?= esc($cli['u_nbreCompleto']) ?>">
                                         <span class="material-symbols-outlined admin-action-icon">key</span>
+                                    </button>
+                                    <button class="table-btn <?= $cli['u_activo'] ? 'table-btn--deactivate' : 'table-btn--activate' ?> btn-toggle-cliente"
+                                        title="<?= $cli['u_activo'] ? 'Dar de baja lógica' : 'Dar de alta' ?>"
+                                        data-id="<?= esc($cli['c_id']) ?>"
+                                        data-name="<?= esc($cli['u_nbreCompleto']) ?>"
+                                        data-active="<?= esc($cli['u_activo']) ?>">
+                                        <span class="material-symbols-outlined admin-action-icon"><?= $cli['u_activo'] ? 'toggle_on' : 'toggle_off' ?></span>
                                     </button>
                                     <button class="table-btn table-btn--delete btn-delete-cliente" title="Eliminar"
                                         data-id="<?= esc($cli['c_id']) ?>"
@@ -257,6 +265,12 @@ $this->section('content');
                             <input type="text" class="form-control" id="editCliPhone" placeholder="Teléfono" required
                                 minlength="8" class="admin-form-input">
                             <div class="invalid-feedback">Campo obligatorio: al menos 8 números.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-select admin-form-input" id="editCliActive" required>
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo (Baja lógica)</option>
+                            </select>
                         </div>
                     </div>
                     <div class="d-grid mt-4">
@@ -473,6 +487,7 @@ $this->section('content');
                     document.getElementById('editCliName').value = btn.getAttribute('data-name');
                     document.getElementById('editCliEmail').value = btn.getAttribute('data-email');
                     document.getElementById('editCliPhone').value = btn.getAttribute('data-phone');
+                    document.getElementById('editCliActive').value = btn.getAttribute('data-active') ?? '1';
                     document.getElementById('editClienteError').classList.add('d-none');
                     editForm.classList.remove('was-validated');
                 });
@@ -495,7 +510,8 @@ $this->section('content');
                 const payload = {
                     name: document.getElementById('editCliName').value.trim(),
                     email: document.getElementById('editCliEmail').value.trim(),
-                    phone: document.getElementById('editCliPhone').value.trim()
+                    phone: document.getElementById('editCliPhone').value.trim(),
+                    activo: parseInt(document.getElementById('editCliActive').value)
                 };
 
                 try {
@@ -530,6 +546,60 @@ $this->section('content');
             });
         }
 
+        // ---- Toggle State (Baja/Alta Lógica) ----
+        document.querySelectorAll('.btn-toggle-cliente').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                const name = btn.getAttribute('data-name');
+                const isActive = btn.getAttribute('data-active') === '1';
+
+                const titulo = isActive ? '¿Dar de baja al cliente?' : '¿Dar de alta al cliente?';
+                const texto = isActive
+                    ? `Estás por desactivar la cuenta de ${name}. No podrá iniciar sesión ni solicitar nuevos turnos, pero se conservará su historial.`
+                    : `Estás por activar la cuenta de ${name}. Podrá volver a ingresar al sistema y solicitar turnos.`;
+                const confirmText = isActive ? 'Sí, dar de baja' : 'Sí, dar de alta';
+                const confirmColor = isActive ? '#f59e0b' : '#16a34a';
+
+                Swal.fire({
+                    title: titulo,
+                    text: texto,
+                    icon: isActive ? 'warning' : 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: confirmColor,
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: confirmText,
+                    cancelButtonText: 'Cancelar'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const res = await fetch(`<?= base_url("api/clientes/toggle-estado") ?>/${id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            const data = await res.json();
+
+                            if (data.success) {
+                                Swal.fire({
+                                    title: '¡Actualizado!',
+                                    text: data.message,
+                                    icon: 'success',
+                                    confirmButtonColor: '#d6858e'
+                                }).then(() => window.location.reload());
+                            } else {
+                                Swal.fire('Atención', data.message || 'No se pudo cambiar el estado del cliente.', 'error');
+                            }
+                        } catch (e) {
+                            console.error(e);
+                            Swal.fire('Error', 'Error de conexión al cambiar estado.', 'error');
+                        }
+                    }
+                });
+            });
+        });
+
         // ---- Delete Client ----
         document.querySelectorAll('.btn-delete-cliente').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -538,7 +608,7 @@ $this->section('content');
 
                 Swal.fire({
                     title: '¿Eliminar cliente?',
-                    text: `Estás a punto de eliminar a ${name}. Se borrarán sus turnos. Esta acción no se puede deshacer.`,
+                    text: `Estás por eliminar a ${name}. Si posee turnos activos pendientes, no se podrá borrar (deberás cancelarlos o aplicar baja lógica). Si tiene turnos pasados, sus citas se preservarán como anónimas (Ley 25.326).`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',

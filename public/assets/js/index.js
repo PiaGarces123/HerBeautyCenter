@@ -153,7 +153,7 @@ function initFormHandlers() {
             wpText += `Me interesa el servicio ${serviceText}, ${message}`;
 
             // Construye la URL de WhatsApp
-            const phone = "5492664905442";
+            const phone = "5492664946985";
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(wpText)}`;
 
             // Redirige a WhatsApp

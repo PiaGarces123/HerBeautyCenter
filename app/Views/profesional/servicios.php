@@ -145,6 +145,13 @@ $this->section('content');
                                 data-img="<?= esc($s['imagen_ruta']) ?>">
                                 <span class="material-symbols-outlined admin-action-icon">edit</span>
                             </button>
+                            <button class="table-btn <?= !empty($s['s_activo']) ? 'table-btn--deactivate' : 'table-btn--activate' ?> btn-toggle-servicio"
+                                title="<?= !empty($s['s_activo']) ? 'Desactivar servicio' : 'Activar servicio' ?>"
+                                data-id="<?= esc($s['s_id']) ?>"
+                                data-name="<?= esc($s['s_nbre']) ?>"
+                                data-active="<?= esc($s['s_activo'] ?? 0) ?>">
+                                <span class="material-symbols-outlined admin-action-icon"><?= !empty($s['s_activo']) ? 'toggle_on' : 'toggle_off' ?></span>
+                            </button>
                             <button class="table-btn table-btn--delete btn-delete-servicio" title="Eliminar"
                                 data-id="<?= esc($s['s_id']) ?>"
                                 data-name="<?= esc($s['s_nbre']) ?>">
@@ -628,6 +635,60 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Toggle State (Activar/Desactivar) ---
+    document.querySelectorAll('.btn-toggle-servicio').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+            const isActive = btn.getAttribute('data-active') === '1';
+
+            const titulo = isActive ? '¿Desactivar servicio?' : '¿Activar servicio?';
+            const texto = isActive
+                ? `Estás por desactivar "${name}". Dejará de mostrarse en la web para reservas online, pero se conservará su historial de turnos.`
+                : `Estás por activar "${name}". Volverá a estar disponible para reservas en la web.`;
+            const confirmText = isActive ? 'Sí, desactivar' : 'Sí, activar';
+            const confirmColor = isActive ? '#f59e0b' : '#16a34a';
+
+            Swal.fire({
+                title: titulo,
+                text: texto,
+                icon: isActive ? 'warning' : 'question',
+                showCancelButton: true,
+                confirmButtonColor: confirmColor,
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: confirmText,
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const res = await fetch(`<?= base_url("api/servicios/toggle-estado") ?>/${id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const data = await res.json();
+
+                        if (data.success) {
+                            Swal.fire({
+                                title: '¡Actualizado!',
+                                text: data.message,
+                                icon: 'success',
+                                confirmButtonColor: '#d6858e'
+                            }).then(() => window.location.reload());
+                        } else {
+                            Swal.fire('Atención', data.message || 'No se pudo cambiar el estado del servicio.', 'error');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        Swal.fire('Error', 'Problema de conexión al cambiar estado.', 'error');
+                    }
+                }
+            });
+        });
+    });
+
     // --- Delete ---
     document.querySelectorAll('.btn-delete-servicio').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -636,7 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             Swal.fire({
                 title: '¿Eliminar servicio?',
-                text: `Se borrará "${name}" y todos sus turnos y asignaciones vinculadas.`,
+                text: `Estás por eliminar "${name}". Si posee turnos registrados en la agenda, el sistema impedirá el borrado físico (deberás aplicar la baja lógica). Si nunca tuvo turnos, se eliminará junto con sus fotos y asignaciones.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',

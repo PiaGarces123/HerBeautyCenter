@@ -136,7 +136,8 @@ $this->section('content');
                                         data-email="<?= esc($prof['u_correo']) ?>"
                                         data-phone="<?= esc($prof['u_tel']) ?>"
                                         data-title="<?= esc($prof['p_titulo']) ?>"
-                                        data-year="<?= esc($prof['p_anioInicioAct']) ?>">
+                                        data-year="<?= esc($prof['p_anioInicioAct']) ?>"
+                                        data-active="<?= esc($prof['u_activo']) ?>">
                                         <span class="material-symbols-outlined admin-action-icon">edit</span>
                                     </button>
                                     <button class="table-btn table-btn--edit btn-password-profesional" title="Cambiar Contraseña"
@@ -144,6 +145,13 @@ $this->section('content');
                                         data-id="<?= esc($prof['u_id']) ?>"
                                         data-name="<?= esc($prof['u_nbreCompleto']) ?>">
                                         <span class="material-symbols-outlined admin-action-icon">key</span>
+                                    </button>
+                                    <button class="table-btn <?= $prof['u_activo'] ? 'table-btn--deactivate' : 'table-btn--activate' ?> btn-toggle-profesional"
+                                        title="<?= $prof['u_activo'] ? 'Dar de baja lógica' : 'Dar de alta' ?>"
+                                        data-id="<?= esc($prof['p_id']) ?>"
+                                        data-name="<?= esc($prof['u_nbreCompleto']) ?>"
+                                        data-active="<?= esc($prof['u_activo']) ?>">
+                                        <span class="material-symbols-outlined admin-action-icon"><?= $prof['u_activo'] ? 'toggle_on' : 'toggle_off' ?></span>
                                     </button>
                                     <button class="table-btn table-btn--delete btn-delete-profesional" title="Eliminar"
                                         data-id="<?= esc($prof['p_id']) ?>"
@@ -384,7 +392,7 @@ $this->section('content');
                                 class="admin-form-input">
                             <div class="invalid-feedback">Campo obligatorio: al menos 3 letras.</div>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <select class="form-select" id="editProfYear" required
                                 class="admin-form-input">
                                 <option value="" disabled selected>Año de inicio de actividades</option>
@@ -395,6 +403,14 @@ $this->section('content');
                                 <?php endfor; ?>
                             </select>
                             <div class="invalid-feedback">Seleccioná un año de inicio.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-select" id="editProfActive" required
+                                class="admin-form-input">
+                                <option value="1">Activa</option>
+                                <option value="0">Inactiva (Baja lógica)</option>
+                            </select>
+                            <div class="invalid-feedback">Seleccioná el estado.</div>
                         </div>
                     </div>
                     <div class="d-grid mt-4">
@@ -591,6 +607,7 @@ $this->section('content');
                     document.getElementById('editProfPhone').value = btn.getAttribute('data-phone');
                     document.getElementById('editProfTitle').value = btn.getAttribute('data-title');
                     document.getElementById('editProfYear').value = btn.getAttribute('data-year');
+                    document.getElementById('editProfActive').value = btn.getAttribute('data-active') ?? '1';
                     
                     document.getElementById('editProfesionalError').classList.add('d-none');
                     editForm.classList.remove('was-validated');
@@ -617,7 +634,8 @@ $this->section('content');
                     email: document.getElementById('editProfEmail').value.trim(),
                     phone: document.getElementById('editProfPhone').value.trim(),
                     title: document.getElementById('editProfTitle').value.trim(),
-                    year: document.getElementById('editProfYear').value
+                    year: document.getElementById('editProfYear').value,
+                    activo: parseInt(document.getElementById('editProfActive').value)
                 };
 
                 try {
@@ -855,6 +873,62 @@ $this->section('content');
             });
         }
 
+        // ---- Logic for Toggle State (Baja/Alta Lógica) ----
+        document.querySelectorAll('.btn-toggle-profesional').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                const name = btn.getAttribute('data-name');
+                const isActive = btn.getAttribute('data-active') === '1';
+
+                const titulo = isActive ? '¿Dar de baja a la profesional?' : '¿Dar de alta a la profesional?';
+                const texto = isActive
+                    ? `Estás por desactivar a ${name}. No aparecerá disponible para nuevos turnos en la web, pero se conservará todo su historial.`
+                    : `Estás por activar a ${name}. Volverá a estar visible y habilitada para recibir reservas.`;
+                const confirmText = isActive ? 'Sí, dar de baja' : 'Sí, dar de alta';
+                const confirmColor = isActive ? '#f59e0b' : '#16a34a';
+
+                Swal.fire({
+                    title: titulo,
+                    text: texto,
+                    icon: isActive ? 'warning' : 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: confirmColor,
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: confirmText,
+                    cancelButtonText: 'Cancelar'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const res = await fetch(`<?= base_url("api/profesionales/toggle-estado") ?>/${id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            const data = await res.json();
+
+                            if (data.success) {
+                                Swal.fire({
+                                    title: '¡Actualizado!',
+                                    text: data.message,
+                                    icon: 'success',
+                                    confirmButtonColor: '#d6858e'
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire('Atención', data.message || 'No se pudo cambiar el estado de la profesional.', 'error');
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            Swal.fire('Error', 'Problema de conexión al cambiar estado.', 'error');
+                        }
+                    }
+                });
+            });
+        });
+
         // ---- Logic for Delete Professional ----
         document.querySelectorAll('.btn-delete-profesional').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -863,7 +937,7 @@ $this->section('content');
 
                 Swal.fire({
                     title: '¿Eliminar profesional?',
-                    text: `Estás a punto de eliminar a ${name}. Esta acción no se puede deshacer.`,
+                    text: `Estás por eliminar a ${name}. Si posee turnos registrados en el centro, el sistema impedirá el borrado físico (deberás aplicar la baja lógica). Si nunca tuvo turnos, se eliminará por completo.`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',

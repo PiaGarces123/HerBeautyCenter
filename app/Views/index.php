@@ -300,8 +300,31 @@ if (!function_exists('esc')) {
                             <span class="material-symbols-outlined contact__icon">location_on</span>
                             <div class="contact__item-content">
                                 <p class="contact__label">Dirección</p>
-                                <p class="contact__value">San Luis, Argentina</p>
+                                <p class="contact__value">Maipú 1017, San Luis, Argentina</p>
+                            </div>
+                        </div>
 
+                        <div class="contact__item">
+                            <span class="material-symbols-outlined contact__icon">call</span>
+                            <div class="contact__item-content">
+                                <p class="contact__label">WhatsApp</p>
+                                <p class="contact__value">
+                                    <a href="https://wa.me/5492664946985" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark fw-medium">
+                                        +54 9 2664 94-6985
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="contact__item">
+                            <span class="material-symbols-outlined contact__icon">mail</span>
+                            <div class="contact__item-content">
+                                <p class="contact__label">Email</p>
+                                <p class="contact__value">
+                                    <a href="mailto:centerherbeauty@gmail.com" class="text-decoration-none text-dark fw-medium">
+                                        centerherbeauty@gmail.com
+                                    </a>
+                                </p>
                             </div>
                         </div>
 
@@ -349,7 +372,7 @@ if (!function_exists('esc')) {
                                 </div>
                                 <div class="footer__simple-socials-row">
                                     <a aria-label="WhatsApp" class="footer__simple-social-icon"
-                                        href="https://wa.me/5491112345678" target="_blank" rel="noopener noreferrer">
+                                        href="https://wa.me/5492664946985" target="_blank" rel="noopener noreferrer">
                                         <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18"
                                             stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
                                             stroke-linejoin="round">
@@ -359,7 +382,7 @@ if (!function_exists('esc')) {
                                         </svg>
                                     </a>
                                     <a aria-label="Email" class="footer__simple-social-icon"
-                                        href="mailto:info@herbeautycenter.com">
+                                        href="mailto:centerherbeauty@gmail.com">
                                         <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18"
                                             stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
                                             stroke-linejoin="round">

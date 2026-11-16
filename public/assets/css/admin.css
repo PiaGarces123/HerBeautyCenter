@@ -729,6 +729,26 @@
     color: white;
 }
 
+.table-btn--deactivate {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.table-btn--deactivate:hover {
+    background: #f59e0b;
+    color: white;
+}
+
+.table-btn--activate {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.table-btn--activate:hover {
+    background: #16a34a;
+    color: white;
+}
+
 /* ==========================================================================
    LOGIN PAGE
    ========================================================================== */

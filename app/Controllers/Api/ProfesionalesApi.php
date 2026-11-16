@@ -165,15 +165,26 @@ class ProfesionalesApi extends BaseController
             return $this->failNotFound('Profesional no encontrada.');
         }
 
+        // 1. Evitar auto-eliminación
+        if ((int) $profesional->u_id === (int) $session->get('usuario_id')) {
+            return $this->fail('No podés eliminar tu propia cuenta mientras estés en sesión.');
+        }
+
+        // 2. Control de Integridad y RN07: No eliminar si tiene turnos registrados
+        $tieneTurnos = $db->table('turno')->where('t_pId', $id)->countAllResults();
+        if ($tieneTurnos > 0) {
+            return $this->fail('No es posible eliminar la profesional porque posee turnos registrados en el establecimiento. Debes desactivarla mediante la baja lógica (interruptor de estado).');
+        }
+
         $db->transStart();
 
         // Eliminar administrador si lo fuera
         $db->table('administrador')->where('a_pId', $id)->delete();
-        // Eliminar relaciones de servicios primero
+        // Eliminar relaciones de servicios
         $db->table('profesional_servicio')->where('p_id', $id)->delete();
-        // Eliminar turnos asignados
-        $db->table('turno')->where('t_pId', $id)->delete();
-        // Eliminar horarios configurados
+        // Eliminar redes sociales
+        $db->table('red_social')->where('rs_pId', $id)->delete();
+        // Eliminar horarios configurados (sin turnos asociados)
         $db->table('horario')->where('h_pId', $id)->delete();
         // Eliminar profesional
         $db->table('profesional')->where('p_id', $id)->delete();
@@ -249,6 +260,14 @@ class ProfesionalesApi extends BaseController
             'u_correo' => $email,
             'u_tel' => $phone
         ];
+
+        if (isset($data['u_activo']) || isset($data['activo'])) {
+            $nuevoActivo = intval($data['u_activo'] ?? $data['activo']);
+            if ((int)$profesional->u_id !== (int)$session->get('usuario_id') || $nuevoActivo === 1) {
+                $usuarioData['u_activo'] = $nuevoActivo;
+            }
+        }
+
         $db->table('usuario')->where('u_id', $profesional->u_id)->update($usuarioData);
 
         $profesionalData = [
@@ -336,5 +355,42 @@ class ProfesionalesApi extends BaseController
         }
 
         return $this->respond(['success' => true, 'message' => 'Orden de profesionales guardado correctamente.']);
+    }
+
+    public function toggleEstado($id)
+    {
+        $session = session();
+        if (!$session->get('usuario_id') || $session->get('rol') !== 'admin') {
+            return $this->failUnauthorized('Acceso denegado');
+        }
+
+        if (!$id) {
+            return $this->fail('ID de profesional no proporcionado.');
+        }
+
+        $db = \Config\Database::connect();
+        $profesional = $db->table('profesional')->where('p_id', intval($id))->get()->getRow();
+        if (!$profesional) {
+            return $this->failNotFound('Profesional no encontrada.');
+        }
+
+        if ($profesional->u_id == $session->get('usuario_id')) {
+            return $this->fail('No puedes cambiar el estado de tu propia cuenta mientras estás en sesión.');
+        }
+
+        $usuario = $db->table('usuario')->where('u_id', $profesional->u_id)->get()->getRow();
+        if (!$usuario) {
+            return $this->failNotFound('Usuario no encontrado.');
+        }
+
+        $nuevoEstado = $usuario->u_activo ? 0 : 1;
+        $db->table('usuario')->where('u_id', $profesional->u_id)->update(['u_activo' => $nuevoEstado]);
+
+        $accion = $nuevoEstado ? 'activada' : 'dada de baja (inactiva)';
+        return $this->respond([
+            'success' => true,
+            'message' => "Profesional {$accion} exitosamente.",
+            'nuevo_estado' => $nuevoEstado
+        ]);
     }
 }

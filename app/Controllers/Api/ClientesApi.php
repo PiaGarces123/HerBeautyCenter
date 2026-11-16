@@ -108,10 +108,25 @@ class ClientesApi extends BaseController
             return $this->failNotFound('Cliente no encontrado.');
         }
 
+        // 1. Evitar auto-eliminación si la usuaria en sesión es la misma
+        if ((int) $cliente->c_uId === (int) $session->get('usuario_id')) {
+            return $this->fail('No podés eliminar tu propia cuenta mientras estés en sesión.');
+        }
+
+        // 2. Control de turnos activos pendientes (Solicitado o Confirmado)
+        $turnosActivos = $db->table('turno')
+            ->where('t_cId', $id)
+            ->whereIn('estado', ['Solicitado', 'Confirmado'])
+            ->countAllResults();
+
+        if ($turnosActivos > 0) {
+            return $this->fail('No se puede eliminar la clienta porque posee turnos pendientes por asistir (Solicitados o Confirmados). Debes cancelarlos primero o desactivar la cuenta.');
+        }
+
         $db->transStart();
 
-        // Eliminar turnos u otras dependencias
-        $db->table('turno')->where('t_cId', $id)->delete();
+        // En turnos pasados o cancelados, desvincular t_cId a NULL (ON DELETE SET NULL / Ley 25.326)
+        $db->table('turno')->where('t_cId', $id)->update(['t_cId' => null]);
 
         // Eliminar cliente
         $db->table('cliente')->where('c_id', $id)->delete();
@@ -179,6 +194,13 @@ class ClientesApi extends BaseController
             'u_correo' => $email,
             'u_tel' => $phone
         ];
+
+        if (isset($data['u_activo']) || isset($data['activo'])) {
+            $nuevoActivo = intval($data['u_activo'] ?? $data['activo']);
+            if ((int)$cliente->c_uId !== (int)$session->get('usuario_id') || $nuevoActivo === 1) {
+                $usuarioData['u_activo'] = $nuevoActivo;
+            }
+        }
 
         if (!$db->table('usuario')->where('u_id', $cliente->c_uId)->update($usuarioData)) {
             return $this->failServerError('Error al actualizar el cliente.');
@@ -281,5 +303,42 @@ class ClientesApi extends BaseController
         }
 
         return $this->respond(['success' => true, 'message' => 'Cliente convertido a profesional exitosamente.']);
+    }
+
+    public function toggleEstado($id)
+    {
+        $session = session();
+        if (!$session->get('usuario_id') || $session->get('rol') !== 'admin') {
+            return $this->failUnauthorized('Acceso denegado');
+        }
+
+        if (!$id) {
+            return $this->fail('ID de cliente no proporcionado.');
+        }
+
+        $db = \Config\Database::connect();
+        $cliente = $db->table('cliente')->where('c_id', intval($id))->get()->getRow();
+        if (!$cliente) {
+            return $this->failNotFound('Cliente no encontrado.');
+        }
+
+        if ($cliente->c_uId == $session->get('usuario_id')) {
+            return $this->fail('No puedes cambiar el estado de tu propia cuenta mientras estás en sesión.');
+        }
+
+        $usuario = $db->table('usuario')->where('u_id', $cliente->c_uId)->get()->getRow();
+        if (!$usuario) {
+            return $this->failNotFound('Usuario no encontrado.');
+        }
+
+        $nuevoEstado = $usuario->u_activo ? 0 : 1;
+        $db->table('usuario')->where('u_id', $cliente->c_uId)->update(['u_activo' => $nuevoEstado]);
+
+        $accion = $nuevoEstado ? 'activado' : 'dado de baja (inactivo)';
+        return $this->respond([
+            'success' => true,
+            'message' => "Cliente {$accion} exitosamente.",
+            'nuevo_estado' => $nuevoEstado
+        ]);
     }
 }

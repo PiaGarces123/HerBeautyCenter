@@ -25,13 +25,13 @@ class AuthFilter implements FilterInterface
         $rol = $session->get('rol');
 
         $routePath = ltrim(uri_string(), '/');
-        $rawPath   = $request->getUri()->getPath();
+        $rawPath = $request->getUri()->getPath();
 
         $isApi = str_starts_with($routePath, 'api/')
-              || str_contains($rawPath, '/api/')
-              || str_starts_with(trim($rawPath, '/'), 'api/')
-              || (method_exists($request, 'isAJAX') && $request->isAJAX())
-              || (method_exists($request, 'hasHeader') && $request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
+            || str_contains($rawPath, '/api/')
+            || str_starts_with(trim($rawPath, '/'), 'api/')
+            || (method_exists($request, 'isAJAX') && $request->isAJAX())
+            || (method_exists($request, 'hasHeader') && $request->hasHeader('Accept') && str_contains($request->getHeaderLine('Accept'), 'application/json'));
 
         // 1. Verificación de Autenticación
         if (!$usuarioId) {
@@ -41,7 +41,25 @@ class AuthFilter implements FilterInterface
                     ->setJSON([
                         'success' => false,
                         'message' => 'Sesión expirada o no iniciada. Por favor, inicia sesión nuevamente.',
-                        'error'   => 'Unauthorized'
+                        'error' => 'Unauthorized'
+                    ]);
+            }
+
+            return redirect()->to(base_url('/?login=1'));
+        }
+
+        // Verificación de Cuenta Activa en tiempo real
+        $db = \Config\Database::connect();
+        $userCheck = $db->table('usuario')->select('u_activo')->where('u_id', $usuarioId)->get()->getRowArray();
+        if (!$userCheck || empty($userCheck['u_activo'])) {
+            $session->destroy();
+            if ($isApi) {
+                return service('response')
+                    ->setStatusCode(403)
+                    ->setJSON([
+                        'success' => false,
+                        'message' => 'Cuenta Inactiva. Por favor comunicate con la administración.',
+                        'error' => 'Forbidden'
                     ]);
             }
 
@@ -58,7 +76,7 @@ class AuthFilter implements FilterInterface
                         ->setJSON([
                             'success' => false,
                             'message' => 'No cuentas con los permisos requeridos para realizar esta acción.',
-                            'error'   => 'Forbidden'
+                            'error' => 'Forbidden'
                         ]);
                 }
 

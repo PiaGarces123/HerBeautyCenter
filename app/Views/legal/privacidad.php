@@ -348,7 +348,7 @@
                     </div>
                     <div class="legal-card__body">
                         <p>
-                            Los presentes Términos y Condiciones regulan el acceso, navegación y utilización de la plataforma web de <strong>Her Beauty Center</strong>, establecimiento especializado en servicios de estética facial, corporal, pestañas, cejas, masoterapia y manicura, con sede operativa en la ciudad de San Luis, Argentina.
+                            Los presentes Términos y Condiciones regulan el acceso, navegación y utilización de la plataforma web de <strong>Her Beauty Center</strong>, establecimiento especializado en servicios de estética facial, corporal, pestañas, cejas, masoterapia y manicura, con sede operativa en Maipú 1017, San Luis, Argentina.
                         </p>
                         <p>
                             Al navegar por este sitio web, registrar una cuenta o solicitar un turno para cualquiera de nuestras prestaciones, la usuaria o cliente declara haber leído, comprendido y aceptado de manera íntegra y sin reservas las cláusulas aquí especificadas.
@@ -569,14 +569,14 @@
                                 <span class="material-symbols-outlined">mail</span>
                                 <div>
                                     <div class="admin-text-sm text-muted">Correo electrónico</div>
-                                    <a href="mailto:garcesbrocalmaru@gmail.com" class="fw-bold text-dark text-decoration-none">garcesbrocalmaru@gmail.com</a>
+                                    <a href="mailto:centerherbeauty@gmail.com" class="fw-bold text-dark text-decoration-none">centerherbeauty@gmail.com</a>
                                 </div>
                             </div>
                             <div class="legal-contact-item">
                                 <span class="material-symbols-outlined">chat</span>
                                 <div>
                                     <div class="admin-text-sm text-muted">WhatsApp Oficial</div>
-                                    <a href="https://wa.me/5492664159744" target="_blank" rel="noopener noreferrer" class="fw-bold text-dark text-decoration-none">+54 9 2664 159744</a>
+                                    <a href="https://wa.me/5492664946985" target="_blank" rel="noopener noreferrer" class="fw-bold text-dark text-decoration-none">+54 9 2664 94-6985</a>
                                 </div>
                             </div>
                         </div>
